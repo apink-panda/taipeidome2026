@@ -1511,6 +1511,19 @@ class BaseballGame {
     if (this.audioCtx.state === "suspended") {
       this.audioCtx.resume();
     }
+    // iOS unlock: Safari keeps audio muted until a real sound source is started
+    // inside a user gesture. Play one silent buffer the first time so every
+    // later sound is audible. Must run synchronously within the tap/click.
+    if (!this.audioUnlocked) {
+      try {
+        const buffer = this.audioCtx.createBuffer(1, 1, 22050);
+        const source = this.audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(this.audioCtx.destination);
+        source.start(0);
+        this.audioUnlocked = true;
+      } catch (e) { }
+    }
     return this.audioCtx;
   }
 

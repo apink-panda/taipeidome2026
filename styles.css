@@ -884,7 +884,7 @@ img {
 
 @media (orientation: portrait) {
   .sprite {
-    width: clamp(90px, 28vw, 136px);
+    width: clamp(72px, 22.4vw, 109px);
   }
 
   .sprite--pitcher {
@@ -894,7 +894,7 @@ img {
 
   .sprite--batter {
     left: clamp(-4px, 1.2vw, 8px);
-    width: clamp(98px, 31vw, 146px);
+    width: clamp(78px, 24.8vw, 117px);
     bottom: clamp(32px, 12%, 66px);
   }
 
@@ -908,7 +908,7 @@ img {
 
   .sprite--cheerleader {
     width: clamp(66px, 19vw, 98px);
-    bottom: 24%; /* Percentage-based so bears stay on the ground across iPhone sizes */
+    bottom: 28%; /* Raised higher on mobile */
   }
 }
 

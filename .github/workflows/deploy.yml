@@ -1,0 +1,52 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Allow the workflow to publish to GitHub Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only run one deploy at a time; cancel superseded runs.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject cache-busting version into HTML
+        run: |
+          # Use the short commit SHA as a unique version token for this deploy.
+          VERSION="${GITHUB_SHA::7}"
+          echo "Cache-busting version: $VERSION"
+          # Rewrite every ?v=... query string on CSS/JS links so browsers always
+          # fetch the freshly deployed files instead of a stale cached copy.
+          sed -i "s/?v=[^\"]*/?v=${VERSION}/g" index.html leaderboard.html
+          echo "---- index.html ----"
+          grep -n "?v=" index.html || true
+          echo "---- leaderboard.html ----"
+          grep -n "?v=" leaderboard.html || true
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

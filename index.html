@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./styles.css?v=webp-assets-1" />
+    <link rel="stylesheet" href="./styles.css?v=20260704-1" />
   </head>
   <body>
     <div class="app-container">
@@ -66,49 +66,51 @@
 
 
       <section class="field" id="field" aria-label="play field">
-        <!-- BSOP Scoreboard -->
-        <div class="bsop" id="bsopBoard" aria-label="Strikes and Balls board">
-          <div class="bsop__row">
-            <span class="bsop__label">B</span>
-            <div class="bsop__dots">
-              <span class="bsop__dot bsop__dot--ball"></span>
-              <span class="bsop__dot bsop__dot--ball"></span>
-              <span class="bsop__dot bsop__dot--ball"></span>
-              <span class="bsop__dot bsop__dot--ball"></span>
+        <div class="hud-row" id="hudRow">
+          <!-- BSOP Scoreboard -->
+          <div class="bsop" id="bsopBoard" aria-label="Strikes and Balls board">
+            <div class="bsop__row">
+              <span class="bsop__label">B</span>
+              <div class="bsop__dots">
+                <span class="bsop__dot bsop__dot--ball"></span>
+                <span class="bsop__dot bsop__dot--ball"></span>
+                <span class="bsop__dot bsop__dot--ball"></span>
+                <span class="bsop__dot bsop__dot--ball"></span>
+              </div>
+            </div>
+            <div class="bsop__row">
+              <span class="bsop__label">S</span>
+              <div class="bsop__dots">
+                <span class="bsop__dot bsop__dot--strike"></span>
+                <span class="bsop__dot bsop__dot--strike"></span>
+                <span class="bsop__dot bsop__dot--strike"></span>
+              </div>
+            </div>
+            <div class="bsop__row">
+              <span class="bsop__label">O</span>
+              <div class="bsop__dots">
+                <span class="bsop__dot bsop__dot--out"></span>
+                <span class="bsop__dot bsop__dot--out"></span>
+                <span class="bsop__dot bsop__dot--out"></span>
+              </div>
             </div>
           </div>
-          <div class="bsop__row">
-            <span class="bsop__label">S</span>
-            <div class="bsop__dots">
-              <span class="bsop__dot bsop__dot--strike"></span>
-              <span class="bsop__dot bsop__dot--strike"></span>
-              <span class="bsop__dot bsop__dot--strike"></span>
-            </div>
-          </div>
-          <div class="bsop__row">
-            <span class="bsop__label">O</span>
-            <div class="bsop__dots">
-              <span class="bsop__dot bsop__dot--out"></span>
-              <span class="bsop__dot bsop__dot--out"></span>
-              <span class="bsop__dot bsop__dot--out"></span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Scorebar centered at the top -->
-        <div class="scorebar" id="scorebar" aria-live="polite">
-          <div class="metric">
-            <span class="metric__label" id="scoreLabel">得分</span>
-            <strong id="score">0</strong>
+          <!-- Scorebar between BSOP and base status -->
+          <div class="scorebar" id="scorebar" aria-live="polite">
+            <div class="metric">
+              <span class="metric__label" id="scoreLabel">得分</span>
+              <strong id="score">0</strong>
+            </div>
+            <div class="status" id="status">準備</div>
           </div>
-          <div class="status" id="status">準備</div>
-        </div>
 
-        <!-- Base Running Diagram -->
-        <div class="bases" id="basesBoard" aria-label="Base runners status">
-          <div class="base-diamond base-diamond--2nd" id="base2"></div>
-          <div class="base-diamond base-diamond--3rd" id="base3"></div>
-          <div class="base-diamond base-diamond--1st" id="base1"></div>
+          <!-- Base Running Diagram -->
+          <div class="bases" id="basesBoard" aria-label="Base runners status">
+            <div class="base-diamond base-diamond--2nd" id="base2"></div>
+            <div class="base-diamond base-diamond--3rd" id="base3"></div>
+            <div class="base-diamond base-diamond--1st" id="base1"></div>
+          </div>
         </div>
 
         <div class="dome-line dome-line--back"></div>
@@ -180,23 +182,8 @@
           <div class="leaderboard-box">
             <h2 id="leaderboardTitle">台北大巨蛋 排行榜</h2>
 
-            <div class="leaderboard-table-container">
-              <table class="leaderboard-table">
-                <thead>
-                  <tr>
-                    <th id="leaderboardRankHeader">排名</th>
-                    <th id="leaderboardAccountHeader">帳號</th>
-                    <th id="leaderboardScoreHeader">得分</th>
-                  </tr>
-                </thead>
-                <tbody id="leaderboardBody">
-                  <!-- Generated by JS -->
-                </tbody>
-              </table>
-              <div class="leaderboard-divider"></div>
-              <div class="leaderboard-my-rank" id="leaderboardMyRank">
-                <!-- User's rank generated by JS -->
-              </div>
+            <div class="leaderboard-my-rank" id="leaderboardMyRank">
+              <!-- User's rank generated by JS -->
             </div>
 
             <!-- Cheer message panel -->
@@ -209,6 +196,7 @@
               </div>
               <textarea id="cheerInput" placeholder="留下應援的話...（限200字，支援空白）" maxlength="200"></textarea>
               <button class="cheer-submit-btn" id="cheerSubmitBtn">送出應援</button>
+              <p class="cheer-sent-message" id="cheerSentMessage" aria-hidden="true">💖 已收到你的應援，謝謝你！</p>
             </div>
 
             <button class="restart-button" id="leaderboardCloseButton">繼續挑戰</button>
@@ -228,6 +216,6 @@
       📌 本活動為粉絲自發性應援，不進行任何商業販售，並與官方主辦單位無關，若有侵犯權益請告知會立即下架關閉。
     </footer>
 
-  <script src="./app.js?v=webp-assets-1" defer></script>
+  <script src="./app.js?v=20260704-1" defer></script>
   </body>
 </html>

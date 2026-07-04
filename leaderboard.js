@@ -22,6 +22,9 @@ const pageI18n = {
     rank: "排名",
     account: "帳號",
     score: "得分",
+    myRank: "我的排名: {rank}",
+    myScore: "我的分數",
+    scoreUnit: "{score} 分",
     loading: "載入中...",
     empty: "目前尚無排行榜資料。",
     remoteLoaded: "已同步雲端資料",
@@ -53,6 +56,9 @@ const pageI18n = {
     rank: "Rank",
     account: "Account",
     score: "Score",
+    myRank: "My rank: {rank}",
+    myScore: "My score",
+    scoreUnit: "{score} pts",
     loading: "Loading...",
     empty: "No leaderboard data yet.",
     remoteLoaded: "Cloud data synced",
@@ -84,6 +90,9 @@ const pageI18n = {
     rank: "順位",
     account: "アカウント",
     score: "得点",
+    myRank: "自分の順位: {rank}",
+    myScore: "自分の得点",
+    scoreUnit: "{score} 点",
     loading: "読み込み中...",
     empty: "ランキングデータはまだありません。",
     remoteLoaded: "クラウドデータを同期しました",
@@ -115,6 +124,9 @@ const pageI18n = {
     rank: "순위",
     account: "계정",
     score: "점수",
+    myRank: "내 순위: {rank}",
+    myScore: "내 점수",
+    scoreUnit: "{score}점",
     loading: "로딩 중...",
     empty: "아직 랭킹 데이터가 없습니다.",
     remoteLoaded: "클라우드 데이터 동기화 완료",
@@ -343,11 +355,20 @@ function rankRows(list) {
   });
 }
 
+function readMyHandle() {
+  try {
+    return String(localStorage.getItem("apink_my_handle") || "").trim();
+  } catch (e) {
+    return "";
+  }
+}
+
 function renderLeaderboard(list) {
   const body = document.querySelector("#leaderboardPageBody");
   if (!body) return;
 
   const rows = rankRows(list);
+  const myHandle = readMyHandle();
   body.innerHTML = "";
 
   if (!rows.length) {
@@ -357,10 +378,11 @@ function renderLeaderboard(list) {
     td.textContent = t("empty");
     tr.appendChild(td);
     body.appendChild(tr);
+    renderMyRank(rows, myHandle);
     return;
   }
 
-  rows.slice(0, 50).forEach((item) => {
+  rows.slice(0, 10).forEach((item) => {
     const tr = document.createElement("tr");
     let rankText = String(item.rank);
     if (item.rank === 1) {
@@ -373,6 +395,9 @@ function renderLeaderboard(list) {
       tr.classList.add("top-rank-3");
       rankText = "🥉";
     }
+    if (myHandle && item.handle === myHandle) {
+      tr.classList.add("is-me");
+    }
 
     [rankText, maskHandle(item.handle), item.score].forEach((value) => {
       const td = document.createElement("td");
@@ -381,6 +406,37 @@ function renderLeaderboard(list) {
     });
     body.appendChild(tr);
   });
+
+  renderMyRank(rows, myHandle);
+}
+
+function renderMyRank(rows, myHandle) {
+  const section = document.querySelector("#leaderboardPageMyRank");
+  if (!section) return;
+
+  const myRankInfo = myHandle ? rows.find((item) => item.handle === myHandle) : null;
+  if (!myRankInfo) {
+    section.hidden = true;
+    section.innerHTML = "";
+    return;
+  }
+
+  let medal = "";
+  if (myRankInfo.rank === 1) medal = "🥇 ";
+  else if (myRankInfo.rank === 2) medal = "🥈 ";
+  else if (myRankInfo.rank === 3) medal = "🥉 ";
+
+  section.innerHTML = "";
+  [
+    t("myRank", { rank: `${medal}${myRankInfo.rank}` }),
+    maskHandle(myRankInfo.handle),
+    t("scoreUnit", { score: myRankInfo.score }),
+  ].forEach((text) => {
+    const span = document.createElement("span");
+    span.textContent = text;
+    section.appendChild(span);
+  });
+  section.hidden = false;
 }
 
 function formatTime(date) {

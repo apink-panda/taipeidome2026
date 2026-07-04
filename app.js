@@ -67,9 +67,6 @@ const i18n = {
     leaderboardHandlePlaceholder: "輸入 IG 或 Threads 帳號",
     submitScore: "結算成績",
     leaderboardTitle: "台北大巨蛋 排行榜",
-    rank: "排名",
-    account: "帳號",
-    score: "得分",
     myRank: "我的排名: {rank}",
     myScore: "我的分數",
     scoreUnit: "{score} 分",
@@ -81,6 +78,7 @@ const i18n = {
     noticeHandleRequired: "請輸入 IG 或 Threads 帳號！",
     noticeCheerRequired: "請輸入應援的話！",
     noticeCheerSuccess: "應援送出成功！謝謝你的應援！",
+    cheerSentMessage: "💖 已收到你的應援，謝謝你！",
     anonymous: "匿名",
     disclaimer: "📌 本活動為粉絲自發性應援，不進行任何商業販售，並與官方主辦單位無關，若有侵犯權益請告知會立即下架關閉。",
     pitchSlow: "慢速球",
@@ -153,9 +151,6 @@ const i18n = {
     leaderboardHandlePlaceholder: "Enter IG or Threads handle",
     submitScore: "Submit Score",
     leaderboardTitle: "Taipei Dome Leaderboard",
-    rank: "Rank",
-    account: "Account",
-    score: "Score",
     myRank: "My rank: {rank}",
     myScore: "My score",
     scoreUnit: "{score} pts",
@@ -167,6 +162,7 @@ const i18n = {
     noticeHandleRequired: "Please enter your IG or Threads handle.",
     noticeCheerRequired: "Please enter a cheer message.",
     noticeCheerSuccess: "Cheer sent. Thank you!",
+    cheerSentMessage: "💖 Your cheer has been received. Thank you!",
     anonymous: "Anonymous",
     disclaimer: "📌 This event is a fan-initiated support project. It does not involve any commercial sales and is not affiliated with the official organizer. If any rights are infringed, please let us know and we will take the site down immediately.",
     pitchSlow: "Slow Ball",
@@ -239,9 +235,6 @@ const i18n = {
     leaderboardHandlePlaceholder: "IG または Threads アカウント",
     submitScore: "成績を送信",
     leaderboardTitle: "台北ドーム ランキング",
-    rank: "順位",
-    account: "アカウント",
-    score: "得点",
     myRank: "自分の順位: {rank}",
     myScore: "自分の得点",
     scoreUnit: "{score} 点",
@@ -253,6 +246,7 @@ const i18n = {
     noticeHandleRequired: "IG または Threads アカウントを入力してください。",
     noticeCheerRequired: "応援メッセージを入力してください。",
     noticeCheerSuccess: "応援を送信しました。ありがとうございます！",
+    cheerSentMessage: "💖 応援を受け取りました。ありがとうございます！",
     anonymous: "匿名",
     disclaimer: "📌 本企画はファンによる自主的な応援活動であり、商業販売は一切行っておらず、公式主催者とは関係ありません。権利侵害がございましたらご連絡ください。直ちに削除・閉鎖いたします。",
     pitchSlow: "スローボール",
@@ -325,9 +319,6 @@ const i18n = {
     leaderboardHandlePlaceholder: "IG 또는 Threads 계정 입력",
     submitScore: "점수 등록",
     leaderboardTitle: "타이베이 돔 랭킹",
-    rank: "순위",
-    account: "계정",
-    score: "점수",
     myRank: "내 순위: {rank}",
     myScore: "내 점수",
     scoreUnit: "{score}점",
@@ -339,6 +330,7 @@ const i18n = {
     noticeHandleRequired: "IG 또는 Threads 계정을 입력해 주세요.",
     noticeCheerRequired: "응원 메시지를 입력해 주세요.",
     noticeCheerSuccess: "응원이 전송되었습니다. 감사합니다!",
+    cheerSentMessage: "💖 응원이 잘 전달되었습니다. 감사합니다!",
     anonymous: "익명",
     disclaimer: "📌 본 이벤트는 팬들이 자발적으로 진행하는 응원 활동이며, 어떠한 상업적 판매도 하지 않고 공식 주최 측과 무관합니다. 권리 침해가 있을 경우 알려주시면 즉시 삭제 및 폐쇄하겠습니다.",
     pitchSlow: "느린 공",
@@ -508,6 +500,7 @@ class BaseballGame {
     this.submitScoreButton = document.querySelector("#submitScoreButton");
     this.leaderboardCloseButton = document.querySelector("#leaderboardCloseButton");
     this.cheerSubmitBtn = document.querySelector("#cheerSubmitBtn");
+    this.cheerPanel = document.querySelector("#cheerPanel");
     this.leaderboardOverlay = document.querySelector("#leaderboardOverlay");
 
     this.score = 0;
@@ -538,7 +531,7 @@ class BaseballGame {
 
     this.pitchSequence = [0, 1, 2, 3, 4, 7, 8, 9];
     this.swingSequence = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-    this.activeSwingFrames = new Set([3, 4, 5]);
+    this.activeSwingFrames = new Set([2, 3, 4, 5, 6]);
 
     this.handleSwing = this.handleSwing.bind(this);
     this.handleKey = this.handleKey.bind(this);
@@ -634,10 +627,8 @@ class BaseballGame {
     this.setText("#restartButton", "restart");
     this.setText("#submitScoreButton", "submitScore");
     this.setText("#leaderboardTitle", "leaderboardTitle");
-    this.setText("#leaderboardRankHeader", "rank");
-    this.setText("#leaderboardAccountHeader", "account");
-    this.setText("#leaderboardScoreHeader", "score");
     this.setText("#cheerSubmitBtn", "cheerSubmit");
+    this.setText("#cheerSentMessage", "cheerSentMessage");
     this.setText("#leaderboardCloseButton", "continueChallenge");
     this.setText("#siteDisclaimer", "disclaimer");
     this.setAttr(".promo-hero", "aria-label", "promoAria");
@@ -710,6 +701,7 @@ class BaseballGame {
   }
 
   beginGame() {
+    this.getAudioContext();
     if (this.gameStarted) return;
 
     if (this.countdownTimeoutId) {
@@ -851,6 +843,7 @@ class BaseballGame {
   }
 
   handleSwing() {
+    this.getAudioContext();
     if (!this.gameStarted || this.countingDown) return;
     if (this.swinging) return;
     this.swungThisPitch = true; // Track swing for ball/strike check
@@ -1106,18 +1099,20 @@ class BaseballGame {
     const width = batterRect.width;
     const height = batterRect.height;
     const zones = {
+      2: { left: 0.50, right: 1.02, top: 0.45, bottom: 0.65 },
       3: { left: 0.50, right: 1.02, top: 0.45, bottom: 0.65 },
       4: { left: 0.06, right: 0.66, top: 0.58, bottom: 0.77 },
       5: { left: 0.02, right: 0.60, top: 0.42, bottom: 0.63 },
+      6: { left: 0.02, right: 0.60, top: 0.42, bottom: 0.63 },
     };
     const zone = zones[this.batterFrame];
     if (!zone) return null;
 
     return {
-      left: left + width * zone.left - 5,
-      right: left + width * zone.right + 5,
-      top: top + height * zone.top - 5,
-      bottom: top + height * zone.bottom + 5,
+      left: left + width * zone.left - 22,
+      right: left + width * zone.right + 22,
+      top: top + height * zone.top - 22,
+      bottom: top + height * zone.bottom + 22,
     };
   }
 
@@ -1507,11 +1502,22 @@ class BaseballGame {
     });
   }
 
+  getAudioContext() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return null;
+    if (!this.audioCtx) {
+      this.audioCtx = new AudioContext();
+    }
+    if (this.audioCtx.state === "suspended") {
+      this.audioCtx.resume();
+    }
+    return this.audioCtx;
+  }
+
   playHitSound() {
     try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
 
       const osc = ctx.createOscillator();
       const gainOsc = ctx.createGain();
@@ -1548,9 +1554,8 @@ class BaseballGame {
 
   playCheerSound() {
     try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
 
       const bufferSize = ctx.sampleRate * 2.5;
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
@@ -1590,9 +1595,8 @@ class BaseballGame {
 
   playAhOhSound() {
     try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
 
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
@@ -1631,9 +1635,8 @@ class BaseballGame {
 
   playOutSound() {
     try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
 
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -1685,9 +1688,8 @@ class BaseballGame {
 
   playGameOverSound() {
     try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
 
       const notes = [261.63, 196.00, 164.81, 130.81];
       notes.forEach((freq, idx) => {
@@ -1720,6 +1722,9 @@ class BaseballGame {
     }
 
     this.lastSubmittedHandle = handle;
+    try {
+      localStorage.setItem("apink_my_handle", handle);
+    } catch (e) { }
     this.submitScoreButton.disabled = true;
     this.submitScoreButton.textContent = this.t("sending");
 
@@ -1800,32 +1805,6 @@ class BaseballGame {
       };
     });
 
-    // Render Top 10
-    const body = document.getElementById("leaderboardBody");
-    body.innerHTML = "";
-
-    const top10 = rankedList.slice(0, 10);
-    top10.forEach((item) => {
-      const tr = document.createElement("tr");
-      let rankText = String(item.rank);
-      if (item.rank === 1) {
-        tr.classList.add("top-rank-1");
-        rankText = "🥇";
-      } else if (item.rank === 2) {
-        tr.classList.add("top-rank-2");
-        rankText = "🥈";
-      } else if (item.rank === 3) {
-        tr.classList.add("top-rank-3");
-        rankText = "🥉";
-      }
-      [rankText, maskHandle(item.handle), item.score].forEach((value) => {
-        const td = document.createElement("td");
-        td.textContent = String(value);
-        tr.appendChild(td);
-      });
-      body.appendChild(tr);
-    });
-
     // Find and render my rank
     const myRankInfo = rankedList.find(x => x.handle === myHandle);
     const myRankDiv = document.getElementById("leaderboardMyRank");
@@ -1859,6 +1838,9 @@ class BaseballGame {
     // Reset submit button text
     this.submitScoreButton.disabled = false;
     this.submitScoreButton.textContent = this.t("submitScore");
+
+    // Reset cheer panel so a new game allows sending another cheer
+    this.cheerPanel?.classList.remove("is-sent");
   }
 
   async submitCheer() {
@@ -1901,6 +1883,7 @@ class BaseballGame {
     cheerInput.value = "";
     this.cheerSubmitBtn.disabled = false;
     this.cheerSubmitBtn.textContent = this.t("cheerSubmit");
+    this.cheerPanel?.classList.add("is-sent");
   }
 
   closeLeaderboard() {

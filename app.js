@@ -1523,8 +1523,51 @@ class BaseballGame {
         source.start(0);
         this.audioUnlocked = true;
       } catch (e) { }
+      // Switch iOS to the "playback" audio session by looping a silent
+      // <audio> element, so Web Audio can be heard even when the ring/silent
+      // switch is off. Best effort — harmless where unsupported.
+      this.startAudioSession();
     }
     return this.audioCtx;
+  }
+
+  startAudioSession() {
+    if (this.audioSessionEl) return;
+    try {
+      const sampleRate = 8000;
+      const seconds = 0.5;
+      const numSamples = Math.floor(sampleRate * seconds);
+      const dataSize = numSamples; // 8-bit mono
+      const buffer = new ArrayBuffer(44 + dataSize);
+      const view = new DataView(buffer);
+      const writeStr = (offset, str) => {
+        for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+      };
+      writeStr(0, "RIFF");
+      view.setUint32(4, 36 + dataSize, true);
+      writeStr(8, "WAVE");
+      writeStr(12, "fmt ");
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);            // PCM
+      view.setUint16(22, 1, true);            // mono
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate, true);   // byte rate
+      view.setUint16(32, 1, true);            // block align
+      view.setUint16(34, 8, true);            // bits per sample
+      writeStr(36, "data");
+      view.setUint32(40, dataSize, true);
+      for (let i = 0; i < numSamples; i++) view.setUint8(44 + i, 128); // 8-bit silence
+
+      const blob = new Blob([buffer], { type: "audio/wav" });
+      const el = document.createElement("audio");
+      el.setAttribute("playsinline", "");
+      el.setAttribute("webkit-playsinline", "");
+      el.loop = true;
+      el.src = URL.createObjectURL(blob);
+      const promise = el.play();
+      if (promise && promise.catch) promise.catch(() => { });
+      this.audioSessionEl = el;
+    } catch (e) { }
   }
 
   playHitSound() {

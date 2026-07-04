@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Apink 台北大巨蛋排行榜</title>
+    <meta name="description" content="Apink 台北大巨蛋應援打擊小遊戲排行榜，每 10 分鐘自動更新。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css?v=webp-assets-1" />
+  </head>
+  <body class="leaderboard-page">
+    <a class="leaderboard-start-button" id="leaderboardStartGameButton" href="./index.html#game">開始遊戲</a>
+
+    <main class="leaderboard-page-shell" aria-labelledby="leaderboardPageTitle">
+      <header class="leaderboard-page-header">
+        <div class="language-control">
+          <label class="language-label" id="leaderboardLanguageLabel" for="leaderboardLanguageSelect">語言</label>
+          <select class="language-select" id="leaderboardLanguageSelect" aria-labelledby="leaderboardLanguageLabel">
+            <option value="auto">自動</option>
+            <option value="zh">繁體中文</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
+          </select>
+        </div>
+        <a class="leaderboard-back-link" id="backToGameLink" href="./index.html">回到遊戲</a>
+        <div class="leaderboard-page-kicker" id="leaderboardPageKicker">Apink 台北大巨蛋應援</div>
+        <h1 id="leaderboardPageTitle">排行榜</h1>
+        <p id="leaderboardPageIntro">排行榜每 10 分鐘自動更新一次，顯示目前最高分挑戰紀錄。</p>
+        <div class="leaderboard-page-meta">
+          <span id="leaderboardSourceStatus">載入中...</span>
+          <span id="leaderboardUpdatedAt">最後更新：--</span>
+          <span id="leaderboardNextRefresh">下次更新：10:00</span>
+        </div>
+      </header>
+
+      <section class="cheer-marquee" aria-live="polite">
+        <div class="cheer-marquee__label" id="cheerMarqueeTitle">應援跑馬燈</div>
+        <div class="cheer-marquee__track">
+          <span id="cheerMarqueeText">載入中...</span>
+        </div>
+      </section>
+
+      <section class="leaderboard-page-table-wrap" aria-live="polite">
+        <table class="leaderboard-page-table">
+          <thead>
+            <tr>
+              <th id="leaderboardPageRankHeader">排名</th>
+              <th id="leaderboardPageAccountHeader">帳號</th>
+              <th id="leaderboardPageScoreHeader">得分</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardPageBody">
+            <tr>
+              <td colspan="3" id="leaderboardPageLoading">載入中...</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <footer class="site-disclaimer" id="leaderboardDisclaimer">
+      📌 本活動為粉絲自發性應援，不進行任何商業販售，並與官方主辦單位無關，若有侵犯權益請告知會立即下架關閉。
+    </footer>
+
+    <script src="./leaderboard.js?v=webp-assets-1" defer></script>
+  </body>
+</html>

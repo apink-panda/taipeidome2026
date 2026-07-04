@@ -1,0 +1,17 @@
+.DS_Store
+*.log
+node_modules/
+
+# Source drafts and generated working files that are not needed by the static site.
+*.png
+*.gif
+/previews/
+/scratch/
+/tmp_alpha_test/
+/chorong_swing_frames/
+/chorong_swing_frames_v2/
+
+# Keep the optimized assets used by the deployed site.
+!bg.webp
+!assets/
+!assets/**/*.webp

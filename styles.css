@@ -265,7 +265,7 @@ img {
 }
 
 .sprite--cheerleader {
-  bottom: 132px; /* Fixed Y-axis position (-200px subtracted) */
+  bottom: 28%; /* Percentage-based for consistent ground positioning */
   width: clamp(90px, 16vw, 150px);
   aspect-ratio: 324 / 543;
   filter: drop-shadow(0 10px 14px rgba(64, 34, 42, 0.12));
@@ -908,7 +908,7 @@ img {
 
   .sprite--cheerleader {
     width: clamp(66px, 19vw, 98px);
-    bottom: 180px; /* Fixed Y-axis position on mobile */
+    bottom: 24%; /* Percentage-based so bears stay on the ground across iPhone sizes */
   }
 }
 

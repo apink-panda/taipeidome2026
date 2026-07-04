@@ -1,233 +1,206 @@
 <!doctype html>
 <html lang="zh-Hant">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Apink 台北大巨蛋應援打擊小遊戲</title>
-    <meta name="description" content="韓流傳奇女團 Apink 登陸臺北大巨蛋！7月31日新光亞洲音樂祭首發演出，參與趣味棒球打擊應援小遊戲，為你的偶像送上最熱烈的加油應援與祝福！" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./styles.css?v=webp-assets-1" />
-  </head>
-  <body>
-    <div class="app-container">
 
-      <!-- Left Column: Campaign Hero / Promo Details -->
-      <header class="promo-hero" aria-label="活動宣傳資訊">
-        <div class="language-control">
-          <label class="language-label" id="languageLabel" for="languageSelect">語言</label>
-          <select class="language-select" id="languageSelect" aria-labelledby="languageLabel">
-            <option value="auto">自動</option>
-            <option value="zh">繁體中文</option>
-            <option value="en">English</option>
-            <option value="ja">日本語</option>
-            <option value="ko">한국어</option>
-          </select>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Apink Taipei Dome</title>
+  <link rel="stylesheet" href="./styles.css?v=rwd-mobile-1" />
+</head>
+
+<body>
+  <main class="game" aria-label="Apink baseball game">
+
+
+    <section class="field" id="field" aria-label="play field">
+      <!-- BSOP Scoreboard -->
+      <div class="bsop" id="bsopBoard" aria-label="Strikes and Balls board">
+        <div class="bsop__row">
+          <span class="bsop__label">B</span>
+          <div class="bsop__dots">
+            <span class="bsop__dot bsop__dot--ball"></span>
+            <span class="bsop__dot bsop__dot--ball"></span>
+            <span class="bsop__dot bsop__dot--ball"></span>
+            <span class="bsop__dot bsop__dot--ball"></span>
+          </div>
         </div>
-
-        <div class="promo-badge">⭐️ 新光亞洲音樂祭首發卡司 ⭐️</div>
-        <h1 class="promo-title">韓流傳奇女團<br><span class="highlight-pink">Apink</span> 確定登場！</h1>
-        <div class="promo-date">7/31(五) 臺北大巨蛋 · 味全龍主場</div>
-
-        <p class="promo-desc">
-          韓國人氣二代女團 <strong>Apink</strong> 將擔任味全龍年度主題日<strong>「新光亞洲音樂祭」</strong>首發卡司，於 <strong>7月31日（五）</strong>登上臺北大巨蛋，帶來精彩的賽後演出！
-        </p>
-
-        <div class="promo-songs-title">🎵 現場經典神曲應援預熱中：</div>
-        <ul class="promo-songs-list">
-          <li>《NoNoNo》🌸</li>
-          <li>《Mr. Chu》💋</li>
-          <li>《LUV》💖</li>
-          <li>《Remember》✨</li>
-          <li>《Dumhdurum》</li>
-        </ul>
-
-        <p class="promo-callout">
-          這是一場為 Apink 大巨蛋登場所設計的<strong>棒球打擊應援小遊戲</strong>！立即揮棒打擊、挑戰排行榜，為你的 Idol 送出熱烈應援吧！
-        </p>
-
-        <p class="promo-ticket">
-          尚未購票的朋友，也可以透過<a href="https://tix.wdragons.com/UTK0201_?PRODUCT_ID=P16MXT0T&amp;STARTDATE=2026/07/31" target="_blank" rel="noopener noreferrer">售票網頁</a>購票，7/31 當日進場一起觀看精彩球賽與 Apink 表演！
-        </p>
-
-        <div class="promo-actions">
-          <a class="promo-link-button promo-link-button--primary" id="promoStartGameButton" href="#game">開始遊戲</a>
-          <a class="promo-link-button" id="leaderboardPageLink" href="./leaderboard.html">排行榜頁面</a>
+        <div class="bsop__row">
+          <span class="bsop__label">S</span>
+          <div class="bsop__dots">
+            <span class="bsop__dot bsop__dot--strike"></span>
+            <span class="bsop__dot bsop__dot--strike"></span>
+            <span class="bsop__dot bsop__dot--strike"></span>
+          </div>
         </div>
-
-        <div class="promo-footer">
-          <span>* 點擊右側棒球場任意區域即可揮棒 *</span>
+        <div class="bsop__row">
+          <span class="bsop__label">O</span>
+          <div class="bsop__dots">
+            <span class="bsop__dot bsop__dot--out"></span>
+            <span class="bsop__dot bsop__dot--out"></span>
+            <span class="bsop__dot bsop__dot--out"></span>
+          </div>
         </div>
-      </header>
+      </div>
 
-      <!-- Right Column: Interactive Game Arena -->
-      <main class="game" id="game" aria-label="Apink baseball game">
+      <!-- Scorebar centered at the top -->
+      <div class="scorebar" id="scorebar" aria-live="polite">
+        <div class="metric">
+          <span class="metric__label">得分</span>
+          <strong id="score">0</strong>
+        </div>
+        <div class="status" id="status">準備</div>
+      </div>
 
+      <!-- Base Running Diagram -->
+      <div class="bases" id="basesBoard" aria-label="Base runners status">
+        <div class="base-diamond base-diamond--2nd" id="base2"></div>
+        <div class="base-diamond base-diamond--3rd" id="base3"></div>
+        <div class="base-diamond base-diamond--1st" id="base1"></div>
+      </div>
 
-      <section class="field" id="field" aria-label="play field">
-        <!-- BSOP Scoreboard -->
-        <div class="bsop" id="bsopBoard" aria-label="Strikes and Balls board">
-          <div class="bsop__row">
-            <span class="bsop__label">B</span>
-            <div class="bsop__dots">
-              <span class="bsop__dot bsop__dot--ball"></span>
-              <span class="bsop__dot bsop__dot--ball"></span>
-              <span class="bsop__dot bsop__dot--ball"></span>
-              <span class="bsop__dot bsop__dot--ball"></span>
+      <div class="dome-line dome-line--back"></div>
+      <div class="dome-line dome-line--front"></div>
+      <div class="base-line"></div>
+
+      <div class="sprite sprite--cheerleader sprite--cheerleader-najoo" data-component="cheerleader-najoo">
+        <img id="cheerFrameNajoo" src="./assets/najoo_support_frames/najoo_support_01.png" alt="Namjoo cheerleader"
+          draggable="false" />
+      </div>
+
+      <div class="sprite sprite--cheerleader sprite--cheerleader-enji" data-component="cheerleader">
+        <img id="cheerFrame" src="./assets/enji_support_happy_frames/enji_support_happy_01.png" alt="Eunji cheerleader"
+          draggable="false" />
+      </div>
+
+      <div class="sprite sprite--cheerleader sprite--cheerleader-hayoung" data-component="cheerleader-hayoung">
+        <img id="cheerFrameHayoung" src="./assets/hayoung_support_frames/hayoung_support_01.png"
+          alt="Hayoung cheerleader" draggable="false" />
+      </div>
+
+      <div class="sprite sprite--pitcher" data-component="pitcher">
+        <div class="pitcher-mound" aria-hidden="true">
+          <div class="pitcher-plate"></div>
+        </div>
+        <img id="pitcherFrame" src="./assets/bomi_throw_frames/bomi_throw_01.png" alt="Bomi pitcher"
+          draggable="false" />
+      </div>
+
+      <div class="sprite sprite--batter" data-component="batter">
+        <div class="batter-box-area" aria-hidden="true">
+          <div class="batter-box"></div>
+          <div class="home-plate"></div>
+        </div>
+        <img id="batterFrame" src="./assets/chorong_swing_frames/chorong_swing_01.png" alt="Chorong batter"
+          draggable="false" />
+      </div>
+
+      <div class="ball" id="ball" data-component="ball" aria-hidden="true"></div>
+      <div class="result-pop" id="resultPop" aria-hidden="true"></div>
+
+      <!-- Game Over Overlay -->
+      <div class="game-over-overlay" id="gameOverOverlay" aria-hidden="true">
+        <div class="game-over-box">
+          <h2>遊戲結束</h2>
+          <p>總得分: <strong id="finalScore">0</strong></p>
+          <button class="restart-button" id="restartButton" type="button">重新開始</button>
+
+          <!-- Handle Input Group -->
+          <div class="game-over-input-group">
+            <input type="text" class="game-over-input" id="leaderboardHandle" placeholder="輸入 IG 或 Threads 帳號"
+              maxlength="28" />
+            <button class="submit-score-btn" id="submitScoreButton" type="button">結算成績</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leaderboard Overlay -->
+      <div class="leaderboard-overlay" id="leaderboardOverlay" aria-hidden="true">
+        <div class="leaderboard-box">
+          <h2>台北大巨蛋 排行榜</h2>
+
+          <div class="leaderboard-table-container">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>排名</th>
+                  <th>帳號</th>
+                  <th>得分</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardBody">
+                <!-- Generated by JS -->
+              </tbody>
+            </table>
+            <div class="leaderboard-divider"></div>
+            <div class="leaderboard-my-rank" id="leaderboardMyRank">
+              <!-- User's rank generated by JS -->
             </div>
           </div>
-          <div class="bsop__row">
-            <span class="bsop__label">S</span>
-            <div class="bsop__dots">
-              <span class="bsop__dot bsop__dot--strike"></span>
-              <span class="bsop__dot bsop__dot--strike"></span>
-              <span class="bsop__dot bsop__dot--strike"></span>
+
+          <!-- Cheer message panel -->
+          <div class="cheer-panel" id="cheerPanel">
+            <div class="cheer-templates" id="cheerTemplates">
+              <button type="button" class="cheer-template-chip">Apink 💖 台北大巨蛋衝呀！</button>
+              <button type="button" class="cheer-template-chip">永遠支持 Apink！🐼🌸</button>
+              <button type="button" class="cheer-template-chip">普美投球超帥，初瓏全壘打！</button>
+              <button type="button" class="cheer-template-chip">大巨蛋滿座！Apink 萬歲！</button>
             </div>
+            <textarea id="cheerInput" placeholder="留下應援的話...（限200字，支援空白）" maxlength="200"></textarea>
+            <button class="cheer-submit-btn" id="cheerSubmitBtn">送出應援</button>
           </div>
-          <div class="bsop__row">
-            <span class="bsop__label">O</span>
-            <div class="bsop__dots">
-              <span class="bsop__dot bsop__dot--out"></span>
-              <span class="bsop__dot bsop__dot--out"></span>
-              <span class="bsop__dot bsop__dot--out"></span>
-            </div>
-          </div>
+
+          <button class="restart-button" id="leaderboardCloseButton">繼續挑戰</button>
         </div>
+      </div>
+    </section>
 
-        <!-- Scorebar centered at the top -->
-        <div class="scorebar" id="scorebar" aria-live="polite">
-          <div class="metric">
-            <span class="metric__label" id="scoreLabel">得分</span>
-            <strong id="score">0</strong>
-          </div>
-          <div class="status" id="status">準備</div>
-        </div>
+  </main>
 
-        <!-- Base Running Diagram -->
-        <div class="bases" id="basesBoard" aria-label="Base runners status">
-          <div class="base-diamond base-diamond--2nd" id="base2"></div>
-          <div class="base-diamond base-diamond--3rd" id="base3"></div>
-          <div class="base-diamond base-diamond--1st" id="base1"></div>
-        </div>
+  <script src="./app.js?v=bomi-recrop-1" defer></script>
+</body>
 
-        <div class="dome-line dome-line--back"></div>
-        <div class="dome-line dome-line--front"></div>
-        <div class="base-line"></div>
+</html>
+</thead>
+<tbody id="leaderboardBody">
+  <!-- Generated by JS -->
+</tbody>
+</table>
+<div class="leaderboard-divider"></div>
+<div class="leaderboard-my-rank" id="leaderboardMyRank">
+  <!-- User's rank generated by JS -->
+</div>
+</div>
 
-        <div class="sprite sprite--cheerleader sprite--cheerleader-najoo" data-component="cheerleader-najoo">
-          <img id="cheerFrameNajoo" src="./assets/najoo_support_frames/najoo_support_01.webp" alt="Namjoo cheerleader" draggable="false" />
-        </div>
+<!-- Cheer message panel -->
+<div class="cheer-panel" id="cheerPanel">
+  <div class="cheer-templates" id="cheerTemplates">
+    <button type="button" class="cheer-template-chip">Apink 💖 台北大巨蛋衝呀！</button>
+    <button type="button" class="cheer-template-chip">永遠支持 Apink！🐼🌸</button>
+    <button type="button" class="cheer-template-chip">普美投球超帥，初瓏全壘打！</button>
+    <button type="button" class="cheer-template-chip">大巨蛋滿座！Apink 萬歲！</button>
+  </div>
+  <textarea id="cheerInput" placeholder="留下應援的話...（限200字，支援空白）" maxlength="200"></textarea>
+  <button class="cheer-submit-btn" id="cheerSubmitBtn">送出應援</button>
+</div>
 
-        <div class="sprite sprite--cheerleader sprite--cheerleader-enji" data-component="cheerleader">
-          <img id="cheerFrame" src="./assets/enji_support_happy_frames/enji_support_happy_01.webp" alt="Eunji cheerleader" draggable="false" />
-        </div>
+<button class="restart-button" id="leaderboardCloseButton">繼續挑戰</button>
+</div>
+</div>
 
-        <div class="sprite sprite--cheerleader sprite--cheerleader-hayoung" data-component="cheerleader-hayoung">
-          <img id="cheerFrameHayoung" src="./assets/hayoung_support_frames/hayoung_support_01.webp" alt="Hayoung cheerleader" draggable="false" />
-        </div>
+<div class="notice-toast" id="noticeToast" role="status" aria-live="polite" aria-hidden="true">
+  <span id="noticeToastText"></span>
+</div>
+</section>
 
-        <div class="sprite sprite--pitcher" data-component="pitcher">
-          <div class="pitcher-mound" aria-hidden="true">
-            <div class="pitcher-plate"></div>
-          </div>
-          <img id="pitcherFrame" src="./assets/bomi_throw_frames/bomi_throw_01.webp" alt="Bomi pitcher" draggable="false" />
-        </div>
+</main>
 
-        <div class="sprite sprite--batter" data-component="batter">
-          <div class="batter-box-area" aria-hidden="true">
-            <div class="batter-box"></div>
-            <div class="home-plate"></div>
-          </div>
-          <img id="batterFrame" src="./assets/chorong_swing_frames/chorong_swing_01.webp" alt="Chorong batter" draggable="false" />
-        </div>
+</div>
 
-        <div class="ball" id="ball" data-component="ball" aria-hidden="true"></div>
-        <div class="result-pop" id="resultPop" aria-hidden="true"></div>
+<footer class="site-disclaimer" id="siteDisclaimer">
+  📌 本活動為粉絲自發性應援，不進行任何商業販售，並與官方主辦單位無關，若有侵犯權益請告知會立即下架關閉。
+</footer>
 
-        <!-- Start Overlay -->
-        <div class="start-overlay is-visible" id="startOverlay" aria-live="polite">
-          <div class="start-panel">
-            <h2 id="startTitle">遊戲規格</h2>
-            <div class="start-countdown" id="startCountdown">一局進攻挑戰</div>
-            <p class="start-rule" id="startRule1">
-              你是 <strong>RongRong 熊打者</strong>，要在一局進攻局數裡挑戰 <strong>Bomi 熊</strong>，盡可能拿下最高分。
-            </p>
-            <p class="start-rule" id="startRule2">
-              最高分即可記錄在排行榜裡，不限挑戰次數；挑戰完也可以寫應援的話留給大家。
-            </p>
-            <button class="start-button" id="startButton" type="button">開始遊戲</button>
-          </div>
-        </div>
+<script src="./app.js?v=webp-assets-1" defer></script>
+</body>
 
-        <!-- Game Over Overlay -->
-        <div class="game-over-overlay" id="gameOverOverlay" aria-hidden="true">
-          <div class="game-over-box">
-            <h2 id="gameOverTitle">遊戲結束</h2>
-            <p><span id="finalScoreLabel">總得分:</span> <strong id="finalScore">0</strong></p>
-            <button class="restart-button" id="restartButton" type="button">重新開始</button>
-
-            <!-- Handle Input Group -->
-            <div class="game-over-input-group">
-              <input type="text" class="game-over-input" id="leaderboardHandle" placeholder="輸入 IG 或 Threads 帳號" maxlength="28" />
-              <button class="submit-score-btn" id="submitScoreButton" type="button">結算成績</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Leaderboard Overlay -->
-        <div class="leaderboard-overlay" id="leaderboardOverlay" aria-hidden="true">
-          <div class="leaderboard-box">
-            <h2 id="leaderboardTitle">台北大巨蛋 排行榜</h2>
-
-            <div class="leaderboard-table-container">
-              <table class="leaderboard-table">
-                <thead>
-                  <tr>
-                    <th id="leaderboardRankHeader">排名</th>
-                    <th id="leaderboardAccountHeader">帳號</th>
-                    <th id="leaderboardScoreHeader">得分</th>
-                  </tr>
-                </thead>
-                <tbody id="leaderboardBody">
-                  <!-- Generated by JS -->
-                </tbody>
-              </table>
-              <div class="leaderboard-divider"></div>
-              <div class="leaderboard-my-rank" id="leaderboardMyRank">
-                <!-- User's rank generated by JS -->
-              </div>
-            </div>
-
-            <!-- Cheer message panel -->
-            <div class="cheer-panel" id="cheerPanel">
-              <div class="cheer-templates" id="cheerTemplates">
-                <button type="button" class="cheer-template-chip">Apink 💖 台北大巨蛋衝呀！</button>
-                <button type="button" class="cheer-template-chip">永遠支持 Apink！🐼🌸</button>
-                <button type="button" class="cheer-template-chip">普美投球超帥，初瓏全壘打！</button>
-                <button type="button" class="cheer-template-chip">大巨蛋滿座！Apink 萬歲！</button>
-              </div>
-              <textarea id="cheerInput" placeholder="留下應援的話...（限200字，支援空白）" maxlength="200"></textarea>
-              <button class="cheer-submit-btn" id="cheerSubmitBtn">送出應援</button>
-            </div>
-
-            <button class="restart-button" id="leaderboardCloseButton">繼續挑戰</button>
-          </div>
-        </div>
-
-        <div class="notice-toast" id="noticeToast" role="status" aria-live="polite" aria-hidden="true">
-          <span id="noticeToastText"></span>
-        </div>
-      </section>
-
-    </main>
-
-    </div>
-
-    <footer class="site-disclaimer" id="siteDisclaimer">
-      📌 本活動為粉絲自發性應援，不進行任何商業販售，並與官方主辦單位無關，若有侵犯權益請告知會立即下架關閉。
-    </footer>
-
-  <script src="./app.js?v=webp-assets-1" defer></script>
-  </body>
 </html>

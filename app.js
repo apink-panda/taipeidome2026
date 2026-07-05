@@ -1171,10 +1171,11 @@ class BaseballGame {
     this.pitching = false;
 
     // Determine hit outcome. Contact on a bad pitch is weak: mostly fouls
-    // and flyouts, never a home run.
+    // and flyouts, never a home run. In-zone contact is rewarding: flyouts
+    // are rare so most swings that connect turn into base hits.
     const thresholds = this.isBadPitch
       ? { foul: 0.35, flyout: 0.70, single: 0.90, double: 0.97, triple: 1.0 }
-      : { foul: 0.20, flyout: 0.40, single: 0.70, double: 0.85, triple: 0.95 };
+      : { foul: 0.20, flyout: 0.30, single: 0.70, double: 0.85, triple: 0.95 };
     const rand = Math.random();
     let outcome = '';
     if (rand < thresholds.foul) {

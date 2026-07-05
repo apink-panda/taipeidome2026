@@ -480,6 +480,7 @@ class BaseballGame {
     this.cheerleader2 = new SpriteAnimator(document.querySelector("#cheerFrameHayoung"), hayoungFrames);
     this.cheerleader3 = new SpriteAnimator(document.querySelector("#cheerFrameNajoo"), najooFrames);
     this.ball = new BallComponent(document.querySelector("#ball"));
+    this.strikeZone = document.querySelector("#strikeZone");
     this.resultPop = document.querySelector("#resultPop");
     this.scoreNode = document.querySelector("#score");
     this.statusNode = document.querySelector("#status");
@@ -748,6 +749,7 @@ class BaseballGame {
     this.pitcher.stop(0);
     this.batter.stop(0);
     this.ball.hide();
+    this.strikeZone?.classList.remove("is-visible");
     this.resultPop.classList.remove("is-visible");
     this.updateScore();
     this.updateBsop();
@@ -905,31 +907,71 @@ class BaseballGame {
     const strikeZoneTop = pitchBand.top - strikeTolerance;
     const strikeZoneBottom = pitchBand.bottom + strikeTolerance;
 
+    const batterLeft = batterRect.left - fieldRect.left;
+
+    // Show the strike-zone indicator over the contact area for this pitch
+    if (this.strikeZone) {
+      this.strikeZone.style.top = `${strikeZoneTop}px`;
+      this.strikeZone.style.height = `${strikeZoneBottom - strikeZoneTop}px`;
+      this.strikeZone.style.left = `${batterLeft + batterRect.width * 0.38}px`;
+      this.strikeZone.style.width = `${batterRect.width * 0.52}px`;
+      this.strikeZone.classList.add("is-visible");
+    }
+
     // 2. Shifted Trajectory (投球路徑 Y + 120 on desktop)
     const start = {
       x: fieldRect.width - clamp(fieldRect.width * 0.25, 128, fieldRect.width - 220),
       y: basePitchMid - ballSize * 0.35 + pitchOffset,
     };
 
-    // Pitch range limits are exactly 20px larger than strike zone top and bottom
-    const pitchTop = strikeZoneTop - 20;
-    const pitchBottom = strikeZoneBottom + 20;
-
-    // Randomize target Y within trajectory limits
-    const targetY = lerp(pitchTop, pitchBottom, Math.random());
-    const end = {
-      x: -ballSize,
-      y: targetY,
-    };
-
-    // Check if it is a bad pitch (壞球) when it falls outside strike zone
-    this.isBadPitch = (targetY < strikeZoneTop || targetY > strikeZoneBottom);
-    this.swungThisPitch = false;
-
     // 1. Select pitch type and speed level
     const pitchTypes = ["slow", "fast", "changeup", "drop", "sinker", "slider", "knuckle"];
     const type = pitchTypes[Math.floor(Math.random() * pitchTypes.length)];
     const speedLevel = Math.floor(Math.random() * 5) + 1; // 1 to 5
+
+    // Explicitly roll strike vs ball so bad pitches always fly clearly
+    // outside the zone (at least one ball-width past the edge) instead of
+    // hugging the border where players cannot judge them.
+    const throwStrike = Math.random() < 0.65;
+    const zoneHeight = strikeZoneBottom - strikeZoneTop;
+    const badPitchMin = ballSize;
+    const badPitchMax = ballSize + batterHeight * 0.12;
+
+    let targetY;
+    if (throwStrike) {
+      const inset = Math.min(ballSize * 0.25, zoneHeight * 0.25);
+      targetY = lerp(strikeZoneTop + inset, strikeZoneBottom - inset, Math.random());
+    } else {
+      const offset = lerp(badPitchMin, badPitchMax, Math.random());
+      targetY = Math.random() < 0.5 ? strikeZoneTop - offset : strikeZoneBottom + offset;
+    }
+    this.isBadPitch = !throwStrike;
+    this.swungThisPitch = false;
+
+    // Flight-path clamp bounds, wide enough for the farthest bad pitch
+    const pitchTop = strikeZoneTop - badPitchMax;
+    const pitchBottom = strikeZoneBottom + badPitchMax;
+
+    // Aim the trajectory so the ball's centre passes through targetY exactly
+    // where it crosses the strike-zone box (not at the off-screen endpoint),
+    // so the position players see at the plate always matches the
+    // ball/strike call. Curve offsets are evaluated at the plate-crossing
+    // progress and compensated in the endpoint.
+    const plateX = batterLeft + batterRect.width * 0.64; // centre of zone box
+    const endX = -ballSize;
+    const plateProgress = clamp((start.x - plateX) / (start.x - endX), 0.05, 0.98);
+    let curveYAtPlate = 0;
+    switch (type) {
+      case "slow": curveYAtPlate = Math.sin(plateProgress * Math.PI) * -85; break;
+      case "drop": curveYAtPlate = plateProgress > 0.6 ? Math.pow((plateProgress - 0.6) / 0.4, 2.2) * 80 : 0; break;
+      case "sinker": curveYAtPlate = plateProgress > 0.55 ? Math.pow((plateProgress - 0.55) / 0.45, 2) * 50 : 0; break;
+      case "slider": curveYAtPlate = Math.sin(plateProgress * Math.PI) * -35; break;
+      case "knuckle": curveYAtPlate = Math.sin(plateProgress * Math.PI * 4.5) * 12; break;
+    }
+    const end = {
+      x: endX,
+      y: start.y + (targetY - curveYAtPlate - start.y) / plateProgress,
+    };
 
     // 2. Calculate simulated speed in km/h
     let speedKmh = 0;
@@ -983,6 +1025,11 @@ class BaseballGame {
 
   animatePitch(localPitch, start, end, pitchBand, type, duration, pitchTop, pitchBottom) {
     const startedAt = performance.now();
+    // Loose safety bounds only: trajectories are precisely aimed at the
+    // plate, but arcs peak above the band mid-flight and drop/sinker dive
+    // below it after passing the batter.
+    const clampTop = pitchTop - 100;
+    const clampBottom = pitchBottom + 60;
 
     const step = (now) => {
       if (localPitch !== this.pitchId || !this.pitching || this.resolving) return;
@@ -1051,7 +1098,7 @@ class BaseballGame {
         }
       }
 
-      y = clamp(y, pitchTop, pitchBottom);
+      y = clamp(y, clampTop, clampBottom);
 
       const rotationSpeed = type === "knuckle" ? t * 40 : t * 760;
       this.ball.setPosition(x - this.ball.size() / 2, y - this.ball.size() / 2, rotationSpeed);
@@ -1074,7 +1121,6 @@ class BaseballGame {
 
   checkCollision() {
     if (!this.pitching || this.resolving || !this.swingActive || !this.ball.visible) return;
-    if (this.isBadPitch) return; // Cannot hit a bad pitch (壞球)
 
     const fieldRect = this.field.getBoundingClientRect();
     const batZone = this.getBatZone();
@@ -1124,18 +1170,22 @@ class BaseballGame {
     this.resolving = true;
     this.pitching = false;
 
-    // Determine hit outcome
+    // Determine hit outcome. Contact on a bad pitch is weak: mostly fouls
+    // and flyouts, never a home run.
+    const thresholds = this.isBadPitch
+      ? { foul: 0.35, flyout: 0.70, single: 0.90, double: 0.97, triple: 1.0 }
+      : { foul: 0.20, flyout: 0.40, single: 0.70, double: 0.85, triple: 0.95 };
     const rand = Math.random();
     let outcome = '';
-    if (rand < 0.20) {
+    if (rand < thresholds.foul) {
       outcome = 'Foul';
-    } else if (rand < 0.40) {
+    } else if (rand < thresholds.flyout) {
       outcome = 'Flyout';
-    } else if (rand < 0.70) {
+    } else if (rand < thresholds.single) {
       outcome = 'Single';
-    } else if (rand < 0.85) {
+    } else if (rand < thresholds.double) {
       outcome = 'Double';
-    } else if (rand < 0.95) {
+    } else if (rand < thresholds.triple) {
       outcome = 'Triple';
     } else {
       outcome = 'HR';
@@ -1296,6 +1346,7 @@ class BaseballGame {
 
   finishRound() {
     this.ball.hide();
+    this.strikeZone?.classList.remove("is-visible");
     this.resolving = false;
     this.swingActive = false;
     this.pitcher.setFrame(0);
@@ -1437,6 +1488,7 @@ class BaseballGame {
     this.gameStarted = false;
     this.countingDown = false;
     this.pitching = false;
+    this.strikeZone?.classList.remove("is-visible");
     this.hideStartOverlay();
     this.gameOverOverlay.classList.add("is-visible");
     this.finalScore.textContent = this.score;

@@ -1,27 +1,45 @@
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJssnwqL636-7t1P2LtspixCWvdm4ffMhQxmAYDB62f4Y2BwvgmxRryl-nbN3Qsu6P/exec"; // Provide your Google Apps Script Web App URL here
-const spriteAssetVersion = "webp-assets-1";
+const spriteAssetVersion = "webp-assets-7";
 const framePath = (folder, name, index) =>
   `./assets/${folder}/${name}_${String(index).padStart(2, "0")}.webp?v=${spriteAssetVersion}`;
+const frameList = (folder, name, count) =>
+  Array.from({ length: count }, (_, index) => framePath(folder, name, index + 1));
 
-const bomiFrames = Array.from({ length: 10 }, (_, index) =>
-  framePath("bomi_throw_frames", "bomi_throw", index + 1),
-);
+const bomiFrames = frameList("bomi_throw_frames", "bomi_throw", 10);
 
-const chorongFrames = Array.from({ length: 10 }, (_, index) =>
-  framePath("chorong_swing_frames", "chorong_swing", index + 1),
-);
-
-const enjiFrames = Array.from({ length: 10 }, (_, index) =>
-  framePath("enji_support_happy_frames", "enji_support_happy", index + 1),
-);
-
-const hayoungFrames = Array.from({ length: 10 }, (_, index) =>
-  framePath("hayoung_support_frames", "hayoung_support", index + 1),
-);
-
-const najooFrames = Array.from({ length: 10 }, (_, index) =>
-  framePath("najoo_support_frames", "najoo_support", index + 1),
-);
+// batterScale 以 chorong 熊貓的角色高度(324px)為基準:324 / 該成員角色高度
+const MEMBERS = {
+  rong: {
+    swing: frameList("chorong_swing_frames", "chorong_swing", 10),
+    cheer: frameList("chorong_support_frames", "chorong_support", 10),
+    swingSequence: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    activeSwingFrames: [3, 4, 5, 6],
+    batterScale: 1,
+  },
+  enji: {
+    swing: frameList("enji_swing_frames", "enji_swing", 8),
+    cheer: frameList("enji_support_happy_frames", "enji_support_happy", 10),
+    swingSequence: [0, 1, 2, 3, 4, 5, 6, 7],
+    activeSwingFrames: [2, 3, 4, 5],
+    batterScale: 1.1,
+  },
+  najoo: {
+    swing: frameList("najoo_swing_frames", "najoo_swing", 10),
+    cheer: frameList("najoo_support_frames", "najoo_support", 10),
+    swingSequence: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    activeSwingFrames: [3, 4, 5, 6],
+    // najoo 揮棒幀已重組為 chorong 尺寸基準，不需再縮放
+    batterScale: 1,
+  },
+  hayoung: {
+    swing: frameList("hayoung_swing_frames", "hayoung_swing", 10),
+    cheer: frameList("hayoung_support_frames", "hayoung_support", 10),
+    swingSequence: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    activeSwingFrames: [3, 4, 5, 6],
+    batterScale: 1.25,
+  },
+};
+const MEMBER_KEYS = Object.keys(MEMBERS);
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const lerp = (from, to, t) => from + (to - from) * t;
@@ -58,7 +76,13 @@ const i18n = {
     loadingEllipsis: "載入中...",
     startTitle: "遊戲規格",
     startChallenge: "一局進攻挑戰",
-    startRule1: "你是 <strong>RongRong 熊打者</strong>，要在一局進攻局數裡挑戰 <strong>Bomi 熊</strong>，盡可能拿下最高分。",
+    startRule1: "系統會隨機派一隻熊貓上場打擊，在一局進攻局數裡挑戰 <strong>Bomi 投手</strong>，盡可能拿下最高分；每次出局、擊出安打或保送後，會隨機換一位還沒上場的熊貓接棒。",
+    member_rong: "Chorong",
+    member_enji: "Eunji",
+    member_najoo: "Namjoo",
+    member_hayoung: "Hayoung",
+    popNextBatter: "{name} 上場!",
+    statusNextBatter: "換 {name} 上場打擊",
     startRule2: "最高分即可記錄在排行榜裡，不限挑戰次數；挑戰完也可以寫應援的話留給大家。",
     startButton: "開始遊戲",
     gameOverTitle: "遊戲結束",
@@ -70,7 +94,7 @@ const i18n = {
     myRank: "我的排名: {rank}",
     myScore: "我的分數",
     scoreUnit: "{score} 分",
-    cheerTemplates: ["Apink 💖 台北大巨蛋衝呀！", "永遠支持 Apink！🐼🌸", "普美投球超帥，初瓏全壘打！", "大巨蛋滿座！Apink 萬歲！"],
+    cheerTemplates: ["Apink 💖 台北大巨蛋衝呀！", "永遠支持 Apink！🐼🌸", "普美投球超帥，恩地全壘打！", "大巨蛋滿座！Apink 萬歲！"],
     cheerPlaceholder: "留下應援的話...（限200字，支援空白）",
     cheerSubmit: "送出應援",
     continueChallenge: "繼續挑戰",
@@ -142,7 +166,13 @@ const i18n = {
     loadingEllipsis: "Loading...",
     startTitle: "Game Rules",
     startChallenge: "One-Inning Challenge",
-    startRule1: "You are <strong>RongRong Bear Batter</strong>. Face <strong>Bomi Bear</strong> in one offensive inning and score as many runs as you can.",
+    startRule1: "A random panda steps up to bat. Face <strong>Bomi Pitcher</strong> in one offensive inning and score as many runs as you can. After each out, base hit, or walk, a random panda who hasn't batted yet takes over.",
+    member_rong: "Chorong",
+    member_enji: "Eunji",
+    member_najoo: "Namjoo",
+    member_hayoung: "Hayoung",
+    popNextBatter: "{name} up!",
+    statusNextBatter: "{name} steps up to bat",
     startRule2: "Your best score can be saved to the leaderboard. Try as many times as you like, and leave a cheer message after your challenge.",
     startButton: "Start Game",
     gameOverTitle: "Game Over",
@@ -154,7 +184,7 @@ const i18n = {
     myRank: "My rank: {rank}",
     myScore: "My score",
     scoreUnit: "{score} pts",
-    cheerTemplates: ["Apink 💖 Let's go, Taipei Dome!", "Always supporting Apink! 🐼🌸", "Bomi pitches, Chorong homers!", "Fill the Dome! Apink forever!"],
+    cheerTemplates: ["Apink 💖 Let's go, Taipei Dome!", "Always supporting Apink! 🐼🌸", "Bomi pitches, Eunji homers!", "Fill the Dome! Apink forever!"],
     cheerPlaceholder: "Leave a cheer message... (200 characters max)",
     cheerSubmit: "Send Cheer",
     continueChallenge: "Try Again",
@@ -226,7 +256,13 @@ const i18n = {
     loadingEllipsis: "読み込み中...",
     startTitle: "ゲーム説明",
     startChallenge: "1イニングチャレンジ",
-    startRule1: "あなたは <strong>RongRong ベア打者</strong>。1イニングの攻撃で <strong>Bomi ベア</strong> に挑み、できるだけ多く得点しましょう。",
+    startRule1: "ランダムに選ばれたパンダ打者が、1イニングの攻撃で <strong>Bomi 投手</strong> に挑み、できるだけ多く得点しましょう。アウト・ヒット・フォアボールのたびに、まだ打っていないパンダがランダムに交代します。",
+    member_rong: "チョロン",
+    member_enji: "ウンジ",
+    member_najoo: "ナムジュ",
+    member_hayoung: "ハヨン",
+    popNextBatter: "{name} 登場!",
+    statusNextBatter: "{name} が打席に入ります",
     startRule2: "最高得点はランキングに記録できます。挑戦回数は無制限。挑戦後にはみんなへ応援メッセージも残せます。",
     startButton: "ゲーム開始",
     gameOverTitle: "ゲーム終了",
@@ -238,7 +274,7 @@ const i18n = {
     myRank: "自分の順位: {rank}",
     myScore: "自分の得点",
     scoreUnit: "{score} 点",
-    cheerTemplates: ["Apink 💖 台北ドームへGO！", "ずっと Apink を応援！🐼🌸", "ボミの投球最高、チョロンはホームラン！", "台北ドーム満員！Apink 最高！"],
+    cheerTemplates: ["Apink 💖 台北ドームへGO！", "ずっと Apink を応援！🐼🌸", "ボミの投球最高、ウンジはホームラン！", "台北ドーム満員！Apink 最高！"],
     cheerPlaceholder: "応援メッセージを残す...（200字以内）",
     cheerSubmit: "応援を送る",
     continueChallenge: "続けて挑戦",
@@ -310,7 +346,13 @@ const i18n = {
     loadingEllipsis: "로딩 중...",
     startTitle: "게임 규칙",
     startChallenge: "1이닝 공격 챌린지",
-    startRule1: "당신은 <strong>RongRong 곰 타자</strong>입니다. 1이닝 공격 동안 <strong>Bomi 곰</strong>을 상대로 최대한 많은 점수를 내세요.",
+    startRule1: "랜덤으로 선택된 판다 타자가 1이닝 공격 동안 <strong>Bomi 투수</strong>를 상대로 최대한 많은 점수를 내세요. 아웃, 안타, 볼넷 때마다 아직 타석에 서지 않은 판다가 랜덤으로 교체됩니다.",
+    member_rong: "초롱",
+    member_enji: "은지",
+    member_najoo: "남주",
+    member_hayoung: "하영",
+    popNextBatter: "{name} 등장!",
+    statusNextBatter: "{name} 타석에 들어섭니다",
     startRule2: "최고 점수는 랭킹에 기록할 수 있으며 도전 횟수는 제한이 없습니다. 도전 후 모두에게 응원 메시지도 남길 수 있습니다.",
     startButton: "게임 시작",
     gameOverTitle: "게임 종료",
@@ -322,7 +364,7 @@ const i18n = {
     myRank: "내 순위: {rank}",
     myScore: "내 점수",
     scoreUnit: "{score}점",
-    cheerTemplates: ["Apink 💖 타이베이 돔 가자!", "언제나 Apink를 응원해! 🐼🌸", "보미 투구 최고, 초롱 홈런!", "타이베이 돔 만석! Apink 만세!"],
+    cheerTemplates: ["Apink 💖 타이베이 돔 가자!", "언제나 Apink를 응원해! 🐼🌸", "보미 투구 최고, 은지 홈런!", "타이베이 돔 만석! Apink 만세!"],
     cheerPlaceholder: "응원 메시지를 남겨 주세요... (200자 이내)",
     cheerSubmit: "응원 보내기",
     continueChallenge: "계속 도전",
@@ -475,10 +517,11 @@ class BaseballGame {
     this.field = document.querySelector("#field");
     this.batterElement = document.querySelector('[data-component="batter"]');
     this.pitcher = new SpriteAnimator(document.querySelector("#pitcherFrame"), bomiFrames);
-    this.batter = new SpriteAnimator(document.querySelector("#batterFrame"), chorongFrames);
-    this.cheerleader = new SpriteAnimator(document.querySelector("#cheerFrame"), enjiFrames);
-    this.cheerleader2 = new SpriteAnimator(document.querySelector("#cheerFrameHayoung"), hayoungFrames);
-    this.cheerleader3 = new SpriteAnimator(document.querySelector("#cheerFrameNajoo"), najooFrames);
+    this.batter = new SpriteAnimator(document.querySelector("#batterFrame"), MEMBERS.rong.swing);
+    this.cheerleader = new SpriteAnimator(document.querySelector("#cheerFrame"), MEMBERS.enji.cheer);
+    this.cheerleader2 = new SpriteAnimator(document.querySelector("#cheerFrameHayoung"), MEMBERS.hayoung.cheer);
+    this.cheerleader3 = new SpriteAnimator(document.querySelector("#cheerFrameNajoo"), MEMBERS.najoo.cheer);
+    this.cheerAnimators = [this.cheerleader, this.cheerleader2, this.cheerleader3];
     this.ball = new BallComponent(document.querySelector("#ball"));
     this.strikeZone = document.querySelector("#strikeZone");
     this.resultPop = document.querySelector("#resultPop");
@@ -523,6 +566,7 @@ class BaseballGame {
     this.pitchTimeoutId = null;
     this.countdownTimeoutId = null;
     this.noticeTimeoutId = null;
+    this.batterSwitchTimeoutId = null;
     this.gameStarted = false;
     this.countingDown = false;
     this.languageMode = "auto";
@@ -531,8 +575,10 @@ class BaseballGame {
     this.currentStatusVars = {};
 
     this.pitchSequence = [0, 1, 2, 3, 4, 7, 8, 9];
-    this.swingSequence = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-    this.activeSwingFrames = new Set([2, 3, 4, 5, 6]);
+    this.currentBatter = "rong";
+    this.usedBatters = new Set();
+    this.swingSequence = MEMBERS.rong.swingSequence;
+    this.activeSwingFrames = new Set(MEMBERS.rong.activeSwingFrames);
 
     this.handleSwing = this.handleSwing.bind(this);
     this.handleKey = this.handleKey.bind(this);
@@ -543,10 +589,9 @@ class BaseballGame {
     this.applyLocale();
     this.showStartOverlay(this.t("loading"), true);
     this.setStatusKey("loading");
-    await this.preload([...bomiFrames, ...chorongFrames, ...enjiFrames, ...hayoungFrames, ...najooFrames]);
-    this.cheerleader.setFrame(0);
-    this.cheerleader2.setFrame(0);
-    this.cheerleader3.setFrame(0);
+    const memberFrames = MEMBER_KEYS.flatMap((key) => [...MEMBERS[key].swing, ...MEMBERS[key].cheer]);
+    await this.preload([...bomiFrames, ...new Set(memberFrames)]);
+    this.setBatter(this.randomMemberKey());
     this.bind();
     this.resetGameState();
     this.startCheering();
@@ -712,6 +757,9 @@ class BaseballGame {
 
     this.countingDown = false;
     this.gameStarted = true;
+    const firstBatter = this.randomMemberKey();
+    this.setBatter(firstBatter);
+    this.usedBatters = new Set([firstBatter]);
     this.pitchId += 1;
     this.ball.hide();
     this.hideStartOverlay();
@@ -728,7 +776,12 @@ class BaseballGame {
       window.clearTimeout(this.countdownTimeoutId);
       this.countdownTimeoutId = null;
     }
+    if (this.batterSwitchTimeoutId) {
+      window.clearTimeout(this.batterSwitchTimeoutId);
+      this.batterSwitchTimeoutId = null;
+    }
 
+    this.usedBatters = new Set();
     this.pitchId += 1;
     this.gameStarted = false;
     this.countingDown = false;
@@ -755,17 +808,94 @@ class BaseballGame {
     this.updateBsop();
     this.updateBasesDisplay();
     this.setStatusKey("statusReady");
+    this.randomizeCheerleaderPositions();
+  }
+
+  setBatter(memberKey) {
+    const member = MEMBERS[memberKey];
+    if (!member) return;
+
+    this.currentBatter = memberKey;
+    this.swingSequence = member.swingSequence;
+    this.activeSwingFrames = new Set(member.activeSwingFrames);
+    this.batter.frames = member.swing;
+    if (!this.swinging) this.batter.setFrame(0);
+    this.batter.image.alt = `${this.t(`member_${memberKey}`)} batter`;
+    this.batter.image.style.transformOrigin = "bottom center";
+    this.batter.image.style.transform = member.batterScale === 1 ? "" : `scale(${member.batterScale})`;
+
+    const supporters = MEMBER_KEYS.filter((key) => key !== memberKey);
+    this.cheerAnimators.forEach((animator, index) => {
+      const supporter = supporters[index];
+      animator.frames = MEMBERS[supporter].cheer;
+      animator.setFrame(animator.currentFrame % animator.frames.length);
+      animator.image.alt = `${this.t(`member_${supporter}`)} cheerleader`;
+    });
+  }
+
+  randomMemberKey() {
+    return MEMBER_KEYS[Math.floor(Math.random() * MEMBER_KEYS.length)];
+  }
+
+  switchToNextBatter() {
+    let remaining = MEMBER_KEYS.filter((key) => !this.usedBatters.has(key));
+    if (!remaining.length) {
+      // 四位都輪過了，開新一輪，但避免同一位連續上場
+      this.usedBatters = new Set([this.currentBatter]);
+      remaining = MEMBER_KEYS.filter((key) => key !== this.currentBatter);
+    }
+
+    const next = remaining[Math.floor(Math.random() * remaining.length)];
+    this.usedBatters.add(next);
+
+    const applySwitch = () => {
+      if (this.swinging) {
+        this.batterSwitchTimeoutId = window.setTimeout(applySwitch, 200);
+        return;
+      }
+      this.batterSwitchTimeoutId = null;
+      if (!this.gameStarted) return;
+      this.setBatter(next);
+      this.pop(this.t("popNextBatter", { name: this.t(`member_${next}`) }));
+      this.setStatusKey("statusNextBatter", { name: this.t(`member_${next}`) });
+    };
+
+    if (this.batterSwitchTimeoutId) window.clearTimeout(this.batterSwitchTimeoutId);
+    this.batterSwitchTimeoutId = window.setTimeout(applySwitch, 700);
+  }
+
+  randomizeCheerleaderPositions() {
+    const positions = ["cheerleader-pos--left", "cheerleader-pos--middle", "cheerleader-pos--right"];
+    for (let i = positions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [positions[i], positions[j]] = [positions[j], positions[i]];
+    }
+
+    const cheerleaders = [
+      document.querySelector('[data-component="cheerleader"]'),
+      document.querySelector('[data-component="cheerleader-hayoung"]'),
+      document.querySelector('[data-component="cheerleader-najoo"]')
+    ];
+
+    cheerleaders.forEach((el, idx) => {
+      if (el) {
+        el.classList.remove("cheerleader-pos--left", "cheerleader-pos--middle", "cheerleader-pos--right");
+        el.classList.add(positions[idx]);
+      }
+    });
   }
 
 
 
   startCheering() {
     const sequence = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const frameMs = 100;
     const playNext = () => {
-      this.cheerleader.play(sequence, 100);
-      this.cheerleader2.play(sequence, 100);
-      this.cheerleader3.play(sequence, 100, {
-        onDone: playNext
+      this.cheerleader.play(sequence, frameMs);
+      this.cheerleader2.play(sequence, frameMs);
+      this.cheerleader3.play(sequence, frameMs, {
+        // let the last frame stay on screen for a full step before looping
+        onDone: () => window.setTimeout(playNext, frameMs),
       });
     };
     playNext();
@@ -1149,7 +1279,6 @@ class BaseballGame {
       3: { left: 0.50, right: 1.02, top: 0.45, bottom: 0.65 },
       4: { left: 0.06, right: 0.66, top: 0.58, bottom: 0.77 },
       5: { left: 0.02, right: 0.60, top: 0.42, bottom: 0.63 },
-      6: { left: 0.02, right: 0.60, top: 0.42, bottom: 0.63 },
     };
     const zone = zones[this.batterFrame];
     if (!zone) return null;
@@ -1281,6 +1410,7 @@ class BaseballGame {
 
       this.pop(popText);
       this.setStatus(statusText);
+      this.switchToNextBatter();
     }
 
     this.animateHit(from, to, liftVal);
@@ -1448,6 +1578,7 @@ class BaseballGame {
 
       this.pop(this.t("popWalk"));
       this.setStatus(this.t("statusWalk", { suffix: runScored ? ` ${this.t("runsScored", { runs: 1 })}` : "" }));
+      this.switchToNextBatter();
     }
     this.updateBsop();
   }
@@ -1474,6 +1605,7 @@ class BaseballGame {
     } else {
       this.pop(this.t("popOut"));
       this.playOutSound();
+      this.switchToNextBatter();
     }
   }
 
@@ -2001,4 +2133,5 @@ class BaseballGame {
   }
 }
 
-new BaseballGame().start();
+window.apinkGame = new BaseballGame();
+window.apinkGame.start();

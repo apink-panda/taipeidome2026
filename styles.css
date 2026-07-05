@@ -279,17 +279,17 @@ img {
   z-index: 2;
 }
 
-.sprite--cheerleader-najoo {
+.cheerleader-pos--left {
   left: 50%;
   transform: translateX(calc(-150% - 12px));
 }
 
-.sprite--cheerleader-enji {
+.cheerleader-pos--middle {
   left: 50%;
   transform: translate(-50%, 20px);
 }
 
-.sprite--cheerleader-hayoung {
+.cheerleader-pos--right {
   left: 50%;
   transform: translateX(calc(50% + 12px));
 }

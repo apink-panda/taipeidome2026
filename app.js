@@ -1039,14 +1039,8 @@ class BaseballGame {
 
     const batterLeft = batterRect.left - fieldRect.left;
 
-    // Show the strike-zone indicator over the contact area for this pitch
-    if (this.strikeZone) {
-      this.strikeZone.style.top = `${strikeZoneTop}px`;
-      this.strikeZone.style.height = `${strikeZoneBottom - strikeZoneTop}px`;
-      this.strikeZone.style.left = `${batterLeft + batterRect.width * 0.38}px`;
-      this.strikeZone.style.width = `${batterRect.width * 0.52}px`;
-      this.strikeZone.classList.add("is-visible");
-    }
+    // Strike-zone indicator is intentionally hidden now that pitches are
+    // easier to hit; the zone coordinates below still drive pitch targeting.
 
     // 2. Shifted Trajectory (投球路徑 Y + 120 on desktop)
     const start = {

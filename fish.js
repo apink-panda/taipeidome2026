@@ -58,6 +58,7 @@ const fishI18n = {
     popSpeedBonus: "⚡ 神速加分 +1",
     popJumpCatch: "空中攔截 {name}！+{points} 分",
     popJumpColorCatch: "同色空中攔截 {name}！加成 +10，共 {points} 分",
+    popJumpMiss: "啊！沒抓到魚！",
     scoreLabel: "分數",
     endScore: "總分 {score} 分",
     modeLabel: "選擇難度",
@@ -86,6 +87,11 @@ const fishI18n = {
     cheerSubmit: "送出祝福",
     playAgain: "再玩一次",
     leaderboardLink: "排行榜",
+    leaderboardTitle: "幸運明太魚 排行榜",
+    myRank: "我的排名：{rank}",
+    myScore: "我的分數",
+    scoreUnit: "{score} 分",
+    continueChallenge: "繼續挑戰",
     noticeHandleRequired: "請輸入 IG 或 Threads 帳號！",
     noticeCheerRequired: "請輸入祝福的話！",
     noticeScoreSubmitted: "成績已送出！",
@@ -130,6 +136,7 @@ const fishI18n = {
     popSpeedBonus: "⚡ Speed bonus +1",
     popJumpCatch: "Mid-air catch: {name}! +{points}",
     popJumpColorCatch: "Same-color mid-air catch: {name}! +10 bonus, {points} total",
+    popJumpMiss: "Ah! You missed the fish!",
     scoreLabel: "Score",
     endScore: "Total score: {score}",
     modeLabel: "Choose Difficulty",
@@ -158,6 +165,11 @@ const fishI18n = {
     cheerSubmit: "Send Blessing",
     playAgain: "Play Again",
     leaderboardLink: "Leaderboard",
+    leaderboardTitle: "Lucky Myeongtae Leaderboard",
+    myRank: "My rank: {rank}",
+    myScore: "My score",
+    scoreUnit: "{score} pts",
+    continueChallenge: "Try Again",
     noticeHandleRequired: "Please enter an IG or Threads handle!",
     noticeCheerRequired: "Please write a blessing!",
     noticeScoreSubmitted: "Score submitted!",
@@ -202,6 +214,7 @@ const fishI18n = {
     popSpeedBonus: "⚡ スピードボーナス +1",
     popJumpCatch: "空中キャッチ {name}！+{points}点",
     popJumpColorCatch: "同色の {name} を空中キャッチ！+10、合計 {points}点",
+    popJumpMiss: "あっ！魚を捕まえられなかった！",
     scoreLabel: "スコア",
     endScore: "合計スコア：{score} 点",
     modeLabel: "難易度をえらぶ",
@@ -230,6 +243,11 @@ const fishI18n = {
     cheerSubmit: "メッセージ送信",
     playAgain: "もう一度遊ぶ",
     leaderboardLink: "ランキング",
+    leaderboardTitle: "幸運のミョンテ ランキング",
+    myRank: "自分の順位：{rank}",
+    myScore: "自分の得点",
+    scoreUnit: "{score} 点",
+    continueChallenge: "続けて挑戦",
     noticeHandleRequired: "IG または Threads のアカウントを入力してください！",
     noticeCheerRequired: "お祝いメッセージを入力してください！",
     noticeScoreSubmitted: "スコアを送信しました！",
@@ -274,6 +292,7 @@ const fishI18n = {
     popSpeedBonus: "⚡ 스피드 보너스 +1",
     popJumpCatch: "공중 캐치 {name}! +{points}점",
     popJumpColorCatch: "같은 색 {name} 공중 캐치! +10, 총 {points}점",
+    popJumpMiss: "앗! 물고기를 놓쳤어요!",
     scoreLabel: "점수",
     endScore: "총점: {score}점",
     modeLabel: "난이도 선택",
@@ -302,6 +321,11 @@ const fishI18n = {
     cheerSubmit: "축하 보내기",
     playAgain: "다시 하기",
     leaderboardLink: "랭킹",
+    leaderboardTitle: "행운의 명태 랭킹",
+    myRank: "내 순위: {rank}",
+    myScore: "내 점수",
+    scoreUnit: "{score}점",
+    continueChallenge: "계속 도전",
     noticeHandleRequired: "IG 또는 Threads 계정을 입력해 주세요!",
     noticeCheerRequired: "축하 메시지를 입력해 주세요!",
     noticeScoreSubmitted: "점수를 제출했어요!",
@@ -314,6 +338,20 @@ const fishI18n = {
 
 const interpolate = (template, values = {}) =>
   String(template).replace(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
+
+function maskHandle(handle) {
+  const value = String(handle || "").trim();
+  if (!value) return "";
+
+  const prefix = value.startsWith("@") ? "@" : "";
+  const body = prefix ? value.slice(1) : value;
+  const chars = Array.from(body);
+  if (!chars.length) return `${prefix}*`;
+  if (chars.length === 1) return `${prefix}${chars[0]}*`;
+
+  const maskLength = Math.max(chars.length - 2, 1);
+  return `${prefix}${chars[0]}${"*".repeat(maskLength)}${chars[chars.length - 1]}`;
+}
 
 class FishGame {
   constructor() {
@@ -331,6 +369,9 @@ class FishGame {
     this.startOverlay = document.querySelector("#fishStartOverlay");
     this.startButton = document.querySelector("#fishStartButton");
     this.endOverlay = document.querySelector("#fishEndOverlay");
+    this.leaderboardOverlay = document.querySelector("#fishLeaderboardOverlay");
+    this.leaderboardMyRank = document.querySelector("#fishLeaderboardMyRank");
+    this.cheerPanel = document.querySelector("#fishCheerPanel");
     this.catchCard = document.querySelector("#fishCatchCard");
     this.noticeToast = document.querySelector("#fishNoticeToast");
     this.noticeToastText = document.querySelector("#fishNoticeToastText");
@@ -366,6 +407,7 @@ class FishGame {
     this.languageMode = "auto";
     this.currentStatusKey = "statusCast";
     this.scoreSubmitted = false;
+    this.lastSubmittedHandle = "";
   }
 
   t(key, values = {}) {
@@ -446,6 +488,8 @@ class FishGame {
     this.setText("#fishSubmitScoreButton", "submitScore");
     this.setText("#fishCheerSubmitButton", "cheerSubmit");
     this.setText("#fishPlayAgainButton", "playAgain");
+    this.setText("#fishLeaderboardTitle", "leaderboardTitle");
+    this.setText("#fishLeaderboardCloseButton", "continueChallenge");
     this.setText("#fishDisclaimer", "disclaimer");
     document.querySelector("#fishHandleInput")?.setAttribute("placeholder", this.t("handlePlaceholder"));
     document.querySelector("#fishCheerInput")?.setAttribute("placeholder", this.t("cheerPlaceholder"));
@@ -537,10 +581,11 @@ class FishGame {
   bind() {
     this.startButton.addEventListener("click", () => this.startGame());
     this.sea.addEventListener("pointerdown", (event) => {
-      if (event.target.closest("button, a, input, .start-overlay, .fish-end-overlay")) return;
-      // 先判定是否點中躍出水面的跳魚
-      if (this.jumpActive && event.target.closest("#fishJump")) {
-        this.catchJumpFish();
+      if (event.target.closest("button, a, input, .start-overlay, .fish-end-overlay, .leaderboard-overlay")) return;
+      // 跳魚出現時使用獨立判定，避免誤觸主釣竿的「太早了」。
+      if (this.jumpActive) {
+        if (event.target.closest("#fishJump")) this.catchJumpFish();
+        else this.missJumpFish();
         return;
       }
       this.handleTap();
@@ -559,6 +604,10 @@ class FishGame {
         if (this.startOverlay.classList.contains("is-visible")) this.startGame();
         return;
       }
+      if (this.jumpActive) {
+        this.catchJumpFish();
+        return;
+      }
       this.handleTap();
     });
 
@@ -575,6 +624,7 @@ class FishGame {
     document.querySelector("#fishSubmitScoreButton")?.addEventListener("click", () => this.submitScore());
     document.querySelector("#fishCheerSubmitButton")?.addEventListener("click", () => this.submitCheer());
     document.querySelector("#fishPlayAgainButton")?.addEventListener("click", () => this.showStartScreen());
+    document.querySelector("#fishLeaderboardCloseButton")?.addEventListener("click", () => this.closeLeaderboard());
   }
 
   showStartScreen() {
@@ -585,6 +635,7 @@ class FishGame {
     this.caught = [];
     this.score = 0;
     this.scoreSubmitted = false;
+    this.lastSubmittedHandle = "";
     this.jumpActive = false;
     this.updateHud();
     document.querySelectorAll(".fish-dex-slot").forEach((img) => img.classList.remove("is-caught"));
@@ -592,6 +643,8 @@ class FishGame {
     this.catchCard.classList.remove("is-visible");
     this.endOverlay.classList.remove("is-visible");
     this.endOverlay.setAttribute("aria-hidden", "true");
+    this.leaderboardOverlay?.classList.remove("is-visible");
+    this.leaderboardOverlay?.setAttribute("aria-hidden", "true");
     this.startOverlay.classList.add("is-visible");
     this.startOverlay.setAttribute("aria-hidden", "false");
     this.setStatus("statusCast");
@@ -606,12 +659,15 @@ class FishGame {
     this.caught = [];
     this.score = 0;
     this.scoreSubmitted = false;
+    this.lastSubmittedHandle = "";
     this.updateHud();
     document.querySelectorAll(".fish-dex-slot").forEach((img) => img.classList.remove("is-caught"));
     this.startOverlay.classList.remove("is-visible");
     this.startOverlay.setAttribute("aria-hidden", "true");
     this.endOverlay.classList.remove("is-visible");
     this.endOverlay.setAttribute("aria-hidden", "true");
+    this.leaderboardOverlay?.classList.remove("is-visible");
+    this.leaderboardOverlay?.setAttribute("aria-hidden", "true");
     this.catchCard.classList.remove("is-visible");
     this.resetSeaVisuals();
     this.setStatus("statusCast");
@@ -939,11 +995,17 @@ class FishGame {
     this.jumpFish.offsetHeight;
     this.jumpFish.classList.add("is-jumping");
     this.playSplash();
-    this.jumpHideTimeoutId = window.setTimeout(() => {
-      this.jumpActive = false;
-      this.jumpFish.classList.remove("is-jumping");
-      this.scheduleJump();
-    }, JUMP_VISIBLE_MS);
+    this.jumpHideTimeoutId = window.setTimeout(() => this.missJumpFish(), JUMP_VISIBLE_MS);
+  }
+
+  missJumpFish() {
+    if (!this.jumpActive || this.phase === "ended") return;
+    this.jumpActive = false;
+    window.clearTimeout(this.jumpHideTimeoutId);
+    this.jumpFish.classList.remove("is-jumping");
+    this.playMiss();
+    this.pop(this.t("popJumpMiss"));
+    this.scheduleJump();
   }
 
   catchJumpFish() {
@@ -1044,6 +1106,7 @@ class FishGame {
     const handle = String(input?.value || "").trim();
     if (!handle) {
       this.showNotice(this.t("noticeHandleRequired"));
+      input?.focus();
       return;
     }
     if (this.scoreSubmitted) {
@@ -1054,17 +1117,20 @@ class FishGame {
     try {
       localStorage.setItem("apink_my_handle", handle);
     } catch (e) { }
+    this.lastSubmittedHandle = handle;
 
     // local fallback cache (初級/高級各自獨立，也與棒球的 apink_leaderboard 分開)
+    let list = [];
     try {
-      const cached = JSON.parse(localStorage.getItem(this.cacheKey("leaderboard")) || "[]");
-      const existing = cached.find((item) => item.handle === handle);
+      list = JSON.parse(localStorage.getItem(this.cacheKey("leaderboard")) || "[]");
+      if (!Array.isArray(list)) list = [];
+      const existing = list.find((item) => item.handle === handle);
       if (existing) {
         existing.score = Math.max(Number(existing.score) || 0, this.score);
       } else {
-        cached.push({ handle, score: this.score });
+        list.push({ handle, score: this.score });
       }
-      localStorage.setItem(this.cacheKey("leaderboard"), JSON.stringify(cached));
+      localStorage.setItem(this.cacheKey("leaderboard"), JSON.stringify(list));
     } catch (e) { }
 
     if (button) {
@@ -1082,8 +1148,9 @@ class FishGame {
       const resData = await response.json();
       // 只有在後端明確回聲對應的 game 時才採信（舊版後端會誤回棒球資料）
       if (resData?.game === game && resData?.leaderboard) {
+        list = resData.leaderboard;
         try {
-          localStorage.setItem(this.cacheKey("leaderboard"), JSON.stringify(resData.leaderboard));
+          localStorage.setItem(this.cacheKey("leaderboard"), JSON.stringify(list));
         } catch (e) { }
       }
     } catch (e) {
@@ -1094,7 +1161,50 @@ class FishGame {
       button.textContent = this.t("submitScore");
     }
     this.scoreSubmitted = true;
-    this.showNotice(this.t("noticeScoreSubmitted"));
+    this.showLeaderboard(list, handle);
+  }
+
+  showLeaderboard(list, myHandle) {
+    const rankedList = (Array.isArray(list) ? list : [])
+      .map((item) => ({
+        handle: String(item?.handle || ""),
+        score: Number(item?.score) || 0,
+      }))
+      .sort((a, b) => b.score - a.score)
+      .map((item, _index, sorted) => ({
+        ...item,
+        rank: sorted.findIndex((candidate) => candidate.score === item.score) + 1,
+      }));
+
+    const myRankInfo = rankedList.find((item) => item.handle === myHandle);
+    if (this.leaderboardMyRank) {
+      this.leaderboardMyRank.innerHTML = "";
+      const medal = myRankInfo?.rank === 1
+        ? "🥇 "
+        : myRankInfo?.rank === 2
+          ? "🥈 "
+          : myRankInfo?.rank === 3
+            ? "🥉 "
+            : "";
+      const values = myRankInfo
+        ? [
+            this.t("myRank", { rank: `${medal}${myRankInfo.rank}` }),
+            maskHandle(myRankInfo.handle),
+            this.t("scoreUnit", { score: myRankInfo.score }),
+          ]
+        : [this.t("myScore"), maskHandle(myHandle), this.t("scoreUnit", { score: this.score })];
+      values.forEach((value) => {
+        const span = document.createElement("span");
+        span.textContent = value;
+        this.leaderboardMyRank.appendChild(span);
+      });
+    }
+
+    this.endOverlay.classList.remove("is-visible");
+    this.endOverlay.setAttribute("aria-hidden", "true");
+    this.leaderboardOverlay?.classList.add("is-visible");
+    this.leaderboardOverlay?.setAttribute("aria-hidden", "false");
+    this.cheerPanel?.classList.remove("is-sent");
   }
 
   async submitCheer() {
@@ -1104,8 +1214,14 @@ class FishGame {
       this.showNotice(this.t("noticeCheerRequired"));
       return;
     }
-    const handle =
-      String(document.querySelector("#fishHandleInput")?.value || "").trim() || this.t("anonymous");
+    const handle = this.lastSubmittedHandle
+      || String(document.querySelector("#fishHandleInput")?.value || "").trim()
+      || this.t("anonymous");
+    const button = document.querySelector("#fishCheerSubmitButton");
+    if (button) {
+      button.disabled = true;
+      button.textContent = this.t("sending");
+    }
 
     try {
       const cached = JSON.parse(localStorage.getItem(this.cacheKey("cheers")) || "[]");
@@ -1124,7 +1240,17 @@ class FishGame {
       console.warn("Fish cheer submit failed, kept local fallback:", e);
     }
     if (input) input.value = "";
+    if (button) {
+      button.disabled = false;
+      button.textContent = this.t("cheerSubmit");
+    }
     this.showNotice(this.t("noticeCheerSubmitted"));
+  }
+
+  closeLeaderboard() {
+    this.leaderboardOverlay?.classList.remove("is-visible");
+    this.leaderboardOverlay?.setAttribute("aria-hidden", "true");
+    this.showStartScreen();
   }
 
   start() {

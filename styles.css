@@ -2022,7 +2022,7 @@ img {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s ease, transform 0.15s ease;
-  z-index: 6;
+  z-index: 10;
 }
 
 .fish-pop.is-visible {
@@ -2043,7 +2043,7 @@ img {
   font-weight: 900;
   white-space: nowrap;
   pointer-events: none;
-  z-index: 5;
+  z-index: 10;
 }
 
 .fish-catch-card {

@@ -1671,3 +1671,789 @@ img {
     font-size: 30px;
   }
 }
+
+/* ========== 釣魚頁 fish.html ========== */
+.fish-page {
+  min-height: 100vh;
+}
+
+.fish-shell {
+  width: min(760px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 40px 0 18px;
+}
+
+.fish-header {
+  display: grid;
+  gap: 14px;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.fish-header h1 {
+  margin: 0;
+  color: var(--pink-deep);
+  font-size: clamp(26px, 5vw, 38px);
+  text-shadow: 0.03em 0.04em 0 #ffd0e8;
+}
+
+.fish-header p {
+  margin: 0;
+  color: rgb(53 27 76 / 76%);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+.fish-game-wrap {
+  padding: 14px;
+  background: var(--panel);
+  border: 1px solid rgb(53 27 76 / 8%);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+}
+
+.fish-hud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.fish-hud-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #fff;
+  border: 1px solid rgb(53 27 76 / 10%);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+  color: rgb(53 27 76 / 70%);
+}
+
+.fish-hud-item strong {
+  color: var(--pink-deep);
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fish-hud-timer.is-urgent strong {
+  color: #e02b2b;
+  animation: fishUrgentPulse 1s infinite;
+}
+
+@keyframes fishUrgentPulse {
+  50% { opacity: 0.45; }
+}
+
+.fish-dex {
+  display: inline-flex;
+  gap: 6px;
+  margin-left: auto;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid rgb(53 27 76 / 10%);
+  border-radius: 999px;
+}
+
+.fish-dex-slot {
+  width: 40px;
+  height: auto;
+  filter: grayscale(1) opacity(0.35);
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.fish-dex-slot.is-caught {
+  filter: none;
+  transform: scale(1.08);
+}
+
+.fish-sea {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  min-height: clamp(560px, 82vh, 720px);
+  max-height: 760px;
+  overflow: hidden;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffe9f4 0%, #ffd7ec 30%, #ffc9e3 45%, #7fc3ef 45%, #4f9fd9 78%, #3c7fc0 100%);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.fish-clouds {
+  position: absolute;
+  inset: 0 0 55%;
+  background:
+    radial-gradient(38px 20px at 22% 55%, #fff 60%, transparent 62%),
+    radial-gradient(52px 24px at 30% 46%, #fff 60%, transparent 62%),
+    radial-gradient(34px 18px at 74% 33%, #fffdfd 60%, transparent 62%),
+    radial-gradient(48px 22px at 82% 42%, #fff 60%, transparent 62%);
+  opacity: 0.9;
+  animation: fishCloudDrift 26s linear infinite alternate;
+}
+
+@keyframes fishCloudDrift {
+  to { transform: translateX(-26px); }
+}
+
+.fish-water {
+  position: absolute;
+  inset: 45% 0 0;
+  overflow: hidden;
+}
+
+.fish-wave {
+  position: absolute;
+  left: -60px;
+  right: -60px;
+  height: 26px;
+  background: radial-gradient(24px 14px at 12px 0, rgb(255 255 255 / 35%) 60%, transparent 62%);
+  background-size: 48px 26px;
+  background-repeat: repeat-x;
+}
+
+.fish-wave--back {
+  top: 8px;
+  opacity: 0.5;
+  animation: fishWaveMove 7s linear infinite;
+}
+
+.fish-wave--front {
+  top: 26px;
+  animation: fishWaveMove 5s linear infinite reverse;
+}
+
+@keyframes fishWaveMove {
+  to { transform: translateX(48px); }
+}
+
+.fish-silhouette {
+  position: absolute;
+  width: 84px;
+  height: auto;
+  filter: brightness(0) opacity(0.22);
+  animation: fishSwim 11s linear infinite;
+}
+
+.fish-silhouette--1 { top: 34%; animation-delay: 0s; }
+.fish-silhouette--2 { top: 58%; width: 66px; animation-delay: -4s; animation-duration: 14s; }
+.fish-silhouette--3 { top: 76%; width: 74px; animation-delay: -8s; animation-duration: 9s; }
+
+@keyframes fishSwim {
+  0% { transform: translateX(-120px) scaleX(-1); }
+  49.9% { transform: translateX(760px) scaleX(-1); }
+  50% { transform: translateX(760px) scaleX(1); }
+  100% { transform: translateX(-120px) scaleX(1); }
+}
+
+.fish-angler {
+  position: absolute;
+  z-index: 4;
+  top: auto;
+  bottom: calc(55% - 60px);
+  left: 50%;
+  width: clamp(280px, 58%, 430px);
+  height: auto;
+  max-height: calc(45% + 60px);
+  object-fit: contain;
+  transform: translateX(-50%);
+  transform-origin: 50% 66%;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 14px rgb(53 27 76 / 18%));
+}
+
+.fish-angler-badge {
+  position: absolute;
+  z-index: 9;
+  top: 12px;
+  left: 12px;
+  max-width: calc(100% - 24px);
+  padding: 7px 12px;
+  color: #fff;
+  background: rgb(53 27 76 / 78%);
+  border: 1px solid rgb(255 255 255 / 35%);
+  border-radius: 999px;
+  box-shadow: 0 5px 14px rgb(53 27 76 / 16%);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+.fish-line {
+  display: none;
+  position: absolute;
+  top: 26%;
+  left: 50%;
+  width: 2px;
+  height: 0;
+  background: rgb(255 255 255 / 85%);
+  transition: height 0.35s ease;
+}
+
+.fish-line.is-cast {
+  height: 27%;
+}
+
+.fish-bobber {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 26px;
+  margin-left: -12px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ff4b6e 0 48%, #fff 48%);
+  border: 2px solid rgb(53 27 76 / 35%);
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.fish-bobber.is-cast {
+  opacity: 1;
+  animation: fishBobberFloat 1.6s ease-in-out infinite;
+}
+
+.fish-bobber.is-bite {
+  animation: fishBobberBite 0.4s ease-in-out infinite;
+}
+
+@keyframes fishBobberFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+@keyframes fishBobberBite {
+  0%, 100% { transform: translateY(10px); }
+  50% { transform: translateY(16px) rotate(-8deg); }
+}
+
+.fish-exclaim {
+  position: absolute;
+  z-index: 7;
+  top: 34%;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  color: #ffe14b;
+  font-size: 56px;
+  font-weight: 900;
+  text-shadow: 0 3px 0 rgb(53 27 76 / 45%), 0 0 18px rgb(255 225 75 / 65%);
+  transition: transform 0.12s ease;
+  pointer-events: none;
+}
+
+.fish-exclaim.is-visible {
+  transform: translateX(-50%) scale(1);
+  animation: fishExclaimShake 0.35s ease-in-out infinite;
+}
+
+@keyframes fishExclaimShake {
+  0%, 100% { transform: translateX(-50%) scale(1) rotate(-6deg); }
+  50% { transform: translateX(-50%) scale(1.12) rotate(6deg); }
+}
+
+.fish-catch-fly {
+  position: absolute;
+  z-index: 6;
+  top: 52%;
+  left: 50%;
+  width: 96px;
+  height: auto;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fish-catch-fly.is-flying {
+  animation: fishFlyUp 0.9s ease-out forwards;
+}
+
+@keyframes fishFlyUp {
+  0% { opacity: 1; transform: translate(-50%, 0) rotate(0); }
+  60% { opacity: 1; transform: translate(-50%, -150px) rotate(-14deg); }
+  100% { opacity: 0; transform: translate(-50%, -190px) rotate(-20deg) scale(0.9); }
+}
+
+.fish-jump {
+  position: absolute;
+  top: 46%;
+  left: 40%;
+  z-index: 6;
+  width: 92px;
+  height: auto;
+  opacity: 0;
+  transform: translateY(60px) scaleX(-1);
+  pointer-events: none;
+  filter: drop-shadow(0 10px 12px rgb(53 27 76 / 28%));
+  cursor: pointer;
+}
+
+.fish-jump.is-jumping {
+  pointer-events: auto;
+  animation: fishJumpArc 1.5s ease-in-out;
+}
+
+@keyframes fishJumpArc {
+  0% { opacity: 0; transform: translateY(70px) rotate(12deg) scaleX(-1); }
+  18% { opacity: 1; transform: translateY(-30px) rotate(-14deg) scaleX(-1); }
+  50% { opacity: 1; transform: translateY(-96px) rotate(0deg) scaleX(-1); }
+  82% { opacity: 1; transform: translateY(-30px) rotate(16deg) scaleX(-1); }
+  100% { opacity: 0; transform: translateY(70px) rotate(24deg) scaleX(-1); }
+}
+
+.fish-pop {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.6);
+  padding: 8px 18px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--pink) 0%, var(--pink-deep) 100%);
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: 900;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 6;
+}
+
+.fish-pop.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+.fish-status {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  color: #fff;
+  background: rgb(53 27 76 / 62%);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 900;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.fish-catch-card {
+  position: absolute;
+  top: 44%;
+  left: 50%;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  padding: 14px 22px 12px;
+  background: rgb(255 255 255 / 94%);
+  border: 2px solid var(--pink-light);
+  border-radius: 18px;
+  box-shadow: 0 16px 36px rgb(64 35 81 / 22%);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.4);
+  pointer-events: none;
+}
+
+.fish-catch-card.is-visible {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.fish-catch-card img {
+  width: 120px;
+  height: auto;
+}
+
+.fish-catch-card-name {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.fish-catch-card-plus {
+  color: var(--pink-deep);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+/* 結束畫面 */
+.fish-end-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: safe center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  background: rgb(53 27 76 / 55%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.24s ease;
+}
+
+.fish-end-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.fish-end-panel {
+  width: min(400px, 100%);
+  padding: 20px 22px 22px;
+  color: var(--ink);
+  text-align: center;
+  background: rgb(255 255 255 / 92%);
+  border: 1px solid rgb(53 27 76 / 10%);
+  border-radius: 20px;
+  box-shadow: 0 20px 48px rgb(64 35 81 / 16%);
+}
+
+.fish-end-panel h2 {
+  margin: 0 0 6px;
+  color: var(--pink-deep);
+  font-size: 24px;
+  text-shadow: 0.03em 0.04em 0 #ffd0e8;
+}
+
+.fish-end-count {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.fish-end-dex {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.fish-end-dex .fish-dex-slot {
+  width: 52px;
+}
+
+.fish-lucky {
+  margin: 0 0 12px;
+  padding: 14px 12px;
+  background: linear-gradient(160deg, #fff3f9 0%, #ffe6f2 100%);
+  border: 2px dashed var(--pink-light);
+  border-radius: 16px;
+}
+
+.fish-lucky-title {
+  color: var(--pink-deep);
+  font-size: 14px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.fish-lucky-img {
+  width: 150px;
+  height: auto;
+  animation: fishLuckyWiggle 2.4s ease-in-out infinite;
+}
+
+@keyframes fishLuckyWiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg) translateY(-4px); }
+}
+
+.fish-lucky-name {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.fish-lucky-blessing {
+  margin: 6px 0 0;
+  color: rgb(53 27 76 / 80%);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+.fish-end-bonus {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  color: #9a3d00;
+  background: linear-gradient(135deg, #fff4d6 0%, #ffe9b3 100%);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.6;
+}
+
+.fish-cheer-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.fish-cheer-group .game-over-input {
+  flex: 1;
+}
+
+.fish-end-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.fish-leaderboard-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 18px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--violet) 0%, #5e3a9e 100%);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.fish-page .notice-toast {
+  position: fixed;
+  top: 18px;
+}
+
+@media (max-width: 560px) {
+  .fish-dex {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .fish-dex-slot {
+    width: 34px;
+  }
+
+  .fish-sea {
+    aspect-ratio: 3 / 4;
+  }
+
+  .fish-end-actions {
+    flex-direction: column;
+  }
+}
+
+/* 排行榜頁雙分頁 */
+.leaderboard-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.leaderboard-tab {
+  min-height: 40px;
+  padding: 8px 20px;
+  background: #fff;
+  color: rgb(53 27 76 / 65%);
+  border: 2px solid rgb(53 27 76 / 12%);
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.leaderboard-tab.is-active {
+  color: #fff;
+  background: linear-gradient(135deg, var(--pink) 0%, var(--pink-deep) 100%);
+  border-color: transparent;
+}
+
+/* 釣魚難度選擇 */
+.fish-mode-select {
+  margin: 0 0 14px;
+}
+
+.fish-mode-label {
+  margin-bottom: 8px;
+  color: var(--pink-deep);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.fish-mode-options {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.fish-mode-option {
+  flex: 1;
+  max-width: 170px;
+  display: grid;
+  gap: 4px;
+  padding: 10px 8px;
+  background: rgb(255 255 255 / 70%);
+  border: 2px solid rgb(53 27 76 / 12%);
+  border-radius: 14px;
+  cursor: pointer;
+  font: inherit;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fish-mode-option:hover {
+  transform: translateY(-2px);
+}
+
+.fish-mode-option.is-selected {
+  background: #fff;
+  border-color: var(--pink-deep);
+  box-shadow: 0 6px 14px rgb(236 45 137 / 22%);
+}
+
+.fish-mode-name {
+  color: rgb(53 27 76 / 75%);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.fish-mode-option.is-selected .fish-mode-name {
+  color: var(--pink-deep);
+}
+
+.fish-mode-desc {
+  color: rgb(53 27 76 / 55%);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* 高級版拉扯戰進度條 */
+.fish-struggle {
+  position: absolute;
+  top: 16%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 7;
+  width: min(320px, 84%);
+  display: grid;
+  gap: 6px;
+  padding: 10px 14px 12px;
+  background: rgb(53 27 76 / 72%);
+  border-radius: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.fish-struggle.is-visible {
+  opacity: 1;
+}
+
+.fish-struggle-label {
+  color: #ffe14b;
+  font-size: 13px;
+  font-weight: 900;
+  text-align: center;
+  animation: fishUrgentPulse 0.6s infinite;
+}
+
+.fish-struggle-bar {
+  height: 16px;
+  overflow: hidden;
+  background: rgb(255 255 255 / 25%);
+  border-radius: 999px;
+}
+
+.fish-struggle-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--pink) 0%, #ffe14b 100%);
+  border-radius: 999px;
+  transition: width 0.08s linear;
+}
+
+.fish-struggle-timer {
+  height: 5px;
+  overflow: hidden;
+  background: rgb(255 255 255 / 20%);
+  border-radius: 999px;
+}
+
+.fish-struggle-timer-fill {
+  width: 100%;
+  height: 100%;
+  background: #7ff0a8;
+  border-radius: 999px;
+  transition: width 0.1s linear;
+}
+
+/* 雙魚釣獲卡與總分 */
+.fish-catch-card-imgs {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.fish-catch-card-imgs img {
+  width: 110px;
+  height: auto;
+}
+
+.fish-end-score {
+  margin: -4px 0 10px;
+  color: var(--pink-deep);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+/* Ping Doongs 釣手動態 */
+.fish-angler {
+  animation: fishRodIdle 3.4s ease-in-out infinite;
+}
+
+@keyframes fishRodIdle {
+  0%, 100% { transform: translateX(-50%) translateY(0) rotate(-0.6deg); }
+  50% { transform: translateX(-50%) translateY(5px) rotate(0.6deg); }
+}
+
+.fish-angler.is-casting {
+  animation: fishRodCast 0.5s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@keyframes fishRodCast {
+  0% { transform: translateX(-50%) rotate(0); }
+  32% { transform: translateX(-50%) translateY(-5px) rotate(-2deg); }
+  70% { transform: translateX(-50%) translateY(3px) rotate(1.5deg); }
+  100% { transform: translateX(-50%) rotate(0); }
+}
+
+.fish-angler.is-bite {
+  animation: fishRodShake 0.16s linear infinite;
+}
+
+@keyframes fishRodShake {
+  0%, 100% { transform: translateX(-50%) translateY(0) rotate(-1deg); }
+  25% { transform: translateX(calc(-50% + 2px)) translateY(2px) rotate(1deg); }
+  75% { transform: translateX(calc(-50% - 2px)) translateY(-2px) rotate(-1deg); }
+}
+
+.fish-angler.is-catch {
+  animation: fishRodPull 0.55s ease-out;
+}
+
+@keyframes fishRodPull {
+  0% { transform: translateX(-50%) rotate(0); }
+  38% { transform: translateX(-50%) translateY(-12px) rotate(-2deg) scale(1.02); }
+  70% { transform: translateX(-50%) translateY(2px) rotate(1deg); }
+  100% { transform: translateX(-50%) rotate(0); }
+}

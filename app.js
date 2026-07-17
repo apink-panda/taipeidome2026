@@ -65,6 +65,7 @@ const i18n = {
     promoCallout: "這是一場為 Apink 大巨蛋登場所設計的<strong>棒球打擊應援小遊戲</strong>！立即揮棒打擊、挑戰排行榜，為你的 Idol 送出熱烈應援吧！",
     promoTicket: "尚未購票的朋友，也可以透過<a href=\"https://tix.wdragons.com/UTK0201_?PRODUCT_ID=P16MXT0T&amp;STARTDATE=2026/07/31\" target=\"_blank\" rel=\"noopener noreferrer\">售票網頁</a>購票，7/31 當日進場一起觀看精彩球賽與 Apink 表演！",
     leaderboardPageLink: "排行榜頁面",
+    fishPageLink: "🎣 釣出幸運明太魚",
     promoFooter: "* 點擊右側棒球場任意區域即可揮棒 *",
     gameAria: "Apink 棒球小遊戲",
     fieldAria: "遊戲球場",
@@ -155,6 +156,7 @@ const i18n = {
     promoCallout: "This <strong>baseball batting cheer game</strong> is made for Apink's Taipei Dome appearance. Swing now, climb the leaderboard, and send your loudest support!",
     promoTicket: "Still need a ticket? Visit the <a href=\"https://tix.wdragons.com/UTK0201_?PRODUCT_ID=P16MXT0T&amp;STARTDATE=2026/07/31\" target=\"_blank\" rel=\"noopener noreferrer\">ticketing page</a> and join the game and Apink performance on 7/31!",
     leaderboardPageLink: "Leaderboard Page",
+    fishPageLink: "🎣 Catch Your Lucky Myeongtae",
     promoFooter: "* Tap anywhere on the field to swing *",
     gameAria: "Apink baseball game",
     fieldAria: "Play field",
@@ -245,6 +247,7 @@ const i18n = {
     promoCallout: "Apink の台北ドーム登場を盛り上げる<strong>野球バッティング応援ゲーム</strong>です。今すぐスイングしてランキングに挑戦し、熱いエールを届けましょう！",
     promoTicket: "まだチケットをお持ちでない方は、<a href=\"https://tix.wdragons.com/UTK0201_?PRODUCT_ID=P16MXT0T&amp;STARTDATE=2026/07/31\" target=\"_blank\" rel=\"noopener noreferrer\">チケット販売ページ</a>から購入して、7/31 当日に試合と Apink のステージを一緒に楽しみましょう！",
     leaderboardPageLink: "ランキングページ",
+    fishPageLink: "🎣 幸運ミョンテを釣ろう",
     promoFooter: "* 右側の球場エリアをタップするとスイングできます *",
     gameAria: "Apink 野球ゲーム",
     fieldAria: "プレイフィールド",
@@ -335,6 +338,7 @@ const i18n = {
     promoCallout: "Apink의 타이베이 돔 등장을 위해 만든 <strong>야구 타격 응원 게임</strong>입니다. 지금 스윙하고 랭킹에 도전하며 뜨거운 응원을 보내 주세요!",
     promoTicket: "아직 티켓이 없다면 <a href=\"https://tix.wdragons.com/UTK0201_?PRODUCT_ID=P16MXT0T&amp;STARTDATE=2026/07/31\" target=\"_blank\" rel=\"noopener noreferrer\">티켓 예매 페이지</a>에서 예매하고, 7/31 당일 멋진 경기와 Apink 공연을 함께 즐겨 주세요!",
     leaderboardPageLink: "랭킹 페이지",
+    fishPageLink: "🎣 행운 명태를 낚아요",
     promoFooter: "* 오른쪽 야구장 아무 곳이나 누르면 스윙합니다 *",
     gameAria: "Apink 야구 게임",
     fieldAria: "게임 필드",
@@ -661,6 +665,7 @@ class BaseballGame {
     this.setHtml(".promo-ticket", "promoTicket");
     this.setText("#promoStartGameButton", "startButton");
     this.setText("#leaderboardPageLink", "leaderboardPageLink");
+    this.setText("#fishPageLink", "fishPageLink");
     this.setText(".promo-footer span", "promoFooter");
     this.setText("#scoreLabel", "scoreLabel");
     this.setText("#startTitle", "startTitle");

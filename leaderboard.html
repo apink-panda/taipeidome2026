@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./styles.css?v=20260704-3" />
+    <link rel="stylesheet" href="./styles.css?v=20260717-1" />
   </head>
   <body class="leaderboard-page">
     <a class="leaderboard-start-button" id="leaderboardStartGameButton" href="./index.html#game">開始遊戲</a>
@@ -35,6 +35,12 @@
           <span id="leaderboardNextRefresh">下次更新：10:00</span>
         </div>
       </header>
+
+      <div class="leaderboard-tabs" role="tablist" aria-label="遊戲切換">
+        <button class="leaderboard-tab is-active" id="leaderboardTabBaseball" type="button" role="tab" aria-selected="true" data-game="baseball">⚾ 棒球打擊</button>
+        <button class="leaderboard-tab" id="leaderboardTabFish" type="button" role="tab" aria-selected="false" data-game="fish">🎣 幸運明太魚</button>
+        <button class="leaderboard-tab" id="leaderboardTabFishPro" type="button" role="tab" aria-selected="false" data-game="fish_pro">🔥 高級明太魚</button>
+      </div>
 
       <section class="cheer-marquee" aria-live="polite">
         <div class="cheer-marquee__label" id="cheerMarqueeTitle">應援跑馬燈</div>
@@ -69,6 +75,6 @@
       📌 本活動為粉絲自發性應援，不進行任何商業販售，並與官方主辦單位無關，若有侵犯權益請告知會立即下架關閉。
     </footer>
 
-    <script src="./leaderboard.js?v=20260704-2" defer></script>
+    <script src="./leaderboard.js?v=20260717-3" defer></script>
   </body>
 </html>

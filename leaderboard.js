@@ -3,6 +3,32 @@ const languageStorageKey = "apink_language_preference";
 const refreshIntervalMs = 10 * 60 * 1000;
 const cheerMarqueeIntervalMs = 5 * 1000;
 
+// 棒球與釣魚各自獨立的排行榜/留言資料來源
+const gameConfigs = {
+  baseball: {
+    action: "leaderboard",
+    cheersAction: "cheers",
+    cacheKey: "apink_leaderboard",
+    cheersCacheKey: "apink_cheers",
+  },
+  fish: {
+    action: "fish_leaderboard",
+    cheersAction: "fish_cheers",
+    cacheKey: "apink_fish_leaderboard",
+    cheersCacheKey: "apink_fish_cheers",
+    // 舊版後端會忽略未知 action 直接回棒球資料；要求回應帶 game:"fish"
+    // 回聲確認後端已支援釣魚，否則視為尚未支援、改用本機資料。
+    requiresGameEcho: true,
+  },
+  fish_pro: {
+    action: "fish_pro_leaderboard",
+    cheersAction: "fish_pro_cheers",
+    cacheKey: "apink_fish_pro_leaderboard",
+    cheersCacheKey: "apink_fish_pro_cheers",
+    requiresGameEcho: true,
+  },
+};
+
 const pageI18n = {
   zh: {
     htmlLang: "zh-Hant",
@@ -32,6 +58,9 @@ const pageI18n = {
     loadFailed: "暫時無法同步雲端資料",
     updatedAt: "最後更新：{time}",
     nextRefresh: "下次更新：{time}",
+    tabBaseball: "⚾ 棒球打擊",
+    tabFish: "🎣 幸運明太魚",
+    tabFishPro: "🔥 高級明太魚",
     cheerMarqueeTitle: "應援跑馬燈",
     cheerMarqueeEmpty: "目前尚無應援留言，挑戰完後留下第一句吧！",
     cheerMarqueeLine: "{handle}：{message}",
@@ -66,6 +95,9 @@ const pageI18n = {
     loadFailed: "Cloud sync is temporarily unavailable",
     updatedAt: "Last updated: {time}",
     nextRefresh: "Next update: {time}",
+    tabBaseball: "⚾ Baseball",
+    tabFish: "🎣 Lucky Myeongtae",
+    tabFishPro: "🔥 Pro Myeongtae",
     cheerMarqueeTitle: "Cheer Ticker",
     cheerMarqueeEmpty: "No cheer messages yet. Leave the first one after your challenge!",
     cheerMarqueeLine: "{handle}: {message}",
@@ -100,6 +132,9 @@ const pageI18n = {
     loadFailed: "現在クラウド同期ができません",
     updatedAt: "最終更新：{time}",
     nextRefresh: "次回更新：{time}",
+    tabBaseball: "⚾ 野球",
+    tabFish: "🎣 幸運ミョンテ",
+    tabFishPro: "🔥 上級ミョンテ",
     cheerMarqueeTitle: "応援メッセージ",
     cheerMarqueeEmpty: "応援メッセージはまだありません。挑戦後に最初の一言を残しましょう！",
     cheerMarqueeLine: "{handle}：{message}",
@@ -134,6 +169,9 @@ const pageI18n = {
     loadFailed: "현재 클라우드 동기화를 할 수 없습니다",
     updatedAt: "마지막 업데이트: {time}",
     nextRefresh: "다음 업데이트: {time}",
+    tabBaseball: "⚾ 야구",
+    tabFish: "🎣 행운 명태",
+    tabFishPro: "🔥 고급 명태",
     cheerMarqueeTitle: "응원 메시지",
     cheerMarqueeEmpty: "아직 응원 메시지가 없습니다. 도전 후 첫 응원을 남겨 주세요!",
     cheerMarqueeLine: "{handle}: {message}",
@@ -145,6 +183,9 @@ const pageI18n = {
 const state = {
   locale: "zh",
   languageMode: "auto",
+  game: ["fish", "fish_pro"].includes(new URLSearchParams(window.location.search).get("game"))
+    ? new URLSearchParams(window.location.search).get("game")
+    : "baseball",
   nextRefreshAt: Date.now() + refreshIntervalMs,
   cheers: [],
   lastCheerIndex: -1,
@@ -232,15 +273,20 @@ function applyLocale(mode = readLanguageMode()) {
   setText("#leaderboardPageRankHeader", "rank");
   setText("#leaderboardPageAccountHeader", "account");
   setText("#leaderboardPageScoreHeader", "score");
+  setText("#leaderboardTabBaseball", "tabBaseball");
+  setText("#leaderboardTabFish", "tabFish");
+  setText("#leaderboardTabFishPro", "tabFishPro");
   setText("#cheerMarqueeTitle", "cheerMarqueeTitle");
   setText("#leaderboardDisclaimer", "disclaimer");
   if (!state.cheers.length) setText("#cheerMarqueeText", "cheerMarqueeEmpty");
   updateCountdown();
 }
 
+const gameConfig = () => gameConfigs[state.game] ?? gameConfigs.baseball;
+
 function readLocalLeaderboard() {
   try {
-    return JSON.parse(localStorage.getItem("apink_leaderboard") || "[]");
+    return JSON.parse(localStorage.getItem(gameConfig().cacheKey) || "[]");
   } catch (e) {
     return [];
   }
@@ -248,19 +294,21 @@ function readLocalLeaderboard() {
 
 async function fetchRemoteLeaderboard() {
   if (!GOOGLE_SCRIPT_URL) return null;
-  const url = `${GOOGLE_SCRIPT_URL}?action=leaderboard&ts=${Date.now()}`;
+  const config = gameConfig();
+  const url = `${GOOGLE_SCRIPT_URL}?action=${config.action}&ts=${Date.now()}`;
   const response = await fetch(url, {
     method: "GET",
     mode: "cors",
     cache: "no-store",
   });
   const data = await response.json();
+  if (config.requiresGameEcho && data?.game !== state.game) return null;
   return Array.isArray(data?.leaderboard) ? data.leaderboard : null;
 }
 
 function readLocalCheers() {
   try {
-    return JSON.parse(localStorage.getItem("apink_cheers") || "[]");
+    return JSON.parse(localStorage.getItem(gameConfig().cheersCacheKey) || "[]");
   } catch (e) {
     return [];
   }
@@ -268,13 +316,15 @@ function readLocalCheers() {
 
 async function fetchRemoteCheers() {
   if (!GOOGLE_SCRIPT_URL) return null;
-  const url = `${GOOGLE_SCRIPT_URL}?action=cheers&ts=${Date.now()}`;
+  const config = gameConfig();
+  const url = `${GOOGLE_SCRIPT_URL}?action=${config.cheersAction}&ts=${Date.now()}`;
   const response = await fetch(url, {
     method: "GET",
     mode: "cors",
     cache: "no-store",
   });
   const data = await response.json();
+  if (config.requiresGameEcho && data?.game !== state.game) return null;
   return Array.isArray(data?.cheers) ? data.cheers : null;
 }
 
@@ -314,18 +364,22 @@ function renderRandomCheer() {
 }
 
 async function loadCheers() {
+  const game = state.game;
+  const config = gameConfig();
   let cheers = readLocalCheers();
 
   try {
     const remote = await fetchRemoteCheers();
+    if (state.game !== game) return; // 分頁已切換，丟棄過期回應
     if (remote) {
       cheers = remote;
       try {
-        localStorage.setItem("apink_cheers", JSON.stringify(remote));
+        localStorage.setItem(config.cheersCacheKey, JSON.stringify(remote));
       } catch (e) { }
     }
   } catch (e) {
     console.warn("Cheer sync failed, using local fallback:", e);
+    if (state.game !== game) return;
   }
 
   state.cheers = normalizeCheers(cheers);
@@ -456,6 +510,8 @@ function updateCountdown() {
 }
 
 async function loadLeaderboard() {
+  const game = state.game;
+  const config = gameConfig();
   const statusNode = document.querySelector("#leaderboardSourceStatus");
   if (statusNode) statusNode.textContent = t("loading");
 
@@ -464,15 +520,17 @@ async function loadLeaderboard() {
 
   try {
     const remote = await fetchRemoteLeaderboard();
+    if (state.game !== game) return; // 分頁已切換，丟棄過期回應
     if (remote) {
       list = remote;
       sourceKey = "remoteLoaded";
       try {
-        localStorage.setItem("apink_leaderboard", JSON.stringify(remote));
+        localStorage.setItem(config.cacheKey, JSON.stringify(remote));
       } catch (e) { }
     }
   } catch (e) {
     console.warn("Leaderboard sync failed, using local fallback:", e);
+    if (state.game !== game) return;
   }
 
   renderLeaderboard(list);
@@ -495,13 +553,39 @@ function scheduleRefresh() {
   state.cheerTimer = window.setInterval(renderRandomCheer, cheerMarqueeIntervalMs);
 }
 
+function syncGameTabs() {
+  document.querySelectorAll(".leaderboard-tab").forEach((tab) => {
+    const active = tab.dataset.game === state.game;
+    tab.classList.toggle("is-active", active);
+    tab.setAttribute("aria-selected", active ? "true" : "false");
+  });
+}
+
+function switchGame(game) {
+  if (!gameConfigs[game] || state.game === game) return;
+  state.game = game;
+  syncGameTabs();
+  const params = new URLSearchParams(window.location.search);
+  if (game === "baseball") params.delete("game");
+  else params.set("game", game);
+  const query = params.toString();
+  history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
+  state.cheers = [];
+  state.lastCheerIndex = -1;
+  loadPageData();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   applyLocale();
+  syncGameTabs();
   document.querySelector("#leaderboardLanguageSelect")?.addEventListener("change", (event) => {
     writeLanguageMode(event.target.value);
     applyLocale(state.languageMode);
     renderRandomCheer();
     loadPageData();
+  });
+  document.querySelectorAll(".leaderboard-tab").forEach((tab) => {
+    tab.addEventListener("click", () => switchGame(tab.dataset.game));
   });
   loadPageData();
   scheduleRefresh();

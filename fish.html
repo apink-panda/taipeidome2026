@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>釣出你的幸運明太魚</title>
+    <meta name="description" content="Apink 15 週年應援！幫 Apink 釣起幸福幸運明太魚，做成可愛的明太魚送給 Panda！" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css?v=20260718-4" />
+  </head>
+  <body class="fish-page">
+    <main class="fish-shell" aria-labelledby="fishTitle">
+      <header class="fish-header">
+        <div class="language-control">
+          <label class="language-label" id="fishLanguageLabel" for="fishLanguageSelect">語言</label>
+          <select class="language-select" id="fishLanguageSelect" aria-labelledby="fishLanguageLabel">
+            <option value="auto">自動</option>
+            <option value="zh">繁體中文</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
+          </select>
+        </div>
+        <a class="leaderboard-back-link" id="fishBackToGameLink" href="./index.html">回到棒球遊戲</a>
+        <div class="leaderboard-page-kicker" id="fishKicker">Apink 15 週年應援</div>
+        <h1 id="fishTitle">釣出你的幸運明太魚</h1>
+        <p id="fishIntro">Ping Doongs 想送給 Panda 幸運的明太魚！幫忙把明太魚釣起來，發送給親愛的 Panda們 吧！</p>
+      </header>
+
+      <section class="fish-game-wrap">
+        <div class="fish-hud">
+          <div class="fish-hud-item fish-hud-timer">
+            <span id="fishTimerLabel">剩餘時間</span>
+            <strong id="fishTimer">60</strong>
+          </div>
+          <div class="fish-hud-item fish-hud-count">
+            <span id="fishCountLabel">釣獲</span>
+            <strong id="fishCount">0</strong>
+          </div>
+          <div class="fish-hud-item fish-hud-score">
+            <span id="fishScoreLabel">分數</span>
+            <strong id="fishScore">0</strong>
+          </div>
+          <div class="fish-dex" id="fishDex" aria-label="成員圖鑑">
+            <img class="fish-dex-slot" data-member="rong" src="./assets/fish/rong_fish.webp" alt="Chorong" />
+            <img class="fish-dex-slot" data-member="bomi" src="./assets/fish/bomi_fish.webp" alt="Bomi" />
+            <img class="fish-dex-slot" data-member="enji" src="./assets/fish/enji_fish.webp" alt="Eunji" />
+            <img class="fish-dex-slot" data-member="najoo" src="./assets/fish/najoo_fish.webp" alt="Namjoo" />
+            <img class="fish-dex-slot" data-member="hayoung" src="./assets/fish/hayoung_fish.webp" alt="Hayoung" />
+          </div>
+        </div>
+
+        <div class="fish-sea" id="fishSea" aria-label="釣魚海面">
+          <div class="fish-clouds" aria-hidden="true"></div>
+          <div class="fish-water" aria-hidden="true">
+            <div class="fish-wave fish-wave--back"></div>
+            <div class="fish-wave fish-wave--front"></div>
+            <img class="fish-silhouette fish-silhouette--1" src="./assets/fish/rong_fish.webp" alt="" aria-hidden="true" />
+            <img class="fish-silhouette fish-silhouette--2" src="./assets/fish/enji_fish.webp" alt="" aria-hidden="true" />
+            <img class="fish-silhouette fish-silhouette--3" src="./assets/fish/hayoung_fish.webp" alt="" aria-hidden="true" />
+          </div>
+          <img class="fish-angler" id="fishAngler" src="./assets/fish/rong_boat.webp" alt="Chorong Ping Doongs 正在船上釣魚" />
+          <div class="fish-angler-badge" id="fishAnglerBadge" aria-live="polite">本局釣手：Chorong Ping Doongs · 同色魚 +10</div>
+          <div class="fish-line" id="fishLine" aria-hidden="true"></div>
+          <div class="fish-bobber" id="fishBobber" aria-hidden="true"></div>
+          <div class="fish-exclaim" id="fishExclaim" aria-hidden="true">!</div>
+          <img class="fish-catch-fly" id="fishCatchFly" src="./assets/fish/rong_fish.webp" alt="" aria-hidden="true" />
+          <img class="fish-jump" id="fishJump" src="./assets/fish/rong_fish.webp" alt="躍出水面的明太魚" />
+          <div class="fish-pop" id="fishPop" aria-hidden="true"></div>
+          <div class="fish-status" id="fishStatus">拋竿中...</div>
+
+          <!-- 高級版拉扯戰進度 -->
+          <div class="fish-struggle" id="fishStruggle" aria-hidden="true">
+            <div class="fish-struggle-label" id="fishStruggleLabel">魚在掙扎！快速連點拉上來！</div>
+            <div class="fish-struggle-bar">
+              <div class="fish-struggle-fill" id="fishStruggleFill"></div>
+            </div>
+            <div class="fish-struggle-timer">
+              <div class="fish-struggle-timer-fill" id="fishStruggleTimerFill"></div>
+            </div>
+          </div>
+
+          <!-- 釣獲卡 -->
+          <div class="fish-catch-card" id="fishCatchCard" aria-live="polite">
+            <div class="fish-catch-card-imgs">
+              <img id="fishCatchCardImg" src="./assets/fish/rong_fish.webp" alt="" />
+              <img id="fishCatchCardImg2" src="./assets/fish/rong_fish.webp" alt="" hidden />
+            </div>
+            <div class="fish-catch-card-name" id="fishCatchCardName"></div>
+            <div class="fish-catch-card-plus" id="fishCatchCardPlus">+1</div>
+          </div>
+
+          <!-- 開始畫面 -->
+          <div class="start-overlay is-visible" id="fishStartOverlay" aria-live="polite">
+            <div class="start-panel">
+              <h2 id="fishStartTitle">釣出你的幸運明太魚</h2>
+              <div class="start-countdown" id="fishStartBadge">Apink 15 週年應援</div>
+              <p class="start-rule" id="fishStartRule1">
+                釣竿會<strong>自動拋出</strong>，等浮標下沉出現「<strong>！</strong>」時趕快點擊海面<strong>拉竿</strong>，就能釣起一隻成員明太魚；太早點魚會被嚇跑、太晚魚會溜走喔！
+              </p>
+              <p class="start-rule" id="fishStartRule2">
+                每局會隨機選一隻 Ping Doongs 當釣手；釣到和牠<strong>同色</strong>的明太魚，該魚會<strong>加 10 分</strong>！限時 60 秒，盡量多釣！
+              </p>
+              <div class="fish-mode-select" role="radiogroup" aria-labelledby="fishModeLabel">
+                <div class="fish-mode-label" id="fishModeLabel">選擇難度</div>
+                <div class="fish-mode-options">
+                  <button class="fish-mode-option is-selected" type="button" role="radio" aria-checked="true" data-mode="easy">
+                    <span class="fish-mode-name" id="fishModeEasyName">初級版</span>
+                    <span class="fish-mode-desc" id="fishModeEasyDesc">「！」出現時單擊拉竿</span>
+                  </button>
+                  <button class="fish-mode-option" type="button" role="radio" aria-checked="false" data-mode="pro">
+                    <span class="fish-mode-name" id="fishModeProName">高級版</span>
+                    <span class="fish-mode-desc" id="fishModeProDesc">上鉤後 5 秒內快速連點拉魚</span>
+                  </button>
+                </div>
+              </div>
+              <button class="start-button" id="fishStartButton" type="button">開始釣魚</button>
+            </div>
+          </div>
+
+          <!-- 結束畫面 -->
+          <div class="fish-end-overlay" id="fishEndOverlay" aria-hidden="true">
+            <div class="fish-end-panel">
+              <h2 id="fishEndTitle">時間到！</h2>
+              <p class="fish-end-count" id="fishEndCount"></p>
+              <p class="fish-end-score" id="fishEndScore" hidden></p>
+              <div class="fish-end-dex" id="fishEndDex"></div>
+              <div class="fish-lucky" id="fishLucky" hidden>
+                <div class="fish-lucky-title" id="fishLuckyTitle">你的幸運明太魚</div>
+                <img class="fish-lucky-img" id="fishLuckyImg" src="./assets/fish/rong_fish.webp" alt="" />
+                <div class="fish-lucky-name" id="fishLuckyName"></div>
+                <p class="fish-lucky-blessing" id="fishLuckyBlessing"></p>
+              </div>
+              <p class="fish-end-bonus" id="fishEndBonus" hidden></p>
+
+              <div class="game-over-input-group">
+                <input type="text" class="game-over-input" id="fishHandleInput" placeholder="輸入 IG 或 Threads 帳號" maxlength="28" />
+                <button class="submit-score-btn" id="fishSubmitScoreButton" type="button">結算成績</button>
+              </div>
+              <div class="fish-cheer-group">
+                <input type="text" class="game-over-input" id="fishCheerInput" placeholder="留下 15 週年祝福..." maxlength="200" />
+                <button class="submit-score-btn" id="fishCheerSubmitButton" type="button">送出祝福</button>
+              </div>
+              <div class="fish-end-actions">
+                <button class="restart-button" id="fishPlayAgainButton" type="button">再玩一次</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="notice-toast" id="fishNoticeToast" aria-hidden="true">
+        <span id="fishNoticeToastText"></span>
+      </div>
+    </main>
+
+    <footer class="site-disclaimer" id="fishDisclaimer">
+      📌 本活動為粉絲自發性應援，不進行任何商業販售，並與官方主辦單位無關，若有侵犯權益請告知會立即下架關閉。
+    </footer>
+
+    <script src="./fish.js?v=20260718-3" defer></script>
+  </body>
+</html>

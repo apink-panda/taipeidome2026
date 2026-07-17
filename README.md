@@ -42,6 +42,48 @@ http://127.0.0.1:5174/index.html
 
 排行榜與應援留言會優先同步到 `app.js` 與 `leaderboard.js` 內設定的 Google Apps Script Web App；若雲端暫時無法連線，會使用瀏覽器 `localStorage` 作為本機暫存 fallback。
 
+### 釣魚遊戲(fish.html)的獨立排行榜
+
+釣魚遊戲與棒球遊戲共用同一個 Apps Script 端點,但資料完全分開;釣魚又分「初級版 `fish`」與「高級版 `fish_pro`」兩個獨立排行榜:
+
+- 送出分數/祝福時 POST body 多帶 `game: "fish"` 或 `game: "fish_pro"` 欄位(棒球的請求沒有此欄位,維持相容)。
+- 讀取時使用 `?action=fish_leaderboard` / `?action=fish_cheers`(初級)與 `?action=fish_pro_leaderboard` / `?action=fish_pro_cheers`(高級)。
+
+**Apps Script 需要對應更新**(在現有 doGet/doPost 中加入,fish 資料建議寫到獨立的 `FishScores` / `FishCheers` 工作表):
+
+**重要:回應必須帶 `game: "fish"` 回聲欄位**。因為舊版後端會忽略未知的 action 直接回棒球資料,前端只有在回應含 `game: "fish"` 時才會採信釣魚資料,否則自動 fallback 到 localStorage,避免兩個遊戲的資料互相污染。
+
+```js
+// doPost 內,解析 body 之後:
+const data = JSON.parse(e.postData.contents);
+const sheetsByGame = {
+  fish: { scores: "FishScores", cheers: "FishCheers" },
+  fish_pro: { scores: "FishProScores", cheers: "FishProCheers" },
+};
+const gameSheets = sheetsByGame[data.game]; // 沒有 game 欄位 = 棒球,照舊
+const scoreSheet = ss.getSheetByName(gameSheets ? gameSheets.scores : "Scores");
+const cheerSheet = ss.getSheetByName(gameSheets ? gameSheets.cheers : "Cheers");
+// 之後照原本邏輯:有 message 寫 cheerSheet,否則寫 scoreSheet。
+// 回傳時 fish/fish_pro 的回應要帶 game 欄位:
+// return jsonOutput({ game: data.game, leaderboard: readScores(scoreSheet) });
+
+// doGet 內,新增四個 action(注意都要帶對應的 game 欄位):
+if (e.parameter.action === "fish_leaderboard") {
+  return jsonOutput({ game: "fish", leaderboard: readScores(ss.getSheetByName("FishScores")) });
+}
+if (e.parameter.action === "fish_cheers") {
+  return jsonOutput({ game: "fish", cheers: readCheers(ss.getSheetByName("FishCheers")) });
+}
+if (e.parameter.action === "fish_pro_leaderboard") {
+  return jsonOutput({ game: "fish_pro", leaderboard: readScores(ss.getSheetByName("FishProScores")) });
+}
+if (e.parameter.action === "fish_pro_cheers") {
+  return jsonOutput({ game: "fish_pro", cheers: readCheers(ss.getSheetByName("FishProCheers")) });
+}
+```
+
+後端尚未更新前:讀取會自動 fallback 到 `localStorage`(`apink_fish_leaderboard` / `apink_fish_cheers`),頁面不會壞;但**送出的釣魚分數會被舊後端寫進棒球的分數表**,所以建議「先更新 Apps Script、再上線釣魚頁」。
+
 ## 素材最佳化
 
 目前網站實際載入素材已改用 WebP：

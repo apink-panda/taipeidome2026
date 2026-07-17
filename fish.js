@@ -57,7 +57,7 @@ const fishI18n = {
     popColorBonus: "同色明太魚加成 +10！",
     popSpeedBonus: "⚡ 神速加分 +1",
     popJumpCatch: "空中攔截 {name}！+{points} 分",
-    popJumpColorCatch: "同色空中攔截 {name}！加成 +10，共 {points} 分",
+    popJumpColorCatch: "同色空中攔截！+10，共 {points} 分",
     popJumpMiss: "啊！沒抓到魚！",
     scoreLabel: "分數",
     endScore: "總分 {score} 分",
@@ -91,6 +91,19 @@ const fishI18n = {
     myRank: "我的排名：{rank}",
     myScore: "我的分數",
     scoreUnit: "{score} 分",
+    cheerTemplatesLabel: "快速祝福語",
+    cheerTemplates: [
+      "Apink 15 週年快樂，永遠一起走下去！💖",
+      "Ping Doongs 幫 Panda 釣滿幸福與幸運！🎣",
+      "願 Apink 和 Panda 每天都有滿滿好運！🍀",
+      "五隻幸運明太魚，守護 Apink 閃閃發光！✨",
+      "Panda 永遠支持 Apink，15 週年粗卡！🐼",
+      "願每位成員健康平安、天天開心！🌸",
+      "Apink 的歌聲是 Panda 最幸福的禮物！🎶",
+      "一起迎接更多個充滿愛的週年吧！🎉",
+      "幸運明太魚把所有好事都送給 Apink！🐟",
+      "Apink 與 Panda 的故事永遠不會結束！♾️",
+    ],
     continueChallenge: "繼續挑戰",
     noticeHandleRequired: "請輸入 IG 或 Threads 帳號！",
     noticeCheerRequired: "請輸入祝福的話！",
@@ -135,7 +148,7 @@ const fishI18n = {
     popColorBonus: "Same-color bonus +10!",
     popSpeedBonus: "⚡ Speed bonus +1",
     popJumpCatch: "Mid-air catch: {name}! +{points}",
-    popJumpColorCatch: "Same-color mid-air catch: {name}! +10 bonus, {points} total",
+    popJumpColorCatch: "Same-color mid-air catch! +10, {points} total",
     popJumpMiss: "Ah! You missed the fish!",
     scoreLabel: "Score",
     endScore: "Total score: {score}",
@@ -169,6 +182,19 @@ const fishI18n = {
     myRank: "My rank: {rank}",
     myScore: "My score",
     scoreUnit: "{score} pts",
+    cheerTemplatesLabel: "Quick blessing messages",
+    cheerTemplates: [
+      "Happy 15th anniversary, Apink—let's stay together forever! 💖",
+      "Ping Doongs are fishing up happiness and luck for Pandas! 🎣",
+      "May Apink and Pandas have good luck every day! 🍀",
+      "Five lucky myeongtae will keep Apink shining bright! ✨",
+      "Pandas will always support Apink. Happy 15th! 🐼",
+      "Wishing every member health, peace, and happiness! 🌸",
+      "Apink's voices are the happiest gift for Pandas! 🎶",
+      "Let's celebrate many more loving anniversaries together! 🎉",
+      "May the lucky myeongtae bring every good thing to Apink! 🐟",
+      "The story of Apink and Pandas will never end! ♾️",
+    ],
     continueChallenge: "Try Again",
     noticeHandleRequired: "Please enter an IG or Threads handle!",
     noticeCheerRequired: "Please write a blessing!",
@@ -213,7 +239,7 @@ const fishI18n = {
     popColorBonus: "同色ミョンテボーナス +10！",
     popSpeedBonus: "⚡ スピードボーナス +1",
     popJumpCatch: "空中キャッチ {name}！+{points}点",
-    popJumpColorCatch: "同色の {name} を空中キャッチ！+10、合計 {points}点",
+    popJumpColorCatch: "同色を空中キャッチ！+10、合計 {points}点",
     popJumpMiss: "あっ！魚を捕まえられなかった！",
     scoreLabel: "スコア",
     endScore: "合計スコア：{score} 点",
@@ -247,6 +273,19 @@ const fishI18n = {
     myRank: "自分の順位：{rank}",
     myScore: "自分の得点",
     scoreUnit: "{score} 点",
+    cheerTemplatesLabel: "かんたんお祝いメッセージ",
+    cheerTemplates: [
+      "Apink 15周年おめでとう、これからもずっと一緒！💖",
+      "Ping Doongs が Panda に幸せと幸運を釣り上げるよ！🎣",
+      "Apink と Panda に毎日たくさんの幸運がありますように！🍀",
+      "5匹の幸運ミョンテが輝く Apink を守ります！✨",
+      "Panda は永遠に Apink を応援！15周年おめでとう！🐼",
+      "メンバーみんなが健康で、毎日笑顔で過ごせますように！🌸",
+      "Apink の歌声は Panda にとって最高に幸せな贈り物！🎶",
+      "愛いっぱいの周年をこれからも一緒に迎えよう！🎉",
+      "幸運ミョンテがすべての幸せを Apink に届けますように！🐟",
+      "Apink と Panda の物語は永遠に終わらない！♾️",
+    ],
     continueChallenge: "続けて挑戦",
     noticeHandleRequired: "IG または Threads のアカウントを入力してください！",
     noticeCheerRequired: "お祝いメッセージを入力してください！",
@@ -291,7 +330,7 @@ const fishI18n = {
     popColorBonus: "같은 색 명태 보너스 +10!",
     popSpeedBonus: "⚡ 스피드 보너스 +1",
     popJumpCatch: "공중 캐치 {name}! +{points}점",
-    popJumpColorCatch: "같은 색 {name} 공중 캐치! +10, 총 {points}점",
+    popJumpColorCatch: "같은 색 공중 캐치! +10, 총 {points}점",
     popJumpMiss: "앗! 물고기를 놓쳤어요!",
     scoreLabel: "점수",
     endScore: "총점: {score}점",
@@ -325,6 +364,19 @@ const fishI18n = {
     myRank: "내 순위: {rank}",
     myScore: "내 점수",
     scoreUnit: "{score}점",
+    cheerTemplatesLabel: "빠른 축하 메시지",
+    cheerTemplates: [
+      "Apink 15주년 축하해요, 앞으로도 영원히 함께해요! 💖",
+      "Ping Doongs가 Panda에게 행복과 행운을 낚아 줄게요! 🎣",
+      "Apink와 Panda에게 매일 행운이 가득하길! 🍀",
+      "다섯 마리 행운 명태가 빛나는 Apink를 지켜 줄게요! ✨",
+      "Panda는 영원히 Apink를 응원해요. 15주년 축하해요! 🐼",
+      "모든 멤버가 건강하고 매일 행복하길 바라요! 🌸",
+      "Apink의 노래는 Panda에게 가장 행복한 선물이에요! 🎶",
+      "사랑 가득한 기념일을 앞으로도 함께 맞이해요! 🎉",
+      "행운 명태가 모든 좋은 일을 Apink에게 전해 주길! 🐟",
+      "Apink와 Panda의 이야기는 영원히 끝나지 않아요! ♾️",
+    ],
     continueChallenge: "계속 도전",
     noticeHandleRequired: "IG 또는 Threads 계정을 입력해 주세요!",
     noticeCheerRequired: "축하 메시지를 입력해 주세요!",
@@ -411,7 +463,10 @@ class FishGame {
   }
 
   t(key, values = {}) {
-    return interpolate(fishI18n[this.locale]?.[key] ?? fishI18n.zh[key] ?? key, values);
+    const value = fishI18n[this.locale]?.[key] ?? fishI18n.zh[key] ?? key;
+    if (Array.isArray(value)) return value;
+    if (typeof value !== "string") return value;
+    return interpolate(value, values);
   }
 
   // ---------- locale ----------
@@ -443,6 +498,27 @@ class FishGame {
   setHtml(selector, key) {
     const element = document.querySelector(selector);
     if (element) element.innerHTML = this.t(key);
+  }
+
+  renderCheerTemplates() {
+    const container = document.querySelector("#fishCheerTemplates");
+    const templates = this.t("cheerTemplates");
+    if (!container || !Array.isArray(templates)) return;
+
+    const shuffled = [...templates];
+    for (let index = shuffled.length - 1; index > 0; index--) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+    }
+
+    container.replaceChildren();
+    shuffled.slice(0, 4).forEach((text) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "cheer-template-chip";
+      button.textContent = text;
+      container.appendChild(button);
+    });
   }
 
   applyLocale(mode = this.readLanguageMode()) {
@@ -491,11 +567,13 @@ class FishGame {
     this.setText("#fishLeaderboardTitle", "leaderboardTitle");
     this.setText("#fishLeaderboardCloseButton", "continueChallenge");
     this.setText("#fishDisclaimer", "disclaimer");
+    document.querySelector("#fishCheerTemplates")?.setAttribute("aria-label", this.t("cheerTemplatesLabel"));
     document.querySelector("#fishHandleInput")?.setAttribute("placeholder", this.t("handlePlaceholder"));
     document.querySelector("#fishCheerInput")?.setAttribute("placeholder", this.t("cheerPlaceholder"));
     document.querySelectorAll(".fish-dex-slot").forEach((img) => {
       img.alt = this.t(`member_${img.dataset.member}`);
     });
+    this.renderCheerTemplates();
     this.updateAngler();
     if (this.currentStatusKey) this.setText("#fishStatus", this.currentStatusKey);
   }
@@ -623,6 +701,15 @@ class FishGame {
     });
     document.querySelector("#fishSubmitScoreButton")?.addEventListener("click", () => this.submitScore());
     document.querySelector("#fishCheerSubmitButton")?.addEventListener("click", () => this.submitCheer());
+    document.querySelector("#fishCheerTemplates")?.addEventListener("click", (event) => {
+      const chip = event.target.closest(".cheer-template-chip");
+      if (!chip) return;
+      const input = document.querySelector("#fishCheerInput");
+      if (input) {
+        input.value = chip.textContent;
+        input.focus();
+      }
+    });
     document.querySelector("#fishPlayAgainButton")?.addEventListener("click", () => this.showStartScreen());
     document.querySelector("#fishLeaderboardCloseButton")?.addEventListener("click", () => this.closeLeaderboard());
   }
@@ -1205,6 +1292,7 @@ class FishGame {
     this.leaderboardOverlay?.classList.add("is-visible");
     this.leaderboardOverlay?.setAttribute("aria-hidden", "false");
     this.cheerPanel?.classList.remove("is-sent");
+    this.renderCheerTemplates();
   }
 
   async submitCheer() {

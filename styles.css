@@ -2204,6 +2204,17 @@ img {
   flex: 1;
 }
 
+#fishCheerTemplates .cheer-template-chip {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+  text-overflow: clip;
+  white-space: normal;
+}
+
 .fish-end-actions {
   display: flex;
   gap: 10px;

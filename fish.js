@@ -18,7 +18,8 @@ const JUMP_VISIBLE_MS = 1500;
 const JUMP_CATCH_POINTS = 5;
 const FISH_MEMBERS = ["rong", "bomi", "enji", "najoo", "hayoung"];
 const fishImage = (member) => `./assets/fish/${member}_fish.webp`;
-const anglerImage = (member) => `./assets/fish/${member}_boat.webp`;
+const BOAT_ASSET_VERSION = "20260718-2";
+const anglerImage = (member) => `./assets/fish/${member}_boat.webp?v=${BOAT_ASSET_VERSION}`;
 const MATCHING_COLOR_BONUS = 10;
 
 const fishI18n = {

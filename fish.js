@@ -105,7 +105,6 @@ const fishI18n = {
       "幸運明太魚把所有好事都送給 Apink！🐟",
       "Apink 與 Panda 的故事永遠不會結束！♾️",
     ],
-    continueChallenge: "繼續挑戰",
     noticeHandleRequired: "請輸入 IG 或 Threads 帳號！",
     noticeCheerRequired: "請輸入祝福的話！",
     noticeScoreSubmitted: "成績已送出！",
@@ -196,7 +195,6 @@ const fishI18n = {
       "May the lucky myeongtae bring every good thing to Apink! 🐟",
       "The story of Apink and Pandas will never end! ♾️",
     ],
-    continueChallenge: "Try Again",
     noticeHandleRequired: "Please enter an IG or Threads handle!",
     noticeCheerRequired: "Please write a blessing!",
     noticeScoreSubmitted: "Score submitted!",
@@ -287,7 +285,6 @@ const fishI18n = {
       "幸運ミョンテがすべての幸せを Apink に届けますように！🐟",
       "Apink と Panda の物語は永遠に終わらない！♾️",
     ],
-    continueChallenge: "続けて挑戦",
     noticeHandleRequired: "IG または Threads のアカウントを入力してください！",
     noticeCheerRequired: "お祝いメッセージを入力してください！",
     noticeScoreSubmitted: "スコアを送信しました！",
@@ -378,7 +375,6 @@ const fishI18n = {
       "행운 명태가 모든 좋은 일을 Apink에게 전해 주길! 🐟",
       "Apink와 Panda의 이야기는 영원히 끝나지 않아요! ♾️",
     ],
-    continueChallenge: "계속 도전",
     noticeHandleRequired: "IG 또는 Threads 계정을 입력해 주세요!",
     noticeCheerRequired: "축하 메시지를 입력해 주세요!",
     noticeScoreSubmitted: "점수를 제출했어요!",
@@ -568,7 +564,6 @@ class FishGame {
     this.setText("#fishCheerSubmitButton", "cheerSubmit");
     this.setText("#fishPlayAgainButton", "playAgain");
     this.setText("#fishLeaderboardTitle", "leaderboardTitle");
-    this.setText("#fishLeaderboardCloseButton", "continueChallenge");
     this.setText("#fishDisclaimer", "disclaimer");
     document.querySelector("#fishCheerTemplates")?.setAttribute("aria-label", this.t("cheerTemplatesLabel"));
     document.querySelector("#fishHandleInput")?.setAttribute("placeholder", this.t("handlePlaceholder"));
@@ -778,7 +773,6 @@ class FishGame {
       }
     });
     document.querySelector("#fishPlayAgainButton")?.addEventListener("click", () => this.showStartScreen());
-    document.querySelector("#fishLeaderboardCloseButton")?.addEventListener("click", () => this.closeLeaderboard());
   }
 
   showStartScreen() {
@@ -1400,11 +1394,6 @@ class FishGame {
       button.textContent = this.t("cheerSubmit");
     }
     this.showNotice(this.t("noticeCheerSubmitted"));
-  }
-
-  closeLeaderboard() {
-    this.leaderboardOverlay?.classList.remove("is-visible");
-    this.leaderboardOverlay?.setAttribute("aria-hidden", "true");
     this.showStartScreen();
   }
 

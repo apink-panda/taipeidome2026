@@ -456,6 +456,8 @@ class FishGame {
     this.noticeTimeoutId = null;
     this.popTimeoutId = null;
     this.audioContext = null;
+    this.audioUnlocked = false;
+    this.audioSessionEl = null;
     this.locale = "zh";
     this.languageMode = "auto";
     this.currentStatusKey = "statusCast";
@@ -606,12 +608,70 @@ class FishGame {
 
   // ---------- audio ----------
   getAudioContext() {
-    if (!this.audioContext) {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (Ctx) this.audioContext = new Ctx();
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return null;
+    if (!this.audioContext) this.audioContext = new AudioContext();
+    if (this.audioContext.state === "suspended") {
+      const resumePromise = this.audioContext.resume();
+      if (resumePromise?.catch) resumePromise.catch(() => { });
     }
-    if (this.audioContext?.state === "suspended") this.audioContext.resume();
+
+    // iOS Safari 需要在使用者手勢內真正啟動一次聲音來源，後續由
+    // 計時器觸發的魚上鉤、捕獲等音效才不會被靜音。
+    if (!this.audioUnlocked) {
+      try {
+        const buffer = this.audioContext.createBuffer(1, 1, 22050);
+        const source = this.audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(this.audioContext.destination);
+        source.start(0);
+        this.audioUnlocked = true;
+      } catch (e) { }
+      this.startAudioSession();
+    }
     return this.audioContext;
+  }
+
+  startAudioSession() {
+    if (this.audioSessionEl) return;
+    try {
+      const sampleRate = 8000;
+      const seconds = 0.5;
+      const numSamples = Math.floor(sampleRate * seconds);
+      const dataSize = numSamples;
+      const buffer = new ArrayBuffer(44 + dataSize);
+      const view = new DataView(buffer);
+      const writeString = (offset, value) => {
+        for (let index = 0; index < value.length; index++) {
+          view.setUint8(offset + index, value.charCodeAt(index));
+        }
+      };
+
+      writeString(0, "RIFF");
+      view.setUint32(4, 36 + dataSize, true);
+      writeString(8, "WAVE");
+      writeString(12, "fmt ");
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate, true);
+      view.setUint16(32, 1, true);
+      view.setUint16(34, 8, true);
+      writeString(36, "data");
+      view.setUint32(40, dataSize, true);
+      for (let index = 0; index < numSamples; index++) view.setUint8(44 + index, 128);
+
+      const blob = new Blob([buffer], { type: "audio/wav" });
+      const audio = document.createElement("audio");
+      audio.setAttribute("playsinline", "");
+      audio.setAttribute("webkit-playsinline", "");
+      audio.loop = true;
+      audio.src = URL.createObjectURL(blob);
+      const playPromise = audio.play();
+      if (playPromise?.catch) playPromise.catch(() => { });
+      this.audioSessionEl = audio;
+    } catch (e) { }
   }
 
   playTone(freq, durationMs, { type = "sine", gain = 0.12, delayMs = 0 } = {}) {
@@ -658,9 +718,13 @@ class FishGame {
 
   // ---------- game flow ----------
   bind() {
-    this.startButton.addEventListener("click", () => this.startGame());
+    this.startButton.addEventListener("click", () => {
+      this.getAudioContext();
+      this.startGame();
+    });
     this.sea.addEventListener("pointerdown", (event) => {
       if (event.target.closest("button, a, input, .start-overlay, .fish-end-overlay, .leaderboard-overlay")) return;
+      this.getAudioContext();
       // 跳魚出現時使用獨立判定，避免誤觸主釣竿的「太早了」。
       if (this.jumpActive) {
         if (event.target.closest("#fishJump")) this.catchJumpFish();
@@ -672,6 +736,7 @@ class FishGame {
     this.jumpFish?.addEventListener("pointerdown", (event) => {
       if (!this.jumpActive) return;
       event.stopPropagation();
+      this.getAudioContext();
       this.catchJumpFish();
     });
     window.addEventListener("keydown", (event) => {
@@ -679,6 +744,7 @@ class FishGame {
       if (activeEl && ["INPUT", "TEXTAREA", "BUTTON"].includes(activeEl.tagName)) return;
       if (event.code !== "Space" && event.code !== "Enter") return;
       event.preventDefault();
+      this.getAudioContext();
       if (this.phase === "ready" || this.phase === "ended") {
         if (this.startOverlay.classList.contains("is-visible")) this.startGame();
         return;

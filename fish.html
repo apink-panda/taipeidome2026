@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./styles.css?v=20260718-6" />
+    <link rel="stylesheet" href="./styles.css?v=20260718-7" />
   </head>
   <body class="fish-page">
     <main class="fish-shell" aria-labelledby="fishTitle">
@@ -52,7 +52,7 @@
           </div>
         </div>
 
-        <div class="fish-sea" id="fishSea" aria-label="釣魚海面">
+        <div class="fish-sea is-ready" id="fishSea" aria-label="釣魚海面">
           <div class="fish-clouds" aria-hidden="true"></div>
           <div class="fish-water" aria-hidden="true">
             <div class="fish-wave fish-wave--back"></div>
@@ -61,8 +61,8 @@
             <img class="fish-silhouette fish-silhouette--2" src="./assets/fish/enji_fish.webp" alt="" aria-hidden="true" />
             <img class="fish-silhouette fish-silhouette--3" src="./assets/fish/hayoung_fish.webp" alt="" aria-hidden="true" />
           </div>
-          <img class="fish-angler" id="fishAngler" src="./assets/fish/rong_boat.webp" alt="Chorong Ping Doongs 正在船上釣魚" />
-          <div class="fish-angler-badge" id="fishAnglerBadge" aria-live="polite">本局釣手：Chorong Ping Doongs · 同色魚 +10</div>
+          <img class="fish-angler" id="fishAngler" src="./assets/fish/rong_boat.webp" alt="Chorong Ping Doongs 正在船上釣魚" aria-hidden="true" />
+          <div class="fish-angler-badge" id="fishAnglerBadge" aria-live="polite" aria-hidden="true">本局釣手：Chorong Ping Doongs · 同色魚 +10</div>
           <div class="fish-line" id="fishLine" aria-hidden="true"></div>
           <div class="fish-bobber" id="fishBobber" aria-hidden="true"></div>
           <div class="fish-exclaim" id="fishExclaim" aria-hidden="true">!</div>
@@ -101,7 +101,7 @@
                 釣竿會<strong>自動拋出</strong>，等浮標下沉出現「<strong>！</strong>」時趕快點擊海面<strong>拉竿</strong>，就能釣起一隻成員明太魚；太早點魚會被嚇跑、太晚魚會溜走喔！
               </p>
               <p class="start-rule" id="fishStartRule2">
-                每局會隨機選一隻 Ping Doongs 當釣手；釣到和牠<strong>同色</strong>的明太魚，該魚會<strong>加 10 分</strong>！限時 60 秒，盡量多釣！
+                五隻 Ping Doongs 會以隨機順序輪流當釣手，全部上陣前不會重複；釣到和牠<strong>同色</strong>的明太魚加 <strong>10 分</strong>，一次釣到兩隻相同且同色的魚加 <strong>30 分</strong>！限時 60 秒，盡量多釣！
               </p>
               <div class="fish-mode-select" role="radiogroup" aria-labelledby="fishModeLabel">
                 <div class="fish-mode-label" id="fishModeLabel">選擇難度</div>
@@ -112,7 +112,7 @@
                   </button>
                   <button class="fish-mode-option" type="button" role="radio" aria-checked="false" data-mode="pro">
                     <span class="fish-mode-name" id="fishModeProName">高級版</span>
-                    <span class="fish-mode-desc" id="fishModeProDesc">上鉤後 5 秒內快速連點拉魚</span>
+                    <span class="fish-mode-desc" id="fishModeProDesc">快速連點拉魚，神速再加 5 分</span>
                   </button>
                 </div>
               </div>
@@ -171,6 +171,6 @@
       📌 本活動為粉絲自發性應援，不進行任何商業販售，並與官方主辦單位無關，若有侵犯權益請告知會立即下架關閉。
     </footer>
 
-    <script src="./fish.js?v=20260718-10" defer></script>
+    <script src="./fish.js?v=20260718-15" defer></script>
   </body>
 </html>

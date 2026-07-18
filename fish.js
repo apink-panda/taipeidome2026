@@ -1,5 +1,6 @@
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJssnwqL636-7t1P2LtspixCWvdm4ffMhQxmAYDB62f4Y2BwvgmxRryl-nbN3Qsu6P/exec";
 const languageStorageKey = "apink_language_preference";
+const ANGLER_ROTATION_STORAGE_KEY = "apink_fish_angler_rotation_v1";
 const GAME_DURATION_S = 60;
 const BITE_WINDOW_MS = 900;
 // 高級版拉扯戰：掙脫倒數隨機（有時很快就掙脫），連點推滿進度條，
@@ -10,7 +11,9 @@ const STRUGGLE_TAPS_PER_S_MIN = 3.0;
 const STRUGGLE_TAPS_PER_S_MAX = 4.2;
 const STRUGGLE_DECAY_PER_S = 1.2;
 const SPEED_BONUS_RATIO = 0.55; // 在時限 55% 內完成 → 加分
+const SPEED_BONUS_POINTS = 5;
 const DOUBLE_CATCH_CHANCE = 0.25; // 一竿雙魚機率（可重複成員）
+const DOUBLE_MATCHING_COLOR_POINTS = 30; // 兩隻相同且與釣手同色時，該次固定 30 分
 // 跳魚彩蛋：魚不定時躍出水面，在空中點中牠直接 +5 分
 const JUMP_INTERVAL_MIN_MS = 7000;
 const JUMP_INTERVAL_MAX_MS = 13000;
@@ -42,7 +45,7 @@ const fishI18n = {
     startTitle: "釣出你的幸運明太魚",
     startBadge: "Apink 15 週年應援",
     startRule1: "釣竿會<strong>自動拋出</strong>，等浮標下沉出現「<strong>！</strong>」時趕快點擊海面<strong>拉竿</strong>，就能釣起一隻成員明太魚；太早點魚會被嚇跑、太晚魚會溜走喔！",
-    startRule2: "每局會隨機選一隻 Ping Doongs 當釣手；釣到和牠<strong>同色</strong>的明太魚，該魚會<strong>加 10 分</strong>！限時 60 秒，盡量多釣！",
+    startRule2: "五隻 Ping Doongs 會以隨機順序輪流當釣手，全部上陣前不會重複；釣到和牠<strong>同色</strong>的明太魚加 <strong>10 分</strong>，一次釣到兩隻相同且同色的魚加 <strong>30 分</strong>！限時 60 秒，盡量多釣！",
     anglerBadge: "本局釣手：{name} Ping Doongs · 同色魚 +10",
     anglerAlt: "{name} Ping Doongs 正在船上釣魚",
     startButton: "開始釣魚",
@@ -56,7 +59,8 @@ const fishI18n = {
     popCatch: "釣到了！",
     popDoubleCatch: "雙喜臨門！一次兩隻！",
     popColorBonus: "同色明太魚加成 +10！",
-    popSpeedBonus: "⚡ 神速加分 +1",
+    popDoubleColorBonus: "同色雙魚加成 +30！",
+    popSpeedBonus: "⚡ 神速加分 +5",
     popJumpCatch: "空中攔截 {name}！+{points} 分",
     popJumpColorCatch: "同色空中攔截！+10，共 {points} 分",
     popJumpMiss: "啊！沒抓到魚！",
@@ -66,7 +70,7 @@ const fishI18n = {
     modeEasy: "初級版",
     modeEasyDesc: "「！」出現時單擊拉竿",
     modePro: "高級版",
-    modeProDesc: "掙脫倒數隨機，快速連點拉魚，神速再加分",
+    modeProDesc: "掙脫倒數隨機，快速連點拉魚，神速再加 5 分",
     endTitle: "時間到！",
     endCount: "共釣起 {count} 隻幸運明太魚！",
     endCountZero: "這次魚兒太害羞了，再試一次吧！",
@@ -132,7 +136,7 @@ const fishI18n = {
     startTitle: "Catch Your Lucky Myeongtae",
     startBadge: "Apink 15th Anniversary",
     startRule1: "The line <strong>casts automatically</strong>. When the bobber dips and \"<strong>!</strong>\" appears, tap the sea fast to <strong>reel</strong> in a member myeongtae. Tap too early and you scare it off — too late and it slips away!",
-    startRule2: "Each game randomly chooses one Ping Doongs angler. Catch a myeongtae of the <strong>same color</strong> for <strong>10 bonus points</strong>! You have 60 seconds — catch as many as you can.",
+    startRule2: "All five Ping Doongs take turns as angler in a shuffled order, with no repeats until everyone has appeared. Catch a myeongtae of the <strong>same color</strong> for <strong>10 bonus points</strong>, or two identical same-color fish at once for <strong>30 points</strong>! You have 60 seconds — catch as many as you can.",
     anglerBadge: "This game: {name} Ping Doongs · Same color +10",
     anglerAlt: "{name} Ping Doongs fishing from a boat",
     startButton: "Start Fishing",
@@ -146,7 +150,8 @@ const fishI18n = {
     popCatch: "Caught!",
     popDoubleCatch: "Double catch! Two at once!",
     popColorBonus: "Same-color bonus +10!",
-    popSpeedBonus: "⚡ Speed bonus +1",
+    popDoubleColorBonus: "Matching double-fish bonus +30!",
+    popSpeedBonus: "⚡ Speed bonus +5",
     popJumpCatch: "Mid-air catch: {name}! +{points}",
     popJumpColorCatch: "Same-color mid-air catch! +10, {points} total",
     popJumpMiss: "Ah! You missed the fish!",
@@ -156,7 +161,7 @@ const fishI18n = {
     modeEasy: "Easy",
     modeEasyDesc: "Tap once when \"!\" appears",
     modePro: "Pro",
-    modeProDesc: "Random escape timer — tap fast, extra point for speed",
+    modeProDesc: "Random escape timer — tap fast for a +5 speed bonus",
     endTitle: "Time's Up!",
     endCount: "You caught {count} lucky myeongtae!",
     endCountZero: "The fish were shy this time — try again!",
@@ -222,7 +227,7 @@ const fishI18n = {
     startTitle: "幸運のミョンテを釣り上げよう",
     startBadge: "Apink 15周年応援",
     startRule1: "釣り竿は<strong>自動でキャスト</strong>されます。ウキが沈んで「<strong>！</strong>」が出たら、すばやく海をタップして<strong>釣り上げ</strong>！早すぎると魚が驚いて逃げ、遅すぎても逃げてしまいます。",
-    startRule2: "ゲームごとに Ping Doongs の釣り手がランダムで1匹選ばれます。釣り手と<strong>同じ色</strong>のミョンテは<strong>10点ボーナス</strong>！制限時間60秒でたくさん釣ろう！",
+    startRule2: "5匹の Ping Doongs がランダムな順番で釣り手を交代し、全員が登場するまで重複しません。釣り手と<strong>同じ色</strong>のミョンテは<strong>10点</strong>、同じ同色ミョンテを2匹同時に釣ると<strong>30点</strong>！制限時間60秒でたくさん釣ろう！",
     anglerBadge: "今回の釣り手：{name} Ping Doongs · 同色 +10",
     anglerAlt: "船で釣りをする {name} Ping Doongs",
     startButton: "釣りスタート",
@@ -236,7 +241,8 @@ const fishI18n = {
     popCatch: "釣れた！",
     popDoubleCatch: "ダブルヒット！2匹同時！",
     popColorBonus: "同色ミョンテボーナス +10！",
-    popSpeedBonus: "⚡ スピードボーナス +1",
+    popDoubleColorBonus: "同色ダブルボーナス +30！",
+    popSpeedBonus: "⚡ スピードボーナス +5",
     popJumpCatch: "空中キャッチ {name}！+{points}点",
     popJumpColorCatch: "同色を空中キャッチ！+10、合計 {points}点",
     popJumpMiss: "あっ！魚を捕まえられなかった！",
@@ -246,7 +252,7 @@ const fishI18n = {
     modeEasy: "初級",
     modeEasyDesc: "「！」が出たら1タップ",
     modePro: "上級",
-    modeProDesc: "逃げるまでの時間はランダム、連打で釣り上げ、速いとボーナス",
+    modeProDesc: "逃げるまでの時間はランダム、連打で釣り上げ、速いと5点ボーナス",
     endTitle: "タイムアップ！",
     endCount: "幸運のミョンテを {count} 匹釣り上げました！",
     endCountZero: "今回は魚が恥ずかしがり屋さん。もう一度挑戦しよう！",
@@ -312,7 +318,7 @@ const fishI18n = {
     startTitle: "행운의 명태를 낚아 올려요",
     startBadge: "Apink 15주년 응원",
     startRule1: "낚싯대는 <strong>자동으로 던져져요</strong>. 찌가 가라앉으며 \"<strong>!</strong>\"가 뜨면 재빨리 바다를 탭해 <strong>낚아 올리세요</strong>! 너무 빠르면 놀라서 도망가고, 늦어도 도망가요.",
-    startRule2: "게임마다 Ping Doongs 낚시꾼 한 명이 무작위로 선택돼요. 낚시꾼과<strong>같은 색</strong>의 명태를 잡으면 <strong>10점 보너스</strong>! 60초 동안 최대한 많이 낚아 보세요.",
+    startRule2: "다섯 Ping Doongs가 무작위 순서로 낚시꾼을 맡으며, 모두 등장하기 전에는 중복되지 않아요. 낚시꾼과<strong>같은 색</strong>의 명태는 <strong>10점</strong>, 같은 동색 명태 두 마리를 한 번에 잡으면 <strong>30점</strong>! 60초 동안 최대한 많이 낚아 보세요.",
     anglerBadge: "이번 낚시꾼: {name} Ping Doongs · 같은 색 +10",
     anglerAlt: "배에서 낚시하는 {name} Ping Doongs",
     startButton: "낚시 시작",
@@ -326,7 +332,8 @@ const fishI18n = {
     popCatch: "잡았다!",
     popDoubleCatch: "더블! 한 번에 두 마리!",
     popColorBonus: "같은 색 명태 보너스 +10!",
-    popSpeedBonus: "⚡ 스피드 보너스 +1",
+    popDoubleColorBonus: "같은 색 두 마리 보너스 +30!",
+    popSpeedBonus: "⚡ 스피드 보너스 +5",
     popJumpCatch: "공중 캐치 {name}! +{points}점",
     popJumpColorCatch: "같은 색 공중 캐치! +10, 총 {points}점",
     popJumpMiss: "앗! 물고기를 놓쳤어요!",
@@ -336,7 +343,7 @@ const fishI18n = {
     modeEasy: "초급",
     modeEasyDesc: "\"!\"가 뜨면 한 번 탭",
     modePro: "고급",
-    modeProDesc: "탈출 시간 랜덤, 연타로 낚고 빠르면 보너스",
+    modeProDesc: "탈출 시간 랜덤, 연타로 낚고 빠르면 5점 보너스",
     endTitle: "타임 업!",
     endCount: "행운의 명태를 {count}마리 낚았어요!",
     endCountZero: "이번엔 물고기가 수줍었나 봐요. 다시 도전!",
@@ -431,6 +438,9 @@ class FishGame {
     this.caught = []; // every catch, in order (member keys)
     this.score = 0; // 每隻 1 分；與本局釣手同色時該魚再加 10 分，另計速度分
     this.anglerMember = FISH_MEMBERS[0];
+    this.anglerOrder = [];
+    this.nextAnglerIndex = 0;
+    this.restoreAnglerRotation();
     this.struggleRequired = 0;
     this.struggleProgress = 0;
     this.struggleWindowMs = STRUGGLE_WINDOW_MAX_MS;
@@ -587,13 +597,70 @@ class FishGame {
     }
   }
 
+  setAnglerVisible(isVisible) {
+    this.sea?.classList.toggle("is-ready", !isVisible);
+    this.rod?.setAttribute("aria-hidden", isVisible ? "false" : "true");
+    this.anglerBadge?.setAttribute("aria-hidden", isVisible ? "false" : "true");
+  }
+
   chooseAngler() {
-    this.anglerMember = FISH_MEMBERS[Math.floor(Math.random() * FISH_MEMBERS.length)];
+    if (this.anglerOrder.length !== FISH_MEMBERS.length) this.initializeAnglerRotation();
+    this.anglerMember = this.anglerOrder[this.nextAnglerIndex];
+    this.nextAnglerIndex = (this.nextAnglerIndex + 1) % this.anglerOrder.length;
+    this.persistAnglerRotation();
     this.updateAngler();
+  }
+
+  restoreAnglerRotation() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(ANGLER_ROTATION_STORAGE_KEY) || "null");
+      if (!saved || !Array.isArray(saved.order)) return;
+      const orderIsValid = saved.order.length === FISH_MEMBERS.length
+        && saved.order.every((member) => FISH_MEMBERS.includes(member))
+        && new Set(saved.order).size === FISH_MEMBERS.length;
+      const indexIsValid = Number.isInteger(saved.nextIndex)
+        && saved.nextIndex >= 0
+        && saved.nextIndex < FISH_MEMBERS.length;
+      if (!orderIsValid || !indexIsValid) return;
+      this.anglerOrder = [...saved.order];
+      this.nextAnglerIndex = saved.nextIndex;
+    } catch (e) { }
+  }
+
+  persistAnglerRotation() {
+    try {
+      localStorage.setItem(ANGLER_ROTATION_STORAGE_KEY, JSON.stringify({
+        order: this.anglerOrder,
+        nextIndex: this.nextAnglerIndex,
+      }));
+    } catch (e) { }
+  }
+
+  initializeAnglerRotation() {
+    const order = [...FISH_MEMBERS];
+    for (let index = order.length - 1; index > 0; index--) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [order[index], order[swapIndex]] = [order[swapIndex], order[index]];
+    }
+    this.anglerOrder = order;
+    this.nextAnglerIndex = 0;
   }
 
   pointsForFish(member, basePoints = 1) {
     return basePoints + (member === this.anglerMember ? MATCHING_COLOR_BONUS : 0);
+  }
+
+  isDoubleMatchingColorCatch(members) {
+    return members.length === 2
+      && members[0] === members[1]
+      && members[0] === this.anglerMember;
+  }
+
+  pointsForCatch(members, speedBonus = 0) {
+    const catchPoints = this.isDoubleMatchingColorCatch(members)
+      ? DOUBLE_MATCHING_COLOR_POINTS
+      : members.reduce((points, member) => points + this.pointsForFish(member), 0);
+    return catchPoints + speedBonus;
   }
 
   setStatus(key) {
@@ -719,6 +786,8 @@ class FishGame {
     });
     this.sea.addEventListener("pointerdown", (event) => {
       if (event.target.closest("button, a, input, .start-overlay, .fish-end-overlay, .leaderboard-overlay")) return;
+      // 高級版只接受主要觸點，避免多指同時按下累積拉魚進度。
+      if (this.mode === "pro" && event.pointerType === "touch" && event.isPrimary === false) return;
       this.getAudioContext();
       // 跳魚出現時使用獨立判定，避免誤觸主釣竿的「太早了」。
       if (this.jumpActive) {
@@ -731,6 +800,7 @@ class FishGame {
     this.jumpFish?.addEventListener("pointerdown", (event) => {
       if (!this.jumpActive) return;
       event.stopPropagation();
+      if (this.mode === "pro" && event.pointerType === "touch" && event.isPrimary === false) return;
       this.getAudioContext();
       this.catchJumpFish();
     });
@@ -779,6 +849,7 @@ class FishGame {
     // 「再玩一次」回到難度選擇畫面，讓玩家重選難度再開始
     this.clearTimers();
     this.phase = "ready";
+    this.setAnglerVisible(false);
     this.timeLeft = GAME_DURATION_S;
     this.caught = [];
     this.score = 0;
@@ -796,12 +867,12 @@ class FishGame {
     this.startOverlay.classList.add("is-visible");
     this.startOverlay.setAttribute("aria-hidden", "false");
     this.setStatus("statusCast");
+    this.chooseAngler();
   }
 
   startGame() {
     this.getAudioContext();
     this.clearTimers();
-    this.chooseAngler();
     this.phase = "idle";
     this.timeLeft = GAME_DURATION_S;
     this.caught = [];
@@ -818,6 +889,7 @@ class FishGame {
     this.leaderboardOverlay?.setAttribute("aria-hidden", "true");
     this.catchCard.classList.remove("is-visible");
     this.resetSeaVisuals();
+    this.setAnglerVisible(true);
     this.setStatus("statusCast");
     this.jumpActive = false;
     this.jumpFish?.classList.remove("is-jumping");
@@ -938,7 +1010,7 @@ class FishGame {
     this.updateStruggleUI();
     if (this.struggleProgress >= this.struggleRequired) {
       const elapsed = performance.now() - this.struggleStartAt;
-      const bonus = elapsed <= this.struggleWindowMs * SPEED_BONUS_RATIO ? 1 : 0;
+      const bonus = elapsed <= this.struggleWindowMs * SPEED_BONUS_RATIO ? SPEED_BONUS_POINTS : 0;
       this.endStruggle();
       this.catchFish(bonus);
     }
@@ -1032,14 +1104,16 @@ class FishGame {
     }
     members.forEach((member) => this.caught.push(member));
     const matchingCount = members.filter((member) => member === this.anglerMember).length;
-    const gained = members.reduce((points, member) => points + this.pointsForFish(member), 0) + bonus;
+    const isDoubleMatchingColor = this.isDoubleMatchingColorCatch(members);
+    const gained = this.pointsForCatch(members, bonus);
     this.score += gained;
     this.updateHud();
     this.playCatch();
     this.pop(members.length > 1 ? this.t("popDoubleCatch") : this.t("popCatch"));
     let nextPopDelay = 500;
     if (matchingCount > 0) {
-      window.setTimeout(() => this.pop(this.t("popColorBonus")), nextPopDelay);
+      const colorBonusKey = isDoubleMatchingColor ? "popDoubleColorBonus" : "popColorBonus";
+      window.setTimeout(() => this.pop(this.t(colorBonusKey)), nextPopDelay);
       nextPopDelay += 500;
     }
     if (bonus > 0) window.setTimeout(() => this.pop(this.t("popSpeedBonus")), nextPopDelay);
@@ -1071,7 +1145,7 @@ class FishGame {
       }
     }
     document.querySelector("#fishCatchCardName").textContent = members
-      .map((member) => `${this.t(`member_${member}`)}${member === this.anglerMember ? " +10" : ""}`)
+      .map((member) => `${this.t(`member_${member}`)}${!isDoubleMatchingColor && member === this.anglerMember ? " +10" : ""}`)
       .join(" & ");
     const cardPlus = document.querySelector("#fishCatchCardPlus");
     if (cardPlus) cardPlus.textContent = `+${gained}`;
@@ -1398,7 +1472,10 @@ class FishGame {
   }
 
   start() {
+    this.setAnglerVisible(false);
     this.applyLocale();
+    // 載入或重新整理頁面時，立即顯示輪替中的下一位釣手。
+    this.chooseAngler();
     this.bind();
   }
 }

@@ -1886,6 +1886,13 @@ img {
   pointer-events: none;
 }
 
+/* 開始畫面先隱藏釣手，避免預設圖片載入後再切換造成閃爍。 */
+.fish-sea.is-ready .fish-angler,
+.fish-sea.is-ready .fish-angler-badge {
+  visibility: hidden;
+  animation: none;
+}
+
 .fish-line {
   display: none;
   position: absolute;

@@ -5,6 +5,7 @@
  * - Baseball: Leaderboard   | Cheers
  * - Fish:     FishScores    | FishCheers
  * - Fish Pro: FishProScores | FishProCheers
+ * - Fish Swipe: FishSwipeScores | FishSwipeCheers
  *
  * Score headers: handle | score
  * Cheer headers: handle | message | time
@@ -15,6 +16,8 @@ var SHEET_FISH_LEADERBOARD = "FishScores";
 var SHEET_FISH_CHEERS = "FishCheers";
 var SHEET_FISH_PRO_LEADERBOARD = "FishProScores";
 var SHEET_FISH_PRO_CHEERS = "FishProCheers";
+var SHEET_FISH_SWIPE_LEADERBOARD = "FishSwipeScores";
+var SHEET_FISH_SWIPE_CHEERS = "FishSwipeCheers";
 
 var GAME_SHEETS = {
   baseball: {
@@ -28,6 +31,10 @@ var GAME_SHEETS = {
   fish_pro: {
     leaderboard: SHEET_FISH_PRO_LEADERBOARD,
     cheers: SHEET_FISH_PRO_CHEERS
+  },
+  fish_swipe: {
+    leaderboard: SHEET_FISH_SWIPE_LEADERBOARD,
+    cheers: SHEET_FISH_SWIPE_CHEERS
   }
 };
 
@@ -37,7 +44,9 @@ var GET_ACTIONS = {
   fish_leaderboard: { game: "fish", type: "leaderboard" },
   fish_cheers: { game: "fish", type: "cheers" },
   fish_pro_leaderboard: { game: "fish_pro", type: "leaderboard" },
-  fish_pro_cheers: { game: "fish_pro", type: "cheers" }
+  fish_pro_cheers: { game: "fish_pro", type: "cheers" },
+  fish_swipe_leaderboard: { game: "fish_swipe", type: "leaderboard" },
+  fish_swipe_cheers: { game: "fish_swipe", type: "cheers" }
 };
 
 // ---- Entry points -------------------------------------------------
@@ -201,7 +210,7 @@ function appendCheer(game, handle, message) {
 
 function normalizeGame(game) {
   var value = String(game || "").toLowerCase().trim();
-  return value === "fish" || value === "fish_pro" ? value : "baseball";
+  return GAME_SHEETS[value] ? value : "baseball";
 }
 
 function sheetName(game, type) {

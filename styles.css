@@ -2271,11 +2271,13 @@ img {
 /* 排行榜頁雙分頁 */
 .leaderboard-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 14px;
 }
 
 .leaderboard-tab {
+  flex: 1 1 150px;
   min-height: 40px;
   padding: 8px 20px;
   background: #fff;
@@ -2287,6 +2289,21 @@ img {
   font-size: 14px;
   font-weight: 900;
   transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.fish-swipe-entry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  padding: 10px 18px;
+  color: #fff;
+  background: linear-gradient(135deg, #7455b8, #ef5a9c);
+  border-radius: 999px;
+  box-shadow: 0 8px 18px rgb(83 53 130 / 20%);
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
 }
 
 .leaderboard-tab.is-active {

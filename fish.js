@@ -92,6 +92,7 @@ const fishI18n = {
     cheerSubmit: "送出祝福",
     playAgain: "再玩一次",
     leaderboardLink: "排行榜",
+    swipeGameLink: "⚡ 新玩法：明太魚快手捕獲戰",
     leaderboardTitle: "幸運明太魚 排行榜",
     myRank: "我的排名：{rank}",
     myScore: "我的分數",
@@ -183,6 +184,7 @@ const fishI18n = {
     cheerSubmit: "Send Blessing",
     playAgain: "Play Again",
     leaderboardLink: "Leaderboard",
+    swipeGameLink: "⚡ New: Swipe Myeongtae",
     leaderboardTitle: "Lucky Myeongtae Leaderboard",
     myRank: "My rank: {rank}",
     myScore: "My score",
@@ -274,6 +276,7 @@ const fishI18n = {
     cheerSubmit: "メッセージ送信",
     playAgain: "もう一度遊ぶ",
     leaderboardLink: "ランキング",
+    swipeGameLink: "⚡ 新ゲーム：ミョンテ早取り",
     leaderboardTitle: "幸運のミョンテ ランキング",
     myRank: "自分の順位：{rank}",
     myScore: "自分の得点",
@@ -365,6 +368,7 @@ const fishI18n = {
     cheerSubmit: "축하 보내기",
     playAgain: "다시 하기",
     leaderboardLink: "랭킹",
+    swipeGameLink: "⚡ 새 게임: 명태 빠른 손 캐치",
     leaderboardTitle: "행운의 명태 랭킹",
     myRank: "내 순위: {rank}",
     myScore: "내 점수",
@@ -574,6 +578,7 @@ class FishGame {
     this.setText("#fishCheerSubmitButton", "cheerSubmit");
     this.setText("#fishPlayAgainButton", "playAgain");
     this.setText("#fishLeaderboardTitle", "leaderboardTitle");
+    this.setText("#fishSwipeEntry", "swipeGameLink");
     this.setText("#fishDisclaimer", "disclaimer");
     document.querySelector("#fishCheerTemplates")?.setAttribute("aria-label", this.t("cheerTemplatesLabel"));
     document.querySelector("#fishHandleInput")?.setAttribute("placeholder", this.t("handlePlaceholder"));

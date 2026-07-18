@@ -10,12 +10,14 @@ const gameConfigs = {
     cheersAction: "cheers",
     cacheKey: "apink_leaderboard",
     cheersCacheKey: "apink_cheers",
+    startUrl: "./index.html#game",
   },
   fish: {
     action: "fish_leaderboard",
     cheersAction: "fish_cheers",
     cacheKey: "apink_fish_leaderboard",
     cheersCacheKey: "apink_fish_cheers",
+    startUrl: "./fish.html",
     // 舊版後端會忽略未知 action 直接回棒球資料；要求回應帶 game:"fish"
     // 回聲確認後端已支援釣魚，否則視為尚未支援、改用本機資料。
     requiresGameEcho: true,
@@ -25,6 +27,15 @@ const gameConfigs = {
     cheersAction: "fish_pro_cheers",
     cacheKey: "apink_fish_pro_leaderboard",
     cheersCacheKey: "apink_fish_pro_cheers",
+    startUrl: "./fish.html",
+    requiresGameEcho: true,
+  },
+  fish_swipe: {
+    action: "fish_swipe_leaderboard",
+    cheersAction: "fish_swipe_cheers",
+    cacheKey: "apink_fish_swipe_leaderboard",
+    cheersCacheKey: "apink_fish_swipe_cheers",
+    startUrl: "./fish-swipe.html",
     requiresGameEcho: true,
   },
 };
@@ -61,6 +72,7 @@ const pageI18n = {
     tabBaseball: "⚾ 棒球打擊",
     tabFish: "🎣 幸運明太魚",
     tabFishPro: "🔥 高級明太魚",
+    tabFishSwipe: "⚡ 快手明太魚",
     cheerMarqueeTitle: "應援跑馬燈",
     cheerMarqueeEmpty: "目前尚無應援留言，挑戰完後留下第一句吧！",
     cheerMarqueeLine: "{handle}：{message}",
@@ -98,6 +110,7 @@ const pageI18n = {
     tabBaseball: "⚾ Baseball",
     tabFish: "🎣 Lucky Myeongtae",
     tabFishPro: "🔥 Pro Myeongtae",
+    tabFishSwipe: "⚡ Swipe Myeongtae",
     cheerMarqueeTitle: "Cheer Ticker",
     cheerMarqueeEmpty: "No cheer messages yet. Leave the first one after your challenge!",
     cheerMarqueeLine: "{handle}: {message}",
@@ -135,6 +148,7 @@ const pageI18n = {
     tabBaseball: "⚾ 野球",
     tabFish: "🎣 幸運ミョンテ",
     tabFishPro: "🔥 上級ミョンテ",
+    tabFishSwipe: "⚡ 早取りミョンテ",
     cheerMarqueeTitle: "応援メッセージ",
     cheerMarqueeEmpty: "応援メッセージはまだありません。挑戦後に最初の一言を残しましょう！",
     cheerMarqueeLine: "{handle}：{message}",
@@ -172,6 +186,7 @@ const pageI18n = {
     tabBaseball: "⚾ 야구",
     tabFish: "🎣 행운 명태",
     tabFishPro: "🔥 고급 명태",
+    tabFishSwipe: "⚡ 빠른 손 명태",
     cheerMarqueeTitle: "응원 메시지",
     cheerMarqueeEmpty: "아직 응원 메시지가 없습니다. 도전 후 첫 응원을 남겨 주세요!",
     cheerMarqueeLine: "{handle}: {message}",
@@ -180,12 +195,12 @@ const pageI18n = {
   },
 };
 
+const requestedGame = new URLSearchParams(window.location.search).get("game");
+
 const state = {
   locale: "zh",
   languageMode: "auto",
-  game: ["fish", "fish_pro"].includes(new URLSearchParams(window.location.search).get("game"))
-    ? new URLSearchParams(window.location.search).get("game")
-    : "baseball",
+  game: gameConfigs[requestedGame] ? requestedGame : "baseball",
   nextRefreshAt: Date.now() + refreshIntervalMs,
   cheers: [],
   lastCheerIndex: -1,
@@ -276,6 +291,7 @@ function applyLocale(mode = readLanguageMode()) {
   setText("#leaderboardTabBaseball", "tabBaseball");
   setText("#leaderboardTabFish", "tabFish");
   setText("#leaderboardTabFishPro", "tabFishPro");
+  setText("#leaderboardTabFishSwipe", "tabFishSwipe");
   setText("#cheerMarqueeTitle", "cheerMarqueeTitle");
   setText("#leaderboardDisclaimer", "disclaimer");
   if (!state.cheers.length) setText("#cheerMarqueeText", "cheerMarqueeEmpty");
@@ -559,6 +575,8 @@ function syncGameTabs() {
     tab.classList.toggle("is-active", active);
     tab.setAttribute("aria-selected", active ? "true" : "false");
   });
+  const startButton = document.querySelector("#leaderboardStartGameButton");
+  if (startButton) startButton.href = gameConfig().startUrl;
 }
 
 function switchGame(game) {

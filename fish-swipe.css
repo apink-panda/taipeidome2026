@@ -1,0 +1,388 @@
+.swipe-fish-page {
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 12% 12%, rgb(255 255 255 / 82%) 0 9%, transparent 27%),
+    linear-gradient(180deg, #fff9fc 0%, #fff0f7 55%, #edf8ff 100%);
+}
+
+.swipe-shell {
+  width: min(900px, calc(100% - 28px));
+  margin: 0 auto;
+  padding: 24px 0 14px;
+}
+
+.swipe-header {
+  position: relative;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.swipe-header h1 {
+  margin: 8px 0 6px;
+  color: var(--pink-deep);
+  font-size: clamp(30px, 6vw, 50px);
+  line-height: 1.08;
+  text-shadow: 0.04em 0.05em 0 #ffd5e9;
+}
+
+.swipe-header p {
+  max-width: 680px;
+  margin: 0 auto;
+  color: rgb(53 27 76 / 70%);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.swipe-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.swipe-game-wrap {
+  overflow: hidden;
+  border: 1px solid rgb(53 27 76 / 10%);
+  border-radius: 24px;
+  background: rgb(255 255 255 / 78%);
+  box-shadow: 0 20px 50px rgb(64 35 81 / 12%);
+}
+
+.swipe-hud {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgb(255 255 255 / 90%);
+  border-bottom: 1px solid rgb(53 27 76 / 8%);
+}
+
+.swipe-hud-item {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  padding: 7px 8px;
+  border-radius: 13px;
+  background: linear-gradient(145deg, #fff, #fff1f8);
+  box-shadow: 0 4px 12px rgb(64 35 81 / 7%);
+}
+
+.swipe-hud-item span {
+  color: rgb(53 27 76 / 58%);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.swipe-hud-item strong {
+  color: var(--pink-deep);
+  font-family: Outfit, sans-serif;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.swipe-arena {
+  position: relative;
+  width: 100%;
+  height: clamp(520px, 72svh, 700px);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 18%, rgb(255 255 255 / 90%) 0 4%, transparent 4.5%),
+    radial-gradient(circle at 72% 14%, rgb(255 255 255 / 75%) 0 5%, transparent 5.5%),
+    linear-gradient(180deg, #ffeaf5 0 40%, #8ed1f0 40% 52%, #4eaddd 52% 76%, #247eb8 100%);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#swipeCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.swipe-angler {
+  position: absolute;
+  z-index: 7;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 24px);
+  padding: 5px 11px 5px 6px;
+  color: #fff;
+  background: rgb(53 27 76 / 78%);
+  border: 1px solid rgb(255 255 255 / 38%);
+  border-radius: 999px;
+  box-shadow: 0 7px 18px rgb(53 27 76 / 18%);
+  font-size: 12px;
+  font-weight: 900;
+  pointer-events: none;
+}
+
+.swipe-angler[hidden] {
+  display: none;
+}
+
+.swipe-angler img {
+  width: 48px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.swipe-countdown {
+  position: absolute;
+  z-index: 19;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-family: Outfit, sans-serif;
+  font-size: clamp(74px, 18vw, 150px);
+  font-weight: 900;
+  text-shadow: 0 8px 0 rgb(53 27 76 / 28%), 0 0 36px rgb(243 57 145 / 55%);
+  pointer-events: none;
+}
+
+.swipe-pop {
+  position: absolute;
+  z-index: 16;
+  top: 20%;
+  left: 50%;
+  max-width: calc(100% - 24px);
+  padding: 8px 16px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 900;
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, 8px) scale(0.9);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+  pointer-events: none;
+}
+
+.swipe-pop.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+
+.swipe-pop.is-penalty {
+  background: linear-gradient(135deg, #392246, #b22d58);
+}
+
+.swipe-start-overlay,
+.swipe-end-overlay {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  display: flex;
+  align-items: safe center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  background: rgb(53 27 76 / 52%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+
+.swipe-start-overlay.is-visible,
+.swipe-end-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.swipe-panel {
+  width: min(430px, 100%);
+  padding: 22px;
+  color: var(--ink);
+  text-align: center;
+  background: rgb(255 255 255 / 94%);
+  border: 1px solid rgb(255 255 255 / 72%);
+  border-radius: 22px;
+  box-shadow: 0 22px 55px rgb(53 27 76 / 22%);
+  transform: translateY(12px) scale(0.96);
+  transition: transform 0.22s ease;
+}
+
+.is-visible > .swipe-panel {
+  transform: translateY(0) scale(1);
+}
+
+.swipe-panel h2 {
+  margin: 0 0 8px;
+  color: var(--pink-deep);
+  font-size: 25px;
+}
+
+.swipe-start-panel p {
+  margin: 10px 0;
+  color: rgb(53 27 76 / 75%);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.65;
+}
+
+.swipe-demo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(250px, 88%);
+  height: 72px;
+  margin: 12px auto;
+}
+
+.swipe-demo img {
+  width: 70px;
+  height: auto;
+  filter: drop-shadow(0 7px 8px rgb(53 27 76 / 18%));
+}
+
+.swipe-demo span {
+  position: absolute;
+  top: 50%;
+  left: 16%;
+  width: 68%;
+  height: 7px;
+  background: linear-gradient(90deg, transparent, #fff, #ff78b5, transparent);
+  border-radius: 999px;
+  box-shadow: 0 0 14px #ff78b5;
+  transform: rotate(-10deg);
+  animation: swipeDemoTrail 1.3s ease-in-out infinite;
+}
+
+@keyframes swipeDemoTrail {
+  0%, 100% { opacity: 0.25; transform: translateX(-12px) rotate(-10deg) scaleX(0.7); }
+  50% { opacity: 1; transform: translateX(12px) rotate(-10deg) scaleX(1.08); }
+}
+
+.swipe-end-score {
+  margin: 8px 0 12px;
+  color: var(--pink-deep);
+  font-family: Outfit, sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.swipe-end-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.swipe-end-stats div {
+  display: grid;
+  gap: 2px;
+  padding: 10px;
+  background: #fff3f9;
+  border-radius: 12px;
+}
+
+.swipe-end-stats span {
+  color: rgb(53 27 76 / 58%);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.swipe-end-stats strong {
+  color: var(--pink-deep);
+  font-size: 22px;
+}
+
+.swipe-end-panel .restart-button {
+  margin-top: 10px;
+}
+
+.swipe-cheer-group {
+  display: grid;
+  gap: 8px;
+}
+
+.swipe-arena.is-penalty {
+  animation: swipePenaltyShake 0.28s ease-out;
+}
+
+@keyframes swipePenaltyShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-7px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-3px); }
+}
+
+@media (max-width: 560px) {
+  .swipe-shell {
+    width: min(100% - 16px, 900px);
+    padding-top: 14px;
+  }
+
+  .swipe-header h1 {
+    font-size: 31px;
+  }
+
+  .swipe-header p {
+    font-size: 13px;
+  }
+
+  .swipe-hud {
+    gap: 5px;
+    padding: 7px;
+  }
+
+  .swipe-hud-item {
+    padding: 6px 3px;
+  }
+
+  .swipe-hud-item span {
+    font-size: 9px;
+  }
+
+  .swipe-hud-item strong {
+    font-size: 20px;
+  }
+
+  .swipe-arena {
+    height: min(70svh, 620px);
+    min-height: 480px;
+  }
+
+  .swipe-panel {
+    padding: 18px 16px;
+  }
+
+  .swipe-start-panel p {
+    margin: 7px 0;
+    font-size: 12px;
+  }
+
+  .swipe-demo {
+    height: 58px;
+    margin: 8px auto;
+  }
+
+  .swipe-demo img {
+    width: 58px;
+  }
+
+  .swipe-angler {
+    top: 8px;
+    left: 8px;
+    max-width: calc(100% - 16px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swipe-demo span,
+  .swipe-arena.is-penalty {
+    animation: none;
+  }
+}

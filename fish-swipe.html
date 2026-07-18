@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>明太魚快手捕獲戰</title>
+    <meta name="description" content="揮動手刀捕獲五色幸運明太魚，小心不要劃到扣分物品！" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css?v=20260718-8" />
+    <link rel="stylesheet" href="./fish-swipe.css?v=20260718-2" />
+  </head>
+  <body class="swipe-fish-page">
+    <main class="swipe-shell" aria-labelledby="swipeTitle">
+      <header class="swipe-header">
+        <div class="language-control">
+          <label class="language-label" id="swipeLanguageLabel" for="swipeLanguageSelect">語言</label>
+          <select class="language-select" id="swipeLanguageSelect" aria-labelledby="swipeLanguageLabel">
+            <option value="auto">自動</option>
+            <option value="zh">繁體中文</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
+          </select>
+        </div>
+        <nav class="swipe-nav" aria-label="遊戲導覽">
+          <a class="leaderboard-back-link" id="swipeBackToFishing" href="./fish.html">回到釣魚遊戲</a>
+          <a class="leaderboard-back-link" id="swipeLeaderboardLink" href="./leaderboard.html?game=fish_swipe">排行榜</a>
+        </nav>
+        <div class="leaderboard-page-kicker" id="swipeKicker">Apink 15 週年應援</div>
+        <h1 id="swipeTitle">明太魚快手捕獲戰</h1>
+        <p id="swipeIntro">用手刀劃過飛起來的五色明太魚，把滿滿幸運送給 Panda！</p>
+      </header>
+
+      <section class="swipe-game-wrap">
+        <div class="swipe-hud" aria-live="polite">
+          <div class="swipe-hud-item">
+            <span id="swipeTimerLabel">剩餘時間</span>
+            <strong id="swipeTimer">45</strong>
+          </div>
+          <div class="swipe-hud-item">
+            <span id="swipeCaughtLabel">捕獲</span>
+            <strong id="swipeCaught">0</strong>
+          </div>
+          <div class="swipe-hud-item">
+            <span id="swipeScoreLabel">分數</span>
+            <strong id="swipeScore">0</strong>
+          </div>
+          <div class="swipe-hud-item swipe-hud-combo">
+            <span id="swipeComboLabel">最佳一刀</span>
+            <strong id="swipeCombo">0</strong>
+          </div>
+        </div>
+
+        <div class="swipe-arena is-ready" id="swipeArena">
+          <canvas id="swipeCanvas" aria-label="滑動捕獲明太魚的遊戲區"></canvas>
+
+          <div class="swipe-angler" id="swipeAngler" aria-hidden="true" hidden>
+            <img id="swipeAnglerImage" src="./assets/fish/rong_boat.webp" alt="" />
+            <span id="swipeAnglerBadge">本局幸運色：Chorong</span>
+          </div>
+
+          <div class="swipe-countdown" id="swipeCountdown" aria-live="assertive" aria-hidden="true"></div>
+          <div class="swipe-pop" id="swipePop" aria-live="polite" aria-hidden="true"></div>
+
+          <div class="swipe-start-overlay is-visible" id="swipeStartOverlay" aria-hidden="false">
+            <div class="swipe-panel swipe-start-panel">
+              <h2 id="swipeStartTitle">明太魚快手捕獲戰</h2>
+              <div class="start-countdown" id="swipeStartBadge">45 秒快手挑戰</div>
+              <div class="swipe-demo" aria-hidden="true">
+                <img src="./assets/fish/bomi_fish.webp" alt="" />
+                <span></span>
+                <img src="./assets/fish/hayoung_fish.webp" alt="" />
+              </div>
+              <p id="swipeRule1">按住並滑動畫面，用手刀軌跡捕獲飛起來的明太魚。只接受單指操作。</p>
+              <p id="swipeRule2">一般魚 +1、幸運同色魚額外 +3；同一刀捕獲五種不同顏色的魚，五色連擊直接 +100！</p>
+              <p id="swipeRule3">小心深色的破網！劃到會扣 10 分並中斷連擊。</p>
+              <button class="start-button" id="swipeStartButton" type="button" disabled>載入中...</button>
+            </div>
+          </div>
+
+          <div class="swipe-end-overlay" id="swipeEndOverlay" aria-hidden="true">
+            <div class="swipe-panel swipe-end-panel">
+              <h2 id="swipeEndTitle">時間到！</h2>
+              <p class="swipe-end-score" id="swipeEndScore">總分 0 分</p>
+              <div class="swipe-end-stats">
+                <div><span id="swipeEndCaughtLabel">捕獲數</span><strong id="swipeEndCaught">0</strong></div>
+                <div><span id="swipeEndComboLabel">最佳一刀</span><strong id="swipeEndCombo">0</strong></div>
+              </div>
+              <div class="game-over-input-group">
+                <input type="text" class="game-over-input" id="swipeHandleInput" placeholder="輸入 IG 或 Threads 帳號" maxlength="28" />
+                <button class="submit-score-btn" id="swipeSubmitScoreButton" type="button">結算成績</button>
+              </div>
+              <button class="restart-button" id="swipePlayAgainButton" type="button">再玩一次</button>
+            </div>
+          </div>
+
+          <div class="leaderboard-overlay" id="swipeLeaderboardOverlay" aria-hidden="true">
+            <div class="leaderboard-box">
+              <h2 id="swipeLeaderboardTitle">快手明太魚 排行榜</h2>
+              <div class="leaderboard-my-rank" id="swipeLeaderboardMyRank" aria-live="polite"></div>
+              <div class="cheer-panel" id="swipeCheerPanel">
+                <div class="cheer-templates" id="swipeCheerTemplates" aria-label="快速祝福語"></div>
+                <div class="swipe-cheer-group">
+                  <input type="text" class="game-over-input" id="swipeCheerInput" placeholder="留下 15 週年祝福..." maxlength="200" />
+                  <button class="submit-score-btn" id="swipeCheerSubmitButton" type="button">送出祝福</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="notice-toast" id="swipeNoticeToast" role="status" aria-live="polite" aria-hidden="true">
+        <span id="swipeNoticeToastText"></span>
+      </div>
+    </main>
+
+    <footer class="site-disclaimer" id="swipeDisclaimer">
+      📌 本活動為粉絲自發性應援，不進行任何商業販售，並與官方主辦單位無關，若有侵犯權益請告知會立即下架關閉。
+    </footer>
+
+    <script src="./fish-swipe.js?v=20260718-3" defer></script>
+  </body>
+</html>

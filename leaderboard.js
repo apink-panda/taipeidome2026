@@ -7,12 +7,10 @@ const gameConfigs = {
   baseball: {
     action: "leaderboard",
     cacheKey: "apink_leaderboard",
-    startUrl: "./baseball.html#game",
   },
   fish: {
     action: "fish_leaderboard",
     cacheKey: "apink_fish_leaderboard",
-    startUrl: "./fish.html",
     // 舊版後端會忽略未知 action 直接回棒球資料；要求回應帶 game:"fish"
     // 回聲確認後端已支援釣魚，否則視為尚未支援、改用本機資料。
     requiresGameEcho: true,
@@ -20,13 +18,11 @@ const gameConfigs = {
   fish_pro: {
     action: "fish_pro_leaderboard",
     cacheKey: "apink_fish_pro_leaderboard",
-    startUrl: "./fish.html",
     requiresGameEcho: true,
   },
   fish_swipe: {
     action: "fish_swipe_leaderboard",
     cacheKey: "apink_fish_swipe_leaderboard",
-    startUrl: "./fish-swipe.html",
     requiresGameEcho: true,
   },
 };
@@ -42,7 +38,6 @@ const pageI18n = {
     languageEn: "English",
     languageJa: "日本語",
     languageKo: "한국어",
-    startGame: "開始遊戲",
     backToGame: "回到首頁",
     kicker: "Apink 台北大巨蛋應援",
     heading: "排行榜",
@@ -76,7 +71,6 @@ const pageI18n = {
     languageEn: "English",
     languageJa: "日本語",
     languageKo: "한국어",
-    startGame: "Start Game",
     backToGame: "Back to Home",
     kicker: "Apink Taipei Dome Cheer",
     heading: "Leaderboard",
@@ -110,7 +104,6 @@ const pageI18n = {
     languageEn: "English",
     languageJa: "日本語",
     languageKo: "한국어",
-    startGame: "ゲーム開始",
     backToGame: "ホームへ戻る",
     kicker: "Apink 台北ドーム応援",
     heading: "ランキング",
@@ -144,7 +137,6 @@ const pageI18n = {
     languageEn: "English",
     languageJa: "日本語",
     languageKo: "한국어",
-    startGame: "게임 시작",
     backToGame: "홈으로 돌아가기",
     kicker: "Apink 타이베이 돔 응원",
     heading: "랭킹",
@@ -252,7 +244,6 @@ function applyLocale(mode = readLanguageMode()) {
   }
 
   setText("#leaderboardLanguageLabel", "languageLabel");
-  setText("#leaderboardStartGameButton", "startGame");
   setText("#backToGameLink", "backToGame");
   setText("#leaderboardPageKicker", "kicker");
   setText("#leaderboardPageTitle", "heading");
@@ -462,8 +453,6 @@ function syncGameTabs() {
     tab.classList.toggle("is-active", active);
     tab.setAttribute("aria-selected", active ? "true" : "false");
   });
-  const startButton = document.querySelector("#leaderboardStartGameButton");
-  if (startButton) startButton.href = gameConfig().startUrl;
 }
 
 function switchGame(game) {

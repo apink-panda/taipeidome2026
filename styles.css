@@ -1263,34 +1263,6 @@ img {
   padding: 40px 0 18px;
 }
 
-.leaderboard-start-button {
-  position: fixed;
-  left: 18px;
-  top: 50%;
-  z-index: 30;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 110px;
-  min-height: 44px;
-  padding: 10px 18px;
-  color: #fff;
-  background: linear-gradient(135deg, var(--pink) 0%, var(--pink-deep) 100%);
-  border-radius: 999px;
-  box-shadow: 0 12px 28px rgb(236 45 137 / 30%);
-  font-size: 15px;
-  font-weight: 900;
-  text-align: center;
-  text-decoration: none;
-  transform: translateY(-50%);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.leaderboard-start-button:hover {
-  transform: translateY(calc(-50% - 2px));
-  box-shadow: 0 16px 34px rgb(236 45 137 / 36%);
-}
-
 .leaderboard-page-header {
   display: grid;
   gap: 14px;
@@ -1420,25 +1392,6 @@ img {
 
 .leaderboard-page-my-rank[hidden] {
   display: none;
-}
-
-@media (max-width: 560px) {
-  .leaderboard-page-shell {
-    padding-bottom: 78px;
-  }
-
-  .leaderboard-start-button {
-    left: 50%;
-    top: auto;
-    bottom: 16px;
-    min-width: min(220px, calc(100% - 32px));
-    transform: translateX(-50%);
-  }
-
-  .leaderboard-start-button:hover {
-    transform: translate(-50%, -2px);
-  }
-
 }
 
 /* Promo Hero Column */

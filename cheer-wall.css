@@ -145,6 +145,46 @@ a {
   transform: translateY(-2px);
 }
 
+.cheer-site-nav {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.55rem, 1vw, 0.9rem);
+}
+
+.cheer-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.72rem 0.9rem;
+  color: var(--cheer-ink);
+  background: rgb(255 255 255 / 72%);
+  border: 1px solid var(--cheer-line);
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgb(64 35 81 / 8%);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-decoration: none;
+  backdrop-filter: blur(16px);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.cheer-nav-link:hover,
+.cheer-nav-link:focus-visible {
+  border-color: rgb(243 57 145 / 35%);
+  box-shadow: 0 14px 30px rgb(126 86 196 / 16%);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.cheer-nav-link--primary {
+  color: #fff;
+  background: linear-gradient(135deg, var(--cheer-pink-500), var(--cheer-pink-700));
+  border-color: transparent;
+}
+
 .cheer-mini-brand {
   margin: 0;
   color: var(--cheer-ink-soft);
@@ -229,6 +269,12 @@ a {
   font-size: 0.44em;
   line-height: 1.17;
   letter-spacing: -0.035em;
+}
+
+.cheer-home-page .cheer-intro h1 {
+  max-width: 9.5em;
+  font-size: clamp(2.75rem, 4.8vw, 5.4rem);
+  line-height: 1.02;
 }
 
 .cheer-intro-copy {
@@ -583,6 +629,17 @@ a {
     padding-inline: 0.68rem;
   }
 
+  .cheer-site-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .cheer-nav-link {
+    min-height: 2.7rem;
+    padding: 0.65rem 0.55rem;
+    font-size: 0.68rem;
+  }
+
   .cheer-intro {
     padding: 0.5rem 0.2rem 0.2rem;
   }
@@ -593,6 +650,11 @@ a {
 
   .cheer-intro h1 {
     font-size: clamp(2.65rem, 15vw, 4rem);
+  }
+
+  .cheer-home-page .cheer-intro h1 {
+    font-size: clamp(2.35rem, 12vw, 3.45rem);
+    line-height: 1.04;
   }
 
   .cheer-message-card {

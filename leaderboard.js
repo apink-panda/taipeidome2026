@@ -7,7 +7,7 @@ const gameConfigs = {
   baseball: {
     action: "leaderboard",
     cacheKey: "apink_leaderboard",
-    startUrl: "./index.html#game",
+    startUrl: "./baseball.html#game",
   },
   fish: {
     action: "fish_leaderboard",

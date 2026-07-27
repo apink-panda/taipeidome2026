@@ -64,6 +64,7 @@ const i18n = {
     promoSongsTitle: "🎵 現場經典神曲應援預熱中：",
     promoCallout: "這是一場為 Apink 大巨蛋登場所設計的<strong>棒球打擊應援小遊戲</strong>！立即揮棒打擊、挑戰排行榜，為你的 Idol 送出熱烈應援吧！",
     promoTicket: "尚未購票的朋友，也可以透過<a href=\"https://tix.wdragons.com/UTK0201_?PRODUCT_ID=P16MXT0T&amp;STARTDATE=2026/07/31\" target=\"_blank\" rel=\"noopener noreferrer\">售票網頁</a>購票，7/31 當日進場一起觀看精彩球賽與 Apink 表演！",
+    homePageLink: "應援活動首頁",
     leaderboardPageLink: "排行榜頁面",
     supportPageLink: "中韓應援牆",
     fishPageLink: "🎣 釣出幸運明太魚",
@@ -157,6 +158,7 @@ const i18n = {
     promoSongsTitle: "🎵 Classic fan chants warming up:",
     promoCallout: "This <strong>baseball batting cheer game</strong> is made for Apink's Taipei Dome appearance. Swing now, climb the leaderboard, and send your loudest support!",
     promoTicket: "Still need a ticket? Visit the <a href=\"https://tix.wdragons.com/UTK0201_?PRODUCT_ID=P16MXT0T&amp;STARTDATE=2026/07/31\" target=\"_blank\" rel=\"noopener noreferrer\">ticketing page</a> and join the game and Apink performance on 7/31!",
+    homePageLink: "Cheer Event Home",
     leaderboardPageLink: "Leaderboard Page",
     supportPageLink: "Bilingual Cheer Wall",
     fishPageLink: "🎣 Catch Your Lucky Myeongtae",
@@ -250,6 +252,7 @@ const i18n = {
     promoSongsTitle: "🎵 名曲応援をウォームアップ中：",
     promoCallout: "Apink の台北ドーム登場を盛り上げる<strong>野球バッティング応援ゲーム</strong>です。今すぐスイングしてランキングに挑戦し、熱いエールを届けましょう！",
     promoTicket: "まだチケットをお持ちでない方は、<a href=\"https://tix.wdragons.com/UTK0201_?PRODUCT_ID=P16MXT0T&amp;STARTDATE=2026/07/31\" target=\"_blank\" rel=\"noopener noreferrer\">チケット販売ページ</a>から購入して、7/31 当日に試合と Apink のステージを一緒に楽しみましょう！",
+    homePageLink: "応援イベントホーム",
     leaderboardPageLink: "ランキングページ",
     supportPageLink: "中韓応援ウォール",
     fishPageLink: "🎣 幸運ミョンテを釣ろう",
@@ -343,6 +346,7 @@ const i18n = {
     promoSongsTitle: "🎵 현장 명곡 응원 예열 중:",
     promoCallout: "Apink의 타이베이 돔 등장을 위해 만든 <strong>야구 타격 응원 게임</strong>입니다. 지금 스윙하고 랭킹에 도전하며 뜨거운 응원을 보내 주세요!",
     promoTicket: "아직 티켓이 없다면 <a href=\"https://tix.wdragons.com/UTK0201_?PRODUCT_ID=P16MXT0T&amp;STARTDATE=2026/07/31\" target=\"_blank\" rel=\"noopener noreferrer\">티켓 예매 페이지</a>에서 예매하고, 7/31 당일 멋진 경기와 Apink 공연을 함께 즐겨 주세요!",
+    homePageLink: "응원 이벤트 홈",
     leaderboardPageLink: "랭킹 페이지",
     supportPageLink: "중·한 응원 월",
     fishPageLink: "🎣 행운 명태를 낚아요",
@@ -672,6 +676,7 @@ class BaseballGame {
     this.setHtml(".promo-callout", "promoCallout");
     this.setHtml(".promo-ticket", "promoTicket");
     this.setText("#promoStartGameButton", "startButton");
+    this.setText("#homePageLink", "homePageLink");
     this.setText("#leaderboardPageLink", "leaderboardPageLink");
     this.setText("#supportPageLink", "supportPageLink");
     this.setText("#fishPageLink", "fishPageLink");

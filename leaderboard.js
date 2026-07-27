@@ -1,22 +1,17 @@
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJssnwqL636-7t1P2LtspixCWvdm4ffMhQxmAYDB62f4Y2BwvgmxRryl-nbN3Qsu6P/exec";
 const languageStorageKey = "apink_language_preference";
 const refreshIntervalMs = 10 * 60 * 1000;
-const cheerMarqueeIntervalMs = 5 * 1000;
 
 // 棒球與釣魚各自獨立的排行榜/留言資料來源
 const gameConfigs = {
   baseball: {
     action: "leaderboard",
-    cheersAction: "cheers",
     cacheKey: "apink_leaderboard",
-    cheersCacheKey: "apink_cheers",
     startUrl: "./index.html#game",
   },
   fish: {
     action: "fish_leaderboard",
-    cheersAction: "fish_cheers",
     cacheKey: "apink_fish_leaderboard",
-    cheersCacheKey: "apink_fish_cheers",
     startUrl: "./fish.html",
     // 舊版後端會忽略未知 action 直接回棒球資料；要求回應帶 game:"fish"
     // 回聲確認後端已支援釣魚，否則視為尚未支援、改用本機資料。
@@ -24,17 +19,13 @@ const gameConfigs = {
   },
   fish_pro: {
     action: "fish_pro_leaderboard",
-    cheersAction: "fish_pro_cheers",
     cacheKey: "apink_fish_pro_leaderboard",
-    cheersCacheKey: "apink_fish_pro_cheers",
     startUrl: "./fish.html",
     requiresGameEcho: true,
   },
   fish_swipe: {
     action: "fish_swipe_leaderboard",
-    cheersAction: "fish_swipe_cheers",
     cacheKey: "apink_fish_swipe_leaderboard",
-    cheersCacheKey: "apink_fish_swipe_cheers",
     startUrl: "./fish-swipe.html",
     requiresGameEcho: true,
   },
@@ -73,10 +64,6 @@ const pageI18n = {
     tabFish: "🎣 幸運明太魚",
     tabFishPro: "🔥 高級明太魚",
     tabFishSwipe: "⚡ 快手明太魚",
-    cheerMarqueeTitle: "應援跑馬燈",
-    cheerMarqueeEmpty: "目前尚無應援留言，挑戰完後留下第一句吧！",
-    cheerMarqueeLine: "{handle}：{message}",
-    anonymous: "匿名",
     disclaimer: "📌 本活動為粉絲自發性應援，不進行任何商業販售，並與官方主辦單位無關，若有侵犯權益請告知會立即下架關閉。",
   },
   en: {
@@ -111,10 +98,6 @@ const pageI18n = {
     tabFish: "🎣 Lucky Myeongtae",
     tabFishPro: "🔥 Pro Myeongtae",
     tabFishSwipe: "⚡ Swipe Myeongtae",
-    cheerMarqueeTitle: "Cheer Ticker",
-    cheerMarqueeEmpty: "No cheer messages yet. Leave the first one after your challenge!",
-    cheerMarqueeLine: "{handle}: {message}",
-    anonymous: "Anonymous",
     disclaimer: "📌 This event is a fan-initiated support project. It does not involve any commercial sales and is not affiliated with the official organizer. If any rights are infringed, please let us know and we will take the site down immediately.",
   },
   ja: {
@@ -149,10 +132,6 @@ const pageI18n = {
     tabFish: "🎣 幸運ミョンテ",
     tabFishPro: "🔥 上級ミョンテ",
     tabFishSwipe: "⚡ 早取りミョンテ",
-    cheerMarqueeTitle: "応援メッセージ",
-    cheerMarqueeEmpty: "応援メッセージはまだありません。挑戦後に最初の一言を残しましょう！",
-    cheerMarqueeLine: "{handle}：{message}",
-    anonymous: "匿名",
     disclaimer: "📌 本企画はファンによる自主的な応援活動であり、商業販売は一切行っておらず、公式主催者とは関係ありません。権利侵害がございましたらご連絡ください。直ちに削除・閉鎖いたします。",
   },
   ko: {
@@ -187,10 +166,6 @@ const pageI18n = {
     tabFish: "🎣 행운 명태",
     tabFishPro: "🔥 고급 명태",
     tabFishSwipe: "⚡ 빠른 손 명태",
-    cheerMarqueeTitle: "응원 메시지",
-    cheerMarqueeEmpty: "아직 응원 메시지가 없습니다. 도전 후 첫 응원을 남겨 주세요!",
-    cheerMarqueeLine: "{handle}: {message}",
-    anonymous: "익명",
     disclaimer: "📌 본 이벤트는 팬들이 자발적으로 진행하는 응원 활동이며, 어떠한 상업적 판매도 하지 않고 공식 주최 측과 무관합니다. 권리 침해가 있을 경우 알려주시면 즉시 삭제 및 폐쇄하겠습니다.",
   },
 };
@@ -202,11 +177,8 @@ const state = {
   languageMode: "auto",
   game: gameConfigs[requestedGame] ? requestedGame : "baseball",
   nextRefreshAt: Date.now() + refreshIntervalMs,
-  cheers: [],
-  lastCheerIndex: -1,
   refreshTimer: null,
   countdownTimer: null,
-  cheerTimer: null,
 };
 
 const interpolate = (template, values = {}) =>
@@ -292,9 +264,7 @@ function applyLocale(mode = readLanguageMode()) {
   setText("#leaderboardTabFish", "tabFish");
   setText("#leaderboardTabFishPro", "tabFishPro");
   setText("#leaderboardTabFishSwipe", "tabFishSwipe");
-  setText("#cheerMarqueeTitle", "cheerMarqueeTitle");
   setText("#leaderboardDisclaimer", "disclaimer");
-  if (!state.cheers.length) setText("#cheerMarqueeText", "cheerMarqueeEmpty");
   updateCountdown();
 }
 
@@ -320,87 +290,6 @@ async function fetchRemoteLeaderboard() {
   const data = await response.json();
   if (config.requiresGameEcho && data?.game !== state.game) return null;
   return Array.isArray(data?.leaderboard) ? data.leaderboard : null;
-}
-
-function readLocalCheers() {
-  try {
-    return JSON.parse(localStorage.getItem(gameConfig().cheersCacheKey) || "[]");
-  } catch (e) {
-    return [];
-  }
-}
-
-async function fetchRemoteCheers() {
-  if (!GOOGLE_SCRIPT_URL) return null;
-  const config = gameConfig();
-  const url = `${GOOGLE_SCRIPT_URL}?action=${config.cheersAction}&ts=${Date.now()}`;
-  const response = await fetch(url, {
-    method: "GET",
-    mode: "cors",
-    cache: "no-store",
-  });
-  const data = await response.json();
-  if (config.requiresGameEcho && data?.game !== state.game) return null;
-  return Array.isArray(data?.cheers) ? data.cheers : null;
-}
-
-function normalizeCheers(list) {
-  return list
-    .filter((item) => item && String(item.message || "").trim())
-    .map((item) => ({
-      handle: String(item.handle || t("anonymous")).trim() || t("anonymous"),
-      message: String(item.message).trim(),
-      time: item.time || "",
-    }));
-}
-
-function renderRandomCheer() {
-  const node = document.querySelector("#cheerMarqueeText");
-  if (!node) return;
-
-  if (!state.cheers.length) {
-    node.textContent = t("cheerMarqueeEmpty");
-    return;
-  }
-
-  let nextIndex = Math.floor(Math.random() * state.cheers.length);
-  if (state.cheers.length > 1 && nextIndex === state.lastCheerIndex) {
-    nextIndex = (nextIndex + 1) % state.cheers.length;
-  }
-
-  state.lastCheerIndex = nextIndex;
-  const cheer = state.cheers[nextIndex];
-  node.textContent = t("cheerMarqueeLine", {
-    handle: maskHandle(cheer.handle),
-    message: cheer.message,
-  });
-  node.style.animation = "none";
-  node.offsetHeight;
-  node.style.animation = "";
-}
-
-async function loadCheers() {
-  const game = state.game;
-  const config = gameConfig();
-  let cheers = readLocalCheers();
-
-  try {
-    const remote = await fetchRemoteCheers();
-    if (state.game !== game) return; // 分頁已切換，丟棄過期回應
-    if (remote) {
-      cheers = remote;
-      try {
-        localStorage.setItem(config.cheersCacheKey, JSON.stringify(remote));
-      } catch (e) { }
-    }
-  } catch (e) {
-    console.warn("Cheer sync failed, using local fallback:", e);
-    if (state.game !== game) return;
-  }
-
-  state.cheers = normalizeCheers(cheers);
-  state.lastCheerIndex = -1;
-  renderRandomCheer();
 }
 
 function rankRows(list) {
@@ -557,16 +446,14 @@ async function loadLeaderboard() {
 }
 
 async function loadPageData() {
-  await Promise.all([loadLeaderboard(), loadCheers()]);
+  await loadLeaderboard();
 }
 
 function scheduleRefresh() {
   window.clearInterval(state.refreshTimer);
   window.clearInterval(state.countdownTimer);
-  window.clearInterval(state.cheerTimer);
   state.refreshTimer = window.setInterval(loadPageData, refreshIntervalMs);
   state.countdownTimer = window.setInterval(updateCountdown, 1000);
-  state.cheerTimer = window.setInterval(renderRandomCheer, cheerMarqueeIntervalMs);
 }
 
 function syncGameTabs() {
@@ -588,8 +475,6 @@ function switchGame(game) {
   else params.set("game", game);
   const query = params.toString();
   history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
-  state.cheers = [];
-  state.lastCheerIndex = -1;
   loadPageData();
 }
 
@@ -599,7 +484,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelector("#leaderboardLanguageSelect")?.addEventListener("change", (event) => {
     writeLanguageMode(event.target.value);
     applyLocale(state.languageMode);
-    renderRandomCheer();
     loadPageData();
   });
   document.querySelectorAll(".leaderboard-tab").forEach((tab) => {

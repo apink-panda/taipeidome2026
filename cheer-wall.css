@@ -1,20 +1,20 @@
 :root {
-  --cheer-pearl: #fffafc;
-  --cheer-paper: rgb(255 253 255 / 78%);
-  --cheer-pink-50: #fff1f6;
-  --cheer-pink-100: #fbdbe7;
-  --cheer-pink-300: #ef9fbe;
-  --cheer-pink-500: #d65387;
-  --cheer-pink-700: #9c2456;
-  --cheer-lavender-100: #eee8ff;
-  --cheer-lavender-300: #c4b5ef;
-  --cheer-lavender-500: #8068bf;
-  --cheer-ink: #39152b;
-  --cheer-ink-soft: #76566b;
-  --cheer-line: rgb(156 36 86 / 16%);
-  --cheer-shadow: 0 26px 90px rgb(124 67 117 / 16%);
+  --cheer-pearl: #fff8f0;
+  --cheer-paper: rgb(255 255 255 / 84%);
+  --cheer-pink-50: #fff2f7;
+  --cheer-pink-100: #ffd0e8;
+  --cheer-pink-300: #ff96cf;
+  --cheer-pink-500: #f33991;
+  --cheer-pink-700: #d91d78;
+  --cheer-lavender-100: #f7f2ff;
+  --cheer-lavender-300: #bda7e7;
+  --cheer-lavender-500: #7e56c4;
+  --cheer-ink: #351b4c;
+  --cheer-ink-soft: #745f84;
+  --cheer-line: rgb(53 27 76 / 10%);
+  --cheer-shadow: 0 18px 44px rgb(76 42 52 / 18%);
   --cheer-serif: "Noto Serif TC", "Noto Serif KR", "Songti TC", "AppleMyungjo", Georgia, serif;
-  --cheer-sans: "Noto Sans TC", "Noto Sans KR", "PingFang TC", "Apple SD Gothic Neo", system-ui, sans-serif;
+  --cheer-sans: "Outfit", "Noto Sans TC", "Noto Sans KR", "PingFang TC", "Apple SD Gothic Neo", system-ui, sans-serif;
 }
 
 * {
@@ -34,10 +34,8 @@ body {
   color: var(--cheer-ink);
   font-family: var(--cheer-sans);
   background:
-    radial-gradient(circle at 12% 12%, rgb(239 159 190 / 33%), transparent 27rem),
-    radial-gradient(circle at 88% 18%, rgb(196 181 239 / 36%), transparent 29rem),
-    radial-gradient(circle at 49% 91%, rgb(255 207 225 / 36%), transparent 34rem),
-    linear-gradient(135deg, #fffafd 0%, #fffefe 46%, #f8f4ff 100%);
+    radial-gradient(circle at 53% 47%, rgb(255 255 255 / 92%) 0 15%, transparent 42%),
+    linear-gradient(135deg, #fff8ee 0%, #fff2f7 50%, #f7f2ff 100%);
 }
 
 body::before,
@@ -50,26 +48,22 @@ body::after {
 }
 
 body::before {
-  left: -18rem;
-  bottom: -21rem;
-  width: min(42vw, 42rem);
-  aspect-ratio: 1;
-  border: 1px solid rgb(214 83 135 / 22%);
-  box-shadow:
-    0 0 0 3.5rem rgb(255 255 255 / 18%),
-    0 0 0 7rem rgb(239 159 190 / 5%);
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+  background-image: radial-gradient(rgb(100 61 130 / 14%) 0.7px, transparent 0.7px);
+  background-size: 11px 11px;
+  mask-image: linear-gradient(to bottom, black, transparent 84%);
 }
 
 body::after {
-  top: -14rem;
-  right: -13rem;
-  width: min(34vw, 33rem);
+  top: -11rem;
+  right: -10rem;
+  width: min(36vw, 34rem);
   aspect-ratio: 1;
-  background: rgb(196 181 239 / 9%);
-  border: 1px solid rgb(143 121 200 / 14%);
-  box-shadow:
-    0 0 0 4.5rem rgb(255 255 255 / 23%),
-    0 0 0 8rem rgb(196 181 239 / 6%);
+  background: radial-gradient(circle, rgb(243 57 145 / 16%), rgb(126 86 196 / 8%) 48%, transparent 72%);
+  border: 0;
+  box-shadow: none;
 }
 
 a {
@@ -117,11 +111,11 @@ a {
   justify-self: start;
   min-height: 2.75rem;
   padding: 0.55rem 1rem 0.55rem 0.7rem;
-  color: var(--cheer-pink-700);
-  background: rgb(255 255 255 / 70%);
-  border: 1px solid var(--cheer-line);
+  color: #fff;
+  background: linear-gradient(135deg, var(--cheer-pink-500), var(--cheer-pink-700));
+  border: 1px solid transparent;
   border-radius: 999px;
-  box-shadow: 0 10px 28px rgb(112 53 92 / 7%);
+  box-shadow: 0 12px 28px rgb(236 45 137 / 24%);
   font-size: 0.75rem;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -135,7 +129,7 @@ a {
   width: 1.85rem;
   aspect-ratio: 1;
   place-items: center;
-  background: var(--cheer-pink-100);
+  background: rgb(255 255 255 / 22%);
   border-radius: 50%;
   content: "←";
   font-size: 1rem;
@@ -144,8 +138,9 @@ a {
 
 .cheer-back-link:hover,
 .cheer-back-link:focus-visible {
-  background: #fff;
-  border-color: rgb(156 36 86 / 32%);
+  background: linear-gradient(135deg, var(--cheer-pink-500), var(--cheer-pink-700));
+  border-color: transparent;
+  box-shadow: 0 16px 34px rgb(236 45 137 / 32%);
   outline: none;
   transform: translateY(-2px);
 }
@@ -223,6 +218,7 @@ a {
   font-weight: 700;
   line-height: 0.98;
   letter-spacing: -0.07em;
+  text-shadow: 0.04em 0.055em 0 var(--cheer-pink-100);
   text-wrap: balance;
 }
 
@@ -252,10 +248,10 @@ a {
   padding: clamp(1.25rem, 2.6vw, 2.7rem);
   overflow: hidden;
   background:
-    linear-gradient(145deg, rgb(255 255 255 / 87%), rgb(255 247 251 / 72%)),
+    linear-gradient(145deg, rgb(255 255 255 / 90%), rgb(255 255 255 / 72%)),
     var(--cheer-paper);
-  border: 1px solid rgb(255 255 255 / 88%);
-  border-radius: clamp(1.75rem, 3vw, 3.25rem);
+  border: 1px solid var(--cheer-line);
+  border-radius: clamp(1.5rem, 2.4vw, 2.25rem);
   box-shadow: var(--cheer-shadow);
   backdrop-filter: blur(22px);
 }
@@ -269,9 +265,9 @@ a {
   aspect-ratio: 1;
   background:
     radial-gradient(circle, rgb(255 255 255 / 90%) 0 3%, transparent 4%),
-    conic-gradient(from 20deg, rgb(239 159 190 / 25%), rgb(196 181 239 / 8%), rgb(239 159 190 / 25%));
+    conic-gradient(from 20deg, rgb(243 57 145 / 24%), rgb(238 148 64 / 16%), rgb(126 86 196 / 18%), rgb(243 57 145 / 24%));
   border-radius: 50%;
-  box-shadow: 0 0 80px rgb(196 181 239 / 34%);
+  box-shadow: 0 0 80px rgb(126 86 196 / 22%);
   content: "";
   opacity: 0.85;
   animation: cheerSlowSpin 22s linear infinite;
@@ -417,8 +413,9 @@ a {
 .cheer-marquee {
   width: 100%;
   overflow: hidden;
-  background: rgb(255 255 255 / 43%);
-  border-block: 1px solid var(--cheer-line);
+  background: rgb(255 255 255 / 74%);
+  border-block: 1px solid rgb(243 57 145 / 18%);
+  box-shadow: 0 12px 30px rgb(64 35 81 / 8%);
   backdrop-filter: blur(14px);
 }
 
@@ -451,7 +448,7 @@ a {
 
 .cheer-marquee-group span + span::before {
   margin-inline: 2rem;
-  color: var(--cheer-pink-300);
+  color: #ee9440;
   content: "✦";
   font-size: 0.75em;
 }

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PANDA 的應援宇宙 · PANDA의 응원 우주</title>
+    <meta
+      name="description"
+      content="彙集 Apink 台北大巨蛋所有中韓雙語應援留言，每五秒隨機閃耀下一句。"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&amp;family=Noto+Sans+TC:wght@500;700;900&amp;family=Noto+Serif+KR:wght@600;700&amp;family=Noto+Serif+TC:wght@600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./cheer-wall.css?v=20260727-1" />
+  </head>
+  <body>
+    <a class="skip-link" href="#currentCheer">跳至目前應援留言</a>
+
+    <div class="cheer-page-shell">
+      <header class="cheer-topbar" aria-label="頁面導覽">
+        <a class="cheer-back-link" href="./index.html#game">返回遊戲 · BACK TO GAME</a>
+        <p class="cheer-mini-brand"><span>Apink</span> Taipei Dome · Cheer Archive</p>
+        <div class="cheer-language" aria-label="中文與韓文雙語">中 / 한</div>
+      </header>
+
+      <main class="cheer-main">
+        <section class="cheer-intro" aria-labelledby="cheerPageTitle">
+          <p class="cheer-eyebrow">All cheers, one universe</p>
+          <h1 id="cheerPageTitle">
+            PANDA 的<br />應援宇宙
+            <span lang="ko">PANDA의 응원 우주</span>
+          </h1>
+          <p class="cheer-intro-copy">
+            所有 Panda 的心意，在這裡聚成一片粉色星光。每一則留言都以中文與韓文並肩閃耀。
+          </p>
+        </section>
+
+        <article class="cheer-message-card" id="currentCheer" aria-live="polite">
+          <header class="cheer-message-meta">
+            <p class="cheer-wall-label">PANDA 應援即時輪播 · PANDA 응원 라이브</p>
+            <span class="cheer-live-mark">NOW GLOWING</span>
+          </header>
+
+          <div class="cheer-message-stage" id="cheerMessageStage">
+            <blockquote>
+              <p class="cheer-quote-zh" id="cheerQuoteZh" lang="zh-Hant">應援留言正在聚集……</p>
+              <p class="cheer-quote-ko" id="cheerQuoteKo" lang="ko">응원 메시지를 모으고 있어요…</p>
+            </blockquote>
+          </div>
+
+          <footer class="cheer-message-footer">
+            <p class="cheer-author" id="cheerAuthor">@PANDA</p>
+            <p class="cheer-change-note">
+              <span aria-hidden="true">✦ · · ✦</span>
+              忽明忽滅後，遇見下一句
+            </p>
+          </footer>
+        </article>
+      </main>
+
+      <section class="cheer-marquee" aria-label="持續播放的中韓雙語應援跑馬燈">
+        <div class="cheer-marquee-track" id="cheerMarqueeTrack">
+          <p class="cheer-marquee-group">
+            <span lang="zh-Hant">Apink 與 Panda 的故事永遠不會結束！♾️</span>
+            <span lang="ko">Apink와 Panda의 이야기는 영원히 끝나지 않아요! ♾️</span>
+          </p>
+          <p class="cheer-marquee-group" aria-hidden="true">
+            <span lang="zh-Hant">Apink 與 Panda 的故事永遠不會結束！♾️</span>
+            <span lang="ko">Apink와 Panda의 이야기는 영원히 끝나지 않아요! ♾️</span>
+          </p>
+        </div>
+      </section>
+
+      <footer class="cheer-bottom-note">
+        <p id="cheerStatus">所有應援同步中 · 每 5 秒隨機展示</p>
+        <p aria-hidden="true">LIGHTS ON FOR APINK &amp; PANDA · TAIPEI</p>
+      </footer>
+    </div>
+
+    <p class="cheer-disclaimer">
+      本活動為粉絲自發性應援，與官方主辦單位無關。
+    </p>
+
+    <script src="./support.js?v=20260727-1" defer></script>
+  </body>
+</html>

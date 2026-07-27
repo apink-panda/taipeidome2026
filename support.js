@@ -1,0 +1,559 @@
+// Combined bilingual cheer wall.
+const GOOGLE_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbwJssnwqL636-7t1P2LtspixCWvdm4ffMhQxmAYDB62f4Y2BwvgmxRryl-nbN3Qsu6P/exec";
+
+const cheerRotationMs = 5 * 1000;
+const refreshIntervalMs = 10 * 60 * 1000;
+
+const cheerSources = [
+  {
+    key: "baseball",
+    action: "cheers",
+    cacheKey: "apink_cheers",
+    expectedGame: "baseball",
+  },
+  {
+    key: "fish",
+    action: "fish_cheers",
+    cacheKey: "apink_fish_cheers",
+    expectedGame: "fish",
+  },
+  {
+    key: "fish_pro",
+    action: "fish_pro_cheers",
+    cacheKey: "apink_fish_pro_cheers",
+    expectedGame: "fish_pro",
+  },
+  {
+    key: "fish_swipe",
+    action: "fish_swipe_cheers",
+    cacheKey: "apink_fish_swipe_cheers",
+    expectedGame: "fish_swipe",
+  },
+];
+
+const translationGroups = [
+  {
+    sources: ["Apink 15 週年快樂，永遠一起走下去！💖", "Apink 15주년 축하해요, 앞으로도 영원히 함께해요! 💖"],
+    zh: "Apink 15 週年快樂，永遠一起走下去！💖",
+    ko: "Apink 15주년 축하해요, 앞으로도 영원히 함께해요! 💖",
+  },
+  {
+    sources: ["Apink Forever 🩷🩷🩷🩷🩷🐼🐼🐼🐼🐼"],
+    zh: "Apink 永遠在一起！🩷🩷🩷🩷🩷🐼🐼🐼🐼🐼",
+    ko: "Apink 영원히 함께해요! 🩷🩷🩷🩷🩷🐼🐼🐼🐼🐼",
+  },
+  {
+    sources: ["Apink Lets Go!!!!!!❤️🫶🏻投出帥氣球，支持Apink🐼"],
+    zh: "Apink 出發吧！投出帥氣好球，永遠支持 Apink！❤️🫶🏻🐼",
+    ko: "Apink 가자! 멋진 공을 던져요. 언제나 Apink를 응원해요! ❤️🫶🏻🐼",
+  },
+  {
+    sources: ["Apink 大發！！！", "apink大發"],
+    zh: "Apink 大發！！！",
+    ko: "Apink 대박!!!",
+  },
+  {
+    sources: ["Apink 的歌聲是 Panda 最幸福的禮物！🎶", "Apink's voices are the happiest gift for Pandas! 🎶"],
+    zh: "Apink 的歌聲是 Panda 最幸福的禮物！🎶",
+    ko: "Apink의 노래는 Panda에게 가장 행복한 선물이에요! 🎶",
+  },
+  {
+    sources: ["Apink 與 Panda 的故事永遠不會結束！♾️", "Apink 與 Panda 的故事永遠不會結束！♾️l"],
+    zh: "Apink 與 Panda 的故事永遠不會結束！♾️",
+    ko: "Apink와 Panda의 이야기는 영원히 끝나지 않아요! ♾️",
+  },
+  {
+    sources: ["Apink 與 Panda 的故事永遠不會結束！♾️ 我會繼續支持你們的 🫶"],
+    zh: "Apink 與 Panda 的故事永遠不會結束！我會繼續支持你們！♾️🫶",
+    ko: "Apink와 Panda의 이야기는 영원히 끝나지 않아요! 계속 응원할게요! ♾️🫶",
+  },
+  {
+    sources: ["Apink 최고❤️謝謝實現大巨蛋的約定🤙"],
+    zh: "Apink 最棒了❤️謝謝實現大巨蛋的約定🤙",
+    ko: "Apink 최고❤️ 타이베이 돔의 약속을 지켜 줘서 고마워요🤙",
+  },
+  {
+    sources: ["Apink 💖 台北大巨蛋衝呀！"],
+    zh: "Apink 💖 台北大巨蛋衝呀！",
+    ko: "Apink 💖 타이베이 돔으로 가자!",
+  },
+  {
+    sources: ["Apink 💖 台北大巨蛋衝呀！恭喜你們登上夢想中的大舞台！！！！！"],
+    zh: "Apink 💖 台北大巨蛋衝呀！恭喜登上夢想中的大舞台！",
+    ko: "Apink 💖 타이베이 돔으로 가자! 꿈의 무대에 오른 것을 축하해요!",
+  },
+  {
+    sources: ["Apink 💖 台北大巨蛋衝呀！한명당! 서른명!"],
+    zh: "Apink 💖 台北大巨蛋衝呀！一人帶三十人！",
+    ko: "Apink 💖 타이베이 돔으로 가자! 한 명당 서른 명!",
+  },
+  {
+    sources: ["Apink南波萬！！"],
+    zh: "Apink 第一名！！",
+    ko: "Apink 넘버원!!",
+  },
+  {
+    sources: ["Apink和panda永遠在一起～愛你們～♥️大發"],
+    zh: "Apink 和 Panda 永遠在一起～愛你們～♥️大發！",
+    ko: "Apink와 Panda 영원히 함께해요! 사랑해요! ♥️ 대박!",
+  },
+  {
+    sources: ["Apink大發!!!!!! 大巨蛋Lets go~~~ 應援全場"],
+    zh: "Apink 大發！大巨蛋出發，全場一起應援！",
+    ko: "Apink 대박! 타이베이 돔으로 가자! 모두 함께 응원해요!",
+  },
+  {
+    sources: ["Apink投球超帥😙😙😙期待登上大巨蛋"],
+    zh: "Apink 投球超帥！期待登上大巨蛋！😙😙😙",
+    ko: "Apink의 멋진 투구! 타이베이 돔 무대를 기대해요! 😙😙😙",
+  },
+  {
+    sources: ["Apink繼續走花路！🐼🌸"],
+    zh: "Apink 繼續走花路！🐼🌸",
+    ko: "Apink, 앞으로도 꽃길만 걸어요! 🐼🌸",
+  },
+  {
+    sources: ["Hello", "hello"],
+    zh: "哈囉！",
+    ko: "안녕하세요!",
+  },
+  {
+    sources: ["Hhcfhhuu"],
+    zh: "嗨！為 Apink 加油！",
+    ko: "안녕! Apink를 응원해요!",
+  },
+  {
+    sources: ["Panda 永遠支持 Apink，15 週年粗卡！🐼", "Panda 永遠支持 Apink，15 週年粗卡！🐼ijbvnlgxjonc"],
+    zh: "Panda 永遠支持 Apink，15 週年快樂！🐼",
+    ko: "Panda는 영원히 Apink를 응원해요. 15주년 축하해요! 🐼",
+  },
+  {
+    sources: ["Ping Doongs 幫 Panda 釣滿幸福與幸運！🎣", "Ping Doongs가 Panda에게 행복과 행운을 낚아 줄게요! 🎣"],
+    zh: "Ping Doongs 幫 Panda 釣滿幸福與幸運！🎣",
+    ko: "Ping Doongs가 Panda에게 행복과 행운을 낚아 줄게요! 🎣",
+  },
+  {
+    sources: ["一人帶三十人達標！！"],
+    zh: "一人帶三十人達標！！",
+    ko: "한 명당 서른 명, 목표 달성!!",
+  },
+  {
+    sources: ["一個人帶三十個人！！支持開球成功，7月31日見！！！"],
+    zh: "一個人帶三十個人！支持開球成功，7 月 31 日見！",
+    ko: "한 명이 서른 명과 함께! 성공적인 시구를 응원해요. 7월 31일에 만나요!",
+  },
+  {
+    sources: ["一起迎接更多個充滿愛的週年吧！🎉"],
+    zh: "一起迎接更多個充滿愛的週年吧！🎉",
+    ko: "사랑 가득한 기념일을 앞으로도 함께 맞이해요! 🎉",
+  },
+  {
+    sources: ["五色明太魚守護 Apink 閃閃發光！✨"],
+    zh: "五色明太魚守護 Apink 閃閃發光！✨",
+    ko: "다섯 빛깔 명태가 반짝이는 Apink를 지켜 줄게요! ✨",
+  },
+  {
+    sources: ["五隻幸運明太魚，守護 Apink 閃閃發光！✨", "다섯 마리 행운 명태가 빛나는 Apink를 지켜 줄게요! ✨"],
+    zh: "五隻幸運明太魚，守護 Apink 閃閃發光！✨",
+    ko: "다섯 마리 행운 명태가 빛나는 Apink를 지켜 줄게요! ✨",
+  },
+  {
+    sources: ["和阿粉們在一起的時光珍貴又難忘！是美好的回憶🩷"],
+    zh: "和 Apink 在一起的時光珍貴又難忘，是最美好的回憶！🩷",
+    ko: "Apink와 함께한 시간은 소중하고 잊지 못할 아름다운 추억이에요! 🩷",
+  },
+  {
+    sources: ["夢想的舞台實現了，可以跟著Apink開箱大巨蛋感到無比光榮！！！！！ 🐼🎤🌟"],
+    zh: "夢想舞台實現了！能跟著 Apink 一起開箱大巨蛋，感到無比光榮！🐼🎤🌟",
+    ko: "꿈의 무대가 이루어졌어요! Apink와 함께 타이베이 돔의 첫 순간을 맞아 정말 영광이에요! 🐼🎤🌟",
+  },
+  {
+    sources: ["大巨蛋滿座！Apink 萬歲！"],
+    zh: "大巨蛋滿座！Apink 萬歲！",
+    ko: "타이베이 돔 만석! Apink 만세!",
+  },
+  {
+    sources: ["大巨蛋滿座！Apink 萬歲！一人帶30人~~~！！！"],
+    zh: "大巨蛋滿座！Apink 萬歲！一人帶三十人！",
+    ko: "타이베이 돔 만석! Apink 만세! 한 명당 서른 명!",
+  },
+  {
+    sources: ["大巨蛋滿座！Apink 萬歲！好好玩喔這遊戲！！！！"],
+    zh: "大巨蛋滿座！Apink 萬歲！這個遊戲好好玩！",
+    ko: "타이베이 돔 만석! Apink 만세! 이 게임 정말 재미있어요!",
+  },
+  {
+    sources: ["對Apink的❤️永遠不會改變，不管是15年還是25年"],
+    zh: "對 Apink 的愛永遠不會改變，不管是 15 年還是 25 年！❤️",
+    ko: "15년이든 25년이든 Apink를 향한 사랑은 영원히 변하지 않아요! ❤️",
+  },
+  {
+    sources: ["希望未來每一場Apink 的活動都能夠參與❤️竭盡所能🥺✌️🤟🤙🏼"],
+    zh: "希望未來每一場 Apink 的活動都能參與，我會竭盡所能！❤️🥺✌️🤟🤙🏼",
+    ko: "앞으로 모든 Apink 활동에 함께할 수 있도록 최선을 다할게요! ❤️🥺✌️🤟🤙🏼",
+  },
+  {
+    sources: ["幸運明太魚把所有好事都送給 Apink！🐟"],
+    zh: "幸運明太魚把所有好事都送給 Apink！🐟",
+    ko: "행운 명태가 모든 좋은 일을 Apink에게 전해 줄게요! 🐟",
+  },
+  {
+    sources: ["快手抓住五色明太魚，把幸運送給 Panda！🐟"],
+    zh: "快手抓住五色明太魚，把幸運送給 Panda！🐟",
+    ko: "빠른 손으로 다섯 빛깔 명태를 잡아 Panda에게 행운을 전해요! 🐟",
+  },
+  {
+    sources: ["恩地全壘打！"],
+    zh: "恩地全壘打！",
+    ko: "은지 홈런!",
+  },
+  {
+    sources: ["接下來的15年繼續當最給力的胖達🥰"],
+    zh: "接下來的 15 年，也要繼續當最給力的 Panda！🥰",
+    ko: "앞으로 15년도 가장 든든한 Panda가 될게요! 🥰",
+  },
+  {
+    sources: ["普美投球超帥，初瓏全壘打！"],
+    zh: "普美投球超帥，初瓏全壘打！",
+    ko: "보미의 투구는 최고, 초롱은 홈런!",
+  },
+  {
+    sources: ["普美投球超帥，恩地全壘打！"],
+    zh: "普美投球超帥，恩地全壘打！",
+    ko: "보미의 투구는 최고, 은지는 홈런!",
+  },
+  {
+    sources: ["永遠愛Apink❤️"],
+    zh: "永遠愛 Apink！❤️",
+    ko: "Apink를 영원히 사랑해요! ❤️",
+  },
+  {
+    sources: ["永遠支持 Apink！🐼🌸"],
+    zh: "永遠支持 Apink！🐼🌸",
+    ko: "언제나 Apink를 응원해요! 🐼🌸",
+  },
+  {
+    sources: ["永遠支持 Apink！🐼🌸\n阿粉一生追，我瓏一生推🥰"],
+    zh: "永遠支持 Apink！阿粉一生追，我瓏一生推！🐼🌸🥰",
+    ko: "언제나 Apink를 응원해요! 평생 Panda, 평생 초롱 팬이에요! 🐼🌸🥰",
+  },
+  {
+    sources: ["永遠支持 Apink！🐼🌸 阿粉我愛你！！！！！"],
+    zh: "永遠支持 Apink！阿粉我愛你！🐼🌸",
+    ko: "언제나 Apink를 응원해요! Apink 사랑해요! 🐼🌸",
+  },
+  {
+    sources: ["永遠支持 Apink！🐼🌸要一直走花路哦~"],
+    zh: "永遠支持 Apink！要一直走花路哦！🐼🌸",
+    ko: "언제나 Apink를 응원해요! 계속 꽃길만 걸어요! 🐼🌸",
+  },
+  {
+    sources: ["永遠的 我們的Apink 🩷"],
+    zh: "永遠的、我們的 Apink！🩷",
+    ko: "영원한 우리의 Apink! 🩷",
+  },
+  {
+    sources: ["謝謝15 年一直陪在我們身邊 ~ 夏榮生日快樂"],
+    zh: "謝謝 15 年來一直陪在我們身邊，夏榮生日快樂！",
+    ko: "15년 동안 늘 곁에 있어 줘서 고마워요. 하영 생일 축하해요!",
+  },
+  {
+    sources: ["願 Apink 和 Panda 每天都有滿滿好運！🍀", "願 Apink 和 Panda 每天都有滿滿好運！🍀hhgjhh", "願 Apink 和 Panda 每天都有滿滿好運！🐼💗"],
+    zh: "願 Apink 和 Panda 每天都有滿滿好運！🍀",
+    ko: "Apink와 Panda의 매일에 행운이 가득하길 바라요! 🍀",
+  },
+  {
+    sources: ["願每位成員健康平安、天天開心！🌸"],
+    zh: "願每位成員健康平安、天天開心！🌸",
+    ko: "모든 멤버가 건강하고 매일 행복하길 바라요! 🌸",
+  },
+  {
+    sources: ["願每位成員健康平安、天天開心！🌸 我非常愛你們 🫶"],
+    zh: "願每位成員健康平安、天天開心！我非常愛你們！🌸🫶",
+    ko: "모든 멤버가 건강하고 매일 행복하길 바라요! 정말 사랑해요! 🌸🫶",
+  },
+  {
+    sources: ["사랑해. 우리 타이베이 만나요. 화이팅."],
+    zh: "愛你們，我們台北見，加油！",
+    ko: "사랑해요. 우리 타이베이에서 만나요. 화이팅!",
+  },
+  {
+    sources: ["에이핑크 드디어 타이베이 돔에 와요!!!!! 진심으로 축하해요!!! 🫶🫶🫶🫶🫶⚾🫡"],
+    zh: "Apink 終於來到台北大巨蛋！真心恭喜你們！🫶🫶🫶🫶🫶⚾🫡",
+    ko: "에이핑크 드디어 타이베이 돔에 와요! 진심으로 축하해요! 🫶🫶🫶🫶🫶⚾🫡",
+  },
+  {
+    sources: ["영원히 사랑해 영원히 함께해 영원히 우리는 에이핑크"],
+    zh: "永遠相愛、永遠相伴，我們永遠是 Apink！",
+    ko: "영원히 사랑해, 영원히 함께해, 영원히 우리는 에이핑크!",
+  },
+];
+
+const normalizeText = (value) => String(value || "").replace(/\s+/g, " ").trim();
+
+const translationIndex = new Map();
+translationGroups.forEach((group) => {
+  group.sources.forEach((source) => {
+    translationIndex.set(normalizeText(source), { zh: group.zh, ko: group.ko });
+  });
+});
+
+function toBilingual(message) {
+  const original = String(message || "").trim();
+  const normalized = normalizeText(original);
+  const exact = translationIndex.get(normalized);
+  if (exact) return { ...exact, translated: true };
+
+  if (normalized.startsWith("Apink前進大巨蛋")) {
+    const wantsBomi = /普美開球/.test(normalized);
+    return {
+      zh: normalized,
+      ko: wantsBomi
+        ? "Apink, 타이베이 돔으로 가자! 보미의 시구를 보고 싶어요!"
+        : "Apink, 타이베이 돔으로 가자!",
+      translated: true,
+    };
+  }
+
+  if (/[가-힣]/.test(normalized)) {
+    return {
+      zh: `原文應援：${original}`,
+      ko: original,
+      translated: false,
+    };
+  }
+
+  return {
+    zh: original,
+    ko: `원문 응원: ${original}`,
+    translated: false,
+  };
+}
+
+const state = {
+  cheers: [],
+  queue: [],
+  currentIndex: -1,
+  rotationTimer: null,
+  refreshTimer: null,
+  changing: false,
+};
+
+function maskHandle(handle) {
+  const value = String(handle || "").trim();
+  if (!value || value === "匿名" || value === "익명") return "PANDA";
+
+  const prefix = value.startsWith("@") ? "@" : "";
+  const body = prefix ? value.slice(1) : value;
+  const chars = Array.from(body);
+  if (!chars.length) return `${prefix}PANDA`;
+  if (chars.length === 1) return `${prefix}${chars[0]}*`;
+
+  const maskLength = Math.max(chars.length - 2, 1);
+  return `${prefix}${chars[0]}${"*".repeat(maskLength)}${chars[chars.length - 1]}`;
+}
+
+function readLocalCheers(source) {
+  try {
+    const value = JSON.parse(localStorage.getItem(source.cacheKey) || "[]");
+    return Array.isArray(value) ? value : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function writeLocalCheers(source, cheers) {
+  try {
+    localStorage.setItem(source.cacheKey, JSON.stringify(cheers));
+  } catch (error) {
+    // The live page still works when storage is unavailable.
+  }
+}
+
+async function fetchSourceCheers(source) {
+  const url = `${GOOGLE_SCRIPT_URL}?action=${source.action}&ts=${Date.now()}`;
+  const response = await fetch(url, {
+    method: "GET",
+    mode: "cors",
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error(`Cheer request failed: ${response.status}`);
+
+  const data = await response.json();
+  if (data?.game && data.game !== source.expectedGame) {
+    throw new Error(`Unexpected cheer source: ${data.game}`);
+  }
+  return Array.isArray(data?.cheers) ? data.cheers : [];
+}
+
+function normalizeCheers(list) {
+  return list
+    .filter((item) => item && normalizeText(item.message))
+    .map((item) => {
+      const bilingual = toBilingual(item.message);
+      return {
+        handle: String(item.handle || "PANDA").trim() || "PANDA",
+        time: item.time || "",
+        zh: bilingual.zh,
+        ko: bilingual.ko,
+        translated: bilingual.translated,
+      };
+    });
+}
+
+function shuffledIndexes(length) {
+  const values = Array.from({ length }, (_, index) => index);
+  for (let index = values.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [values[index], values[swapIndex]] = [values[swapIndex], values[index]];
+  }
+  return values;
+}
+
+function refillQueue() {
+  state.queue = shuffledIndexes(state.cheers.length);
+  if (state.queue.length > 1 && state.queue[0] === state.currentIndex) {
+    [state.queue[0], state.queue[1]] = [state.queue[1], state.queue[0]];
+  }
+}
+
+function takeNextCheer() {
+  if (!state.cheers.length) return null;
+  if (!state.queue.length) refillQueue();
+  const index = state.queue.shift();
+  state.currentIndex = index;
+  return state.cheers[index];
+}
+
+function renderCheer(cheer) {
+  if (!cheer) return;
+  const quoteZh = document.querySelector("#cheerQuoteZh");
+  const quoteKo = document.querySelector("#cheerQuoteKo");
+  const author = document.querySelector("#cheerAuthor");
+
+  if (quoteZh) quoteZh.textContent = cheer.zh;
+  if (quoteKo) quoteKo.textContent = cheer.ko;
+  if (author) author.textContent = `@${maskHandle(cheer.handle).replace(/^@/, "")}`;
+}
+
+function showNextCheer({ immediate = false } = {}) {
+  if (state.changing || !state.cheers.length) return;
+  const nextCheer = takeNextCheer();
+  const stage = document.querySelector("#cheerMessageStage");
+  if (!stage || immediate || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    renderCheer(nextCheer);
+    return;
+  }
+
+  state.changing = true;
+  stage.classList.remove("is-changing");
+  stage.offsetHeight;
+  stage.classList.add("is-changing");
+
+  window.setTimeout(() => renderCheer(nextCheer), 480);
+  window.setTimeout(() => {
+    stage.classList.remove("is-changing");
+    state.changing = false;
+  }, 920);
+}
+
+function marqueeItems() {
+  const seen = new Set();
+  const items = [];
+  for (const cheer of state.cheers) {
+    const key = `${cheer.zh}|${cheer.ko}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    items.push(cheer);
+    if (items.length === 8) break;
+  }
+  return items;
+}
+
+function renderMarquee() {
+  const track = document.querySelector("#cheerMarqueeTrack");
+  if (!track || !state.cheers.length) return;
+
+  const items = marqueeItems();
+  const createGroup = (hidden = false) => {
+    const group = document.createElement("p");
+    group.className = "cheer-marquee-group";
+    if (hidden) group.setAttribute("aria-hidden", "true");
+
+    items.forEach((cheer) => {
+      const zh = document.createElement("span");
+      zh.lang = "zh-Hant";
+      zh.textContent = cheer.zh;
+      const ko = document.createElement("span");
+      ko.lang = "ko";
+      ko.textContent = cheer.ko;
+      group.append(zh, ko);
+    });
+    return group;
+  };
+
+  track.replaceChildren(createGroup(), createGroup(true));
+}
+
+function updateStatus(remoteSourceCount) {
+  const status = document.querySelector("#cheerStatus");
+  if (!status) return;
+
+  const fallbackCount = translationGroups.length
+    ? state.cheers.filter((cheer) => !cheer.translated).length
+    : 0;
+  const syncLabel =
+    remoteSourceCount === cheerSources.length
+      ? "所有應援已同步"
+      : remoteSourceCount
+        ? "部分應援已同步，其餘顯示暫存"
+        : "顯示本機暫存應援";
+  status.textContent = `${syncLabel} · ${state.cheers.length} 則應援 · 每 5 秒隨機展示${
+    fallbackCount ? ` · ${fallbackCount} 則保留原文` : ""
+  }`;
+}
+
+async function loadAllCheers() {
+  const results = await Promise.all(
+    cheerSources.map(async (source) => {
+      let cheers = readLocalCheers(source);
+      let remote = false;
+      try {
+        cheers = await fetchSourceCheers(source);
+        writeLocalCheers(source, cheers);
+        remote = true;
+      } catch (error) {
+        console.warn(`Unable to sync ${source.key} cheers; using local cache.`, error);
+      }
+      return { source, cheers, remote };
+    }),
+  );
+
+  const nextCheers = results.flatMap(({ cheers }) => normalizeCheers(cheers));
+  if (!nextCheers.length) {
+    document.querySelector("#cheerQuoteZh").textContent = "留下第一句給 Apink 的祝福吧！";
+    document.querySelector("#cheerQuoteKo").textContent = "Apink에게 첫 응원 메시지를 남겨 주세요!";
+    updateStatus(0);
+    return;
+  }
+
+  state.cheers = nextCheers;
+  state.queue = [];
+  state.currentIndex = -1;
+  showNextCheer({ immediate: true });
+  renderMarquee();
+  updateStatus(results.filter((result) => result.remote).length);
+}
+
+function startRotation() {
+  window.clearInterval(state.rotationTimer);
+  window.clearInterval(state.refreshTimer);
+  state.rotationTimer = window.setInterval(showNextCheer, cheerRotationMs);
+  state.refreshTimer = window.setInterval(loadAllCheers, refreshIntervalMs);
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadAllCheers();
+  startRotation();
+});

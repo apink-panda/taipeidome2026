@@ -104,6 +104,19 @@ a {
   min-height: 3.75rem;
 }
 
+.cheer-home-page .cheer-topbar {
+  grid-template-columns: 1fr auto;
+}
+
+.cheer-home-page .cheer-mini-brand {
+  justify-self: start;
+  text-align: left;
+}
+
+.cheer-home-page .cheer-language {
+  grid-column: 2;
+}
+
 .cheer-back-link {
   display: inline-flex;
   gap: 0.65rem;

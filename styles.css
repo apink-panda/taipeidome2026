@@ -1151,6 +1151,22 @@ img {
   box-sizing: border-box;
 }
 
+.baseball-page .app-container {
+  max-width: 1540px;
+  min-height: calc(100svh - 3rem);
+  padding: clamp(0.75rem, 2.5vw, 2rem);
+}
+
+.baseball-page .game {
+  width: 100%;
+}
+
+.baseball-page .field {
+  width: min(1380px, 100%);
+  min-height: clamp(360px, 72svh, 760px);
+  max-height: 780px;
+}
+
 /* Page glow orbs (matches reference site) */
 .app-container::before,
 .app-container::after {
@@ -1606,6 +1622,10 @@ img {
 
   .highlight-pink {
     font-size: 30px;
+  }
+
+  .baseball-page .app-container {
+    padding: 0.75rem;
   }
 }
 

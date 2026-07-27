@@ -3,79 +3,95 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Apink 台北大巨蛋排行榜</title>
-    <meta name="description" content="Apink 台北大巨蛋應援打擊小遊戲排行榜，每 10 分鐘自動更新。" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./styles.css?v=20260718-8" />
+    <title>PANDA 的應援宇宙 · PANDA의 응원 우주</title>
+    <meta
+      name="description"
+      content="彙集 Apink 台北大巨蛋四個遊戲的中韓雙語應援留言，每五秒閃耀下一句。"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&amp;family=Noto+Sans+TC:wght@500;700;900&amp;family=Noto+Serif+KR:wght@600;700&amp;family=Noto+Serif+TC:wght@600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./cheer-wall.css?v=20260727-1" />
   </head>
-  <body class="leaderboard-page">
-    <a class="leaderboard-start-button" id="leaderboardStartGameButton" href="./index.html#game">開始遊戲</a>
+  <body>
+    <a class="skip-link" href="#currentCheer">跳至目前應援留言</a>
 
-    <main class="leaderboard-page-shell" aria-labelledby="leaderboardPageTitle">
-      <header class="leaderboard-page-header">
-        <div class="language-control">
-          <label class="language-label" id="leaderboardLanguageLabel" for="leaderboardLanguageSelect">語言</label>
-          <select class="language-select" id="leaderboardLanguageSelect" aria-labelledby="leaderboardLanguageLabel">
-            <option value="auto">自動</option>
-            <option value="zh">繁體中文</option>
-            <option value="en">English</option>
-            <option value="ja">日本語</option>
-            <option value="ko">한국어</option>
-          </select>
-        </div>
-        <a class="leaderboard-back-link" id="backToGameLink" href="./index.html">回到遊戲</a>
-        <div class="leaderboard-page-kicker" id="leaderboardPageKicker">Apink 台北大巨蛋應援</div>
-        <h1 id="leaderboardPageTitle">排行榜</h1>
-        <p id="leaderboardPageIntro">排行榜每 10 分鐘自動更新一次，顯示目前最高分挑戰紀錄。</p>
-        <div class="leaderboard-page-meta">
-          <span id="leaderboardSourceStatus">載入中...</span>
-          <span id="leaderboardUpdatedAt">最後更新：--</span>
-          <span id="leaderboardNextRefresh">下次更新：10:00</span>
-        </div>
+    <div class="cheer-page-shell">
+      <header class="cheer-topbar" aria-label="頁面導覽">
+        <a class="cheer-back-link" href="./index.html#game">返回遊戲 · BACK TO GAME</a>
+        <p class="cheer-mini-brand"><span>Apink</span> Taipei Dome · Cheer Archive</p>
+        <div class="cheer-language" aria-label="中文與韓文雙語">中 / 한</div>
       </header>
 
-      <div class="leaderboard-tabs" role="tablist" aria-label="遊戲切換">
-        <button class="leaderboard-tab is-active" id="leaderboardTabBaseball" type="button" role="tab" aria-selected="true" data-game="baseball">⚾ 棒球打擊</button>
-        <button class="leaderboard-tab" id="leaderboardTabFish" type="button" role="tab" aria-selected="false" data-game="fish">🎣 幸運明太魚</button>
-        <button class="leaderboard-tab" id="leaderboardTabFishPro" type="button" role="tab" aria-selected="false" data-game="fish_pro">🔥 高級明太魚</button>
-        <button class="leaderboard-tab" id="leaderboardTabFishSwipe" type="button" role="tab" aria-selected="false" data-game="fish_swipe">⚡ 快手明太魚</button>
-      </div>
+      <main class="cheer-main">
+        <section class="cheer-intro" aria-labelledby="cheerPageTitle">
+          <p class="cheer-eyebrow">All cheers, one universe</p>
+          <h1 id="cheerPageTitle">
+            PANDA 的<br />應援宇宙
+            <span lang="ko">PANDA의 응원 우주</span>
+          </h1>
+          <p class="cheer-intro-copy">
+            四個遊戲裡的心意，在這裡聚成一片粉色星光。每一則留言都以中文與韓文並肩閃耀。
+          </p>
+          <ul class="cheer-source-list" aria-label="留言來自四個遊戲">
+            <li data-source="baseball">⚾ 棒球打擊</li>
+            <li data-source="fish">🎣 幸運明太魚</li>
+            <li data-source="fish_pro">🔥 高級明太魚</li>
+            <li data-source="fish_swipe">⚡ 快手明太魚</li>
+          </ul>
+        </section>
 
-      <section class="cheer-marquee" aria-live="polite">
-        <div class="cheer-marquee__label" id="cheerMarqueeTitle">應援跑馬燈</div>
-        <div class="cheer-marquee__track">
-          <span id="cheerMarqueeText">載入中...</span>
+        <article class="cheer-message-card" id="currentCheer" aria-live="polite">
+          <header class="cheer-message-meta">
+            <p class="cheer-current-source" id="cheerCurrentSource">
+              四個分類同步載入中 · 네 가지 카테고리 불러오는 중
+            </p>
+            <span class="cheer-live-mark">NOW GLOWING</span>
+          </header>
+
+          <div class="cheer-message-stage" id="cheerMessageStage">
+            <blockquote>
+              <p class="cheer-quote-zh" id="cheerQuoteZh" lang="zh-Hant">應援留言正在聚集……</p>
+              <p class="cheer-quote-ko" id="cheerQuoteKo" lang="ko">응원 메시지를 모으고 있어요…</p>
+            </blockquote>
+          </div>
+
+          <footer class="cheer-message-footer">
+            <p class="cheer-author" id="cheerAuthor">@PANDA</p>
+            <p class="cheer-change-note">
+              <span aria-hidden="true">✦ · · ✦</span>
+              忽明忽滅後，遇見下一句
+            </p>
+          </footer>
+        </article>
+      </main>
+
+      <section class="cheer-marquee" aria-label="持續播放的中韓雙語應援跑馬燈">
+        <div class="cheer-marquee-track" id="cheerMarqueeTrack">
+          <p class="cheer-marquee-group">
+            <span lang="zh-Hant">Apink 與 Panda 的故事永遠不會結束！♾️</span>
+            <span lang="ko">Apink와 Panda의 이야기는 영원히 끝나지 않아요! ♾️</span>
+          </p>
+          <p class="cheer-marquee-group" aria-hidden="true">
+            <span lang="zh-Hant">Apink 與 Panda 的故事永遠不會結束！♾️</span>
+            <span lang="ko">Apink와 Panda의 이야기는 영원히 끝나지 않아요! ♾️</span>
+          </p>
         </div>
       </section>
 
-      <section class="leaderboard-page-table-wrap" aria-live="polite">
-        <table class="leaderboard-page-table">
-          <thead>
-            <tr>
-              <th id="leaderboardPageRankHeader">排名</th>
-              <th id="leaderboardPageAccountHeader">帳號</th>
-              <th id="leaderboardPageScoreHeader">得分</th>
-            </tr>
-          </thead>
-          <tbody id="leaderboardPageBody">
-            <tr>
-              <td colspan="3" id="leaderboardPageLoading">載入中...</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
+      <footer class="cheer-bottom-note">
+        <p id="cheerStatus">四個遊戲 · 應援同步中 · 每 5 秒更新</p>
+        <p aria-hidden="true">LIGHTS ON FOR APINK &amp; PANDA · TAIPEI</p>
+      </footer>
+    </div>
 
-      <section class="leaderboard-page-my-rank" id="leaderboardPageMyRank" aria-live="polite" hidden>
-        <!-- User's rank generated by JS -->
-      </section>
-    </main>
+    <p class="cheer-disclaimer">
+      本活動為粉絲自發性應援，與官方主辦單位無關。
+    </p>
 
-    <footer class="site-disclaimer" id="leaderboardDisclaimer">
-      📌 本活動為粉絲自發性應援，不進行任何商業販售，並與官方主辦單位無關，若有侵犯權益請告知會立即下架關閉。
-    </footer>
-
-    <script src="./leaderboard.js?v=20260718-1" defer></script>
+    <script src="./leaderboard.js?v=20260727-2" defer></script>
   </body>
 </html>

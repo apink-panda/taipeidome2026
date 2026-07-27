@@ -1,610 +1,577 @@
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJssnwqL636-7t1P2LtspixCWvdm4ffMhQxmAYDB62f4Y2BwvgmxRryl-nbN3Qsu6P/exec";
-const languageStorageKey = "apink_language_preference";
+const GOOGLE_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbwJssnwqL636-7t1P2LtspixCWvdm4ffMhQxmAYDB62f4Y2BwvgmxRryl-nbN3Qsu6P/exec";
+
+const cheerRotationMs = 5 * 1000;
 const refreshIntervalMs = 10 * 60 * 1000;
-const cheerMarqueeIntervalMs = 5 * 1000;
 
-// 棒球與釣魚各自獨立的排行榜/留言資料來源
-const gameConfigs = {
-  baseball: {
-    action: "leaderboard",
-    cheersAction: "cheers",
-    cacheKey: "apink_leaderboard",
-    cheersCacheKey: "apink_cheers",
-    startUrl: "./index.html#game",
+const cheerSources = [
+  {
+    key: "baseball",
+    action: "cheers",
+    cacheKey: "apink_cheers",
+    expectedGame: "baseball",
+    label: "⚾ 棒球打擊",
+    labelKo: "야구 타격",
   },
-  fish: {
-    action: "fish_leaderboard",
-    cheersAction: "fish_cheers",
-    cacheKey: "apink_fish_leaderboard",
-    cheersCacheKey: "apink_fish_cheers",
-    startUrl: "./fish.html",
-    // 舊版後端會忽略未知 action 直接回棒球資料；要求回應帶 game:"fish"
-    // 回聲確認後端已支援釣魚，否則視為尚未支援、改用本機資料。
-    requiresGameEcho: true,
+  {
+    key: "fish",
+    action: "fish_cheers",
+    cacheKey: "apink_fish_cheers",
+    expectedGame: "fish",
+    label: "🎣 幸運明太魚",
+    labelKo: "행운 명태",
   },
-  fish_pro: {
-    action: "fish_pro_leaderboard",
-    cheersAction: "fish_pro_cheers",
-    cacheKey: "apink_fish_pro_leaderboard",
-    cheersCacheKey: "apink_fish_pro_cheers",
-    startUrl: "./fish.html",
-    requiresGameEcho: true,
+  {
+    key: "fish_pro",
+    action: "fish_pro_cheers",
+    cacheKey: "apink_fish_pro_cheers",
+    expectedGame: "fish_pro",
+    label: "🔥 高級明太魚",
+    labelKo: "고급 명태",
   },
-  fish_swipe: {
-    action: "fish_swipe_leaderboard",
-    cheersAction: "fish_swipe_cheers",
-    cacheKey: "apink_fish_swipe_leaderboard",
-    cheersCacheKey: "apink_fish_swipe_cheers",
-    startUrl: "./fish-swipe.html",
-    requiresGameEcho: true,
+  {
+    key: "fish_swipe",
+    action: "fish_swipe_cheers",
+    cacheKey: "apink_fish_swipe_cheers",
+    expectedGame: "fish_swipe",
+    label: "⚡ 快手明太魚",
+    labelKo: "빠른 손 명태",
   },
-};
+];
 
-const pageI18n = {
-  zh: {
-    htmlLang: "zh-Hant",
-    title: "Apink 台北大巨蛋排行榜",
-    description: "Apink 台北大巨蛋應援打擊小遊戲排行榜，每 10 分鐘自動更新。",
-    languageLabel: "語言",
-    languageAuto: "自動",
-    languageZh: "繁體中文",
-    languageEn: "English",
-    languageJa: "日本語",
-    languageKo: "한국어",
-    startGame: "開始遊戲",
-    backToGame: "回到遊戲",
-    kicker: "Apink 台北大巨蛋應援",
-    heading: "排行榜",
-    intro: "排行榜每 10 分鐘自動更新一次，顯示目前最高分挑戰紀錄。",
-    rank: "排名",
-    account: "帳號",
-    score: "得分",
-    myRank: "我的排名: {rank}",
-    myScore: "我的分數",
-    scoreUnit: "{score} 分",
-    loading: "載入中...",
-    empty: "目前尚無排行榜資料。",
-    remoteLoaded: "已同步雲端資料",
-    localLoaded: "顯示本機暫存資料",
-    loadFailed: "暫時無法同步雲端資料",
-    updatedAt: "最後更新：{time}",
-    nextRefresh: "下次更新：{time}",
-    tabBaseball: "⚾ 棒球打擊",
-    tabFish: "🎣 幸運明太魚",
-    tabFishPro: "🔥 高級明太魚",
-    tabFishSwipe: "⚡ 快手明太魚",
-    cheerMarqueeTitle: "應援跑馬燈",
-    cheerMarqueeEmpty: "目前尚無應援留言，挑戰完後留下第一句吧！",
-    cheerMarqueeLine: "{handle}：{message}",
-    anonymous: "匿名",
-    disclaimer: "📌 本活動為粉絲自發性應援，不進行任何商業販售，並與官方主辦單位無關，若有侵犯權益請告知會立即下架關閉。",
+const translationGroups = [
+  {
+    sources: ["Apink 15 週年快樂，永遠一起走下去！💖", "Apink 15주년 축하해요, 앞으로도 영원히 함께해요! 💖"],
+    zh: "Apink 15 週年快樂，永遠一起走下去！💖",
+    ko: "Apink 15주년 축하해요, 앞으로도 영원히 함께해요! 💖",
   },
-  en: {
-    htmlLang: "en",
-    title: "Apink Taipei Dome Leaderboard",
-    description: "Leaderboard for the Apink Taipei Dome cheer batting game. Automatically refreshes every 10 minutes.",
-    languageLabel: "Language",
-    languageAuto: "Auto",
-    languageZh: "繁體中文",
-    languageEn: "English",
-    languageJa: "日本語",
-    languageKo: "한국어",
-    startGame: "Start Game",
-    backToGame: "Back to Game",
-    kicker: "Apink Taipei Dome Cheer",
-    heading: "Leaderboard",
-    intro: "The leaderboard refreshes automatically every 10 minutes and shows the current top scores.",
-    rank: "Rank",
-    account: "Account",
-    score: "Score",
-    myRank: "My rank: {rank}",
-    myScore: "My score",
-    scoreUnit: "{score} pts",
-    loading: "Loading...",
-    empty: "No leaderboard data yet.",
-    remoteLoaded: "Cloud data synced",
-    localLoaded: "Showing local cached data",
-    loadFailed: "Cloud sync is temporarily unavailable",
-    updatedAt: "Last updated: {time}",
-    nextRefresh: "Next update: {time}",
-    tabBaseball: "⚾ Baseball",
-    tabFish: "🎣 Lucky Myeongtae",
-    tabFishPro: "🔥 Pro Myeongtae",
-    tabFishSwipe: "⚡ Swipe Myeongtae",
-    cheerMarqueeTitle: "Cheer Ticker",
-    cheerMarqueeEmpty: "No cheer messages yet. Leave the first one after your challenge!",
-    cheerMarqueeLine: "{handle}: {message}",
-    anonymous: "Anonymous",
-    disclaimer: "📌 This event is a fan-initiated support project. It does not involve any commercial sales and is not affiliated with the official organizer. If any rights are infringed, please let us know and we will take the site down immediately.",
+  {
+    sources: ["Apink Forever 🩷🩷🩷🩷🩷🐼🐼🐼🐼🐼"],
+    zh: "Apink 永遠在一起！🩷🩷🩷🩷🩷🐼🐼🐼🐼🐼",
+    ko: "Apink 영원히 함께해요! 🩷🩷🩷🩷🩷🐼🐼🐼🐼🐼",
   },
-  ja: {
-    htmlLang: "ja",
-    title: "Apink 台北ドーム ランキング",
-    description: "Apink 台北ドーム応援バッティングゲームのランキングです。10分ごとに自動更新されます。",
-    languageLabel: "言語",
-    languageAuto: "自動",
-    languageZh: "繁體中文",
-    languageEn: "English",
-    languageJa: "日本語",
-    languageKo: "한국어",
-    startGame: "ゲーム開始",
-    backToGame: "ゲームへ戻る",
-    kicker: "Apink 台北ドーム応援",
-    heading: "ランキング",
-    intro: "ランキングは10分ごとに自動更新され、現在の最高得点記録を表示します。",
-    rank: "順位",
-    account: "アカウント",
-    score: "得点",
-    myRank: "自分の順位: {rank}",
-    myScore: "自分の得点",
-    scoreUnit: "{score} 点",
-    loading: "読み込み中...",
-    empty: "ランキングデータはまだありません。",
-    remoteLoaded: "クラウドデータを同期しました",
-    localLoaded: "ローカル保存データを表示中",
-    loadFailed: "現在クラウド同期ができません",
-    updatedAt: "最終更新：{time}",
-    nextRefresh: "次回更新：{time}",
-    tabBaseball: "⚾ 野球",
-    tabFish: "🎣 幸運ミョンテ",
-    tabFishPro: "🔥 上級ミョンテ",
-    tabFishSwipe: "⚡ 早取りミョンテ",
-    cheerMarqueeTitle: "応援メッセージ",
-    cheerMarqueeEmpty: "応援メッセージはまだありません。挑戦後に最初の一言を残しましょう！",
-    cheerMarqueeLine: "{handle}：{message}",
-    anonymous: "匿名",
-    disclaimer: "📌 本企画はファンによる自主的な応援活動であり、商業販売は一切行っておらず、公式主催者とは関係ありません。権利侵害がございましたらご連絡ください。直ちに削除・閉鎖いたします。",
+  {
+    sources: ["Apink Lets Go!!!!!!❤️🫶🏻投出帥氣球，支持Apink🐼"],
+    zh: "Apink 出發吧！投出帥氣好球，永遠支持 Apink！❤️🫶🏻🐼",
+    ko: "Apink 가자! 멋진 공을 던져요. 언제나 Apink를 응원해요! ❤️🫶🏻🐼",
   },
-  ko: {
-    htmlLang: "ko",
-    title: "Apink 타이베이 돔 랭킹",
-    description: "Apink 타이베이 돔 응원 타격 게임 랭킹입니다. 10분마다 자동 업데이트됩니다.",
-    languageLabel: "언어",
-    languageAuto: "자동",
-    languageZh: "繁體中文",
-    languageEn: "English",
-    languageJa: "日本語",
-    languageKo: "한국어",
-    startGame: "게임 시작",
-    backToGame: "게임으로 돌아가기",
-    kicker: "Apink 타이베이 돔 응원",
-    heading: "랭킹",
-    intro: "랭킹은 10분마다 자동 업데이트되며 현재 최고 점수 기록을 보여줍니다.",
-    rank: "순위",
-    account: "계정",
-    score: "점수",
-    myRank: "내 순위: {rank}",
-    myScore: "내 점수",
-    scoreUnit: "{score}점",
-    loading: "로딩 중...",
-    empty: "아직 랭킹 데이터가 없습니다.",
-    remoteLoaded: "클라우드 데이터 동기화 완료",
-    localLoaded: "로컬 임시 저장 데이터 표시 중",
-    loadFailed: "현재 클라우드 동기화를 할 수 없습니다",
-    updatedAt: "마지막 업데이트: {time}",
-    nextRefresh: "다음 업데이트: {time}",
-    tabBaseball: "⚾ 야구",
-    tabFish: "🎣 행운 명태",
-    tabFishPro: "🔥 고급 명태",
-    tabFishSwipe: "⚡ 빠른 손 명태",
-    cheerMarqueeTitle: "응원 메시지",
-    cheerMarqueeEmpty: "아직 응원 메시지가 없습니다. 도전 후 첫 응원을 남겨 주세요!",
-    cheerMarqueeLine: "{handle}: {message}",
-    anonymous: "익명",
-    disclaimer: "📌 본 이벤트는 팬들이 자발적으로 진행하는 응원 활동이며, 어떠한 상업적 판매도 하지 않고 공식 주최 측과 무관합니다. 권리 침해가 있을 경우 알려주시면 즉시 삭제 및 폐쇄하겠습니다.",
+  {
+    sources: ["Apink 大發！！！", "apink大發"],
+    zh: "Apink 大發！！！",
+    ko: "Apink 대박!!!",
   },
-};
+  {
+    sources: ["Apink 的歌聲是 Panda 最幸福的禮物！🎶", "Apink's voices are the happiest gift for Pandas! 🎶"],
+    zh: "Apink 的歌聲是 Panda 最幸福的禮物！🎶",
+    ko: "Apink의 노래는 Panda에게 가장 행복한 선물이에요! 🎶",
+  },
+  {
+    sources: ["Apink 與 Panda 的故事永遠不會結束！♾️", "Apink 與 Panda 的故事永遠不會結束！♾️l"],
+    zh: "Apink 與 Panda 的故事永遠不會結束！♾️",
+    ko: "Apink와 Panda의 이야기는 영원히 끝나지 않아요! ♾️",
+  },
+  {
+    sources: ["Apink 與 Panda 的故事永遠不會結束！♾️ 我會繼續支持你們的 🫶"],
+    zh: "Apink 與 Panda 的故事永遠不會結束！我會繼續支持你們！♾️🫶",
+    ko: "Apink와 Panda의 이야기는 영원히 끝나지 않아요! 계속 응원할게요! ♾️🫶",
+  },
+  {
+    sources: ["Apink 최고❤️謝謝實現大巨蛋的約定🤙"],
+    zh: "Apink 最棒了❤️謝謝實現大巨蛋的約定🤙",
+    ko: "Apink 최고❤️ 타이베이 돔의 약속을 지켜 줘서 고마워요🤙",
+  },
+  {
+    sources: ["Apink 💖 台北大巨蛋衝呀！"],
+    zh: "Apink 💖 台北大巨蛋衝呀！",
+    ko: "Apink 💖 타이베이 돔으로 가자!",
+  },
+  {
+    sources: ["Apink 💖 台北大巨蛋衝呀！恭喜你們登上夢想中的大舞台！！！！！"],
+    zh: "Apink 💖 台北大巨蛋衝呀！恭喜登上夢想中的大舞台！",
+    ko: "Apink 💖 타이베이 돔으로 가자! 꿈의 무대에 오른 것을 축하해요!",
+  },
+  {
+    sources: ["Apink 💖 台北大巨蛋衝呀！한명당! 서른명!"],
+    zh: "Apink 💖 台北大巨蛋衝呀！一人帶三十人！",
+    ko: "Apink 💖 타이베이 돔으로 가자! 한 명당 서른 명!",
+  },
+  {
+    sources: ["Apink南波萬！！"],
+    zh: "Apink 第一名！！",
+    ko: "Apink 넘버원!!",
+  },
+  {
+    sources: ["Apink和panda永遠在一起～愛你們～♥️大發"],
+    zh: "Apink 和 Panda 永遠在一起～愛你們～♥️大發！",
+    ko: "Apink와 Panda 영원히 함께해요! 사랑해요! ♥️ 대박!",
+  },
+  {
+    sources: ["Apink大發!!!!!! 大巨蛋Lets go~~~ 應援全場"],
+    zh: "Apink 大發！大巨蛋出發，全場一起應援！",
+    ko: "Apink 대박! 타이베이 돔으로 가자! 모두 함께 응원해요!",
+  },
+  {
+    sources: ["Apink投球超帥😙😙😙期待登上大巨蛋"],
+    zh: "Apink 投球超帥！期待登上大巨蛋！😙😙😙",
+    ko: "Apink의 멋진 투구! 타이베이 돔 무대를 기대해요! 😙😙😙",
+  },
+  {
+    sources: ["Apink繼續走花路！🐼🌸"],
+    zh: "Apink 繼續走花路！🐼🌸",
+    ko: "Apink, 앞으로도 꽃길만 걸어요! 🐼🌸",
+  },
+  {
+    sources: ["Hello", "hello"],
+    zh: "哈囉！",
+    ko: "안녕하세요!",
+  },
+  {
+    sources: ["Hhcfhhuu"],
+    zh: "嗨！為 Apink 加油！",
+    ko: "안녕! Apink를 응원해요!",
+  },
+  {
+    sources: ["Panda 永遠支持 Apink，15 週年粗卡！🐼", "Panda 永遠支持 Apink，15 週年粗卡！🐼ijbvnlgxjonc"],
+    zh: "Panda 永遠支持 Apink，15 週年快樂！🐼",
+    ko: "Panda는 영원히 Apink를 응원해요. 15주년 축하해요! 🐼",
+  },
+  {
+    sources: ["Ping Doongs 幫 Panda 釣滿幸福與幸運！🎣", "Ping Doongs가 Panda에게 행복과 행운을 낚아 줄게요! 🎣"],
+    zh: "Ping Doongs 幫 Panda 釣滿幸福與幸運！🎣",
+    ko: "Ping Doongs가 Panda에게 행복과 행운을 낚아 줄게요! 🎣",
+  },
+  {
+    sources: ["一人帶三十人達標！！"],
+    zh: "一人帶三十人達標！！",
+    ko: "한 명당 서른 명, 목표 달성!!",
+  },
+  {
+    sources: ["一個人帶三十個人！！支持開球成功，7月31日見！！！"],
+    zh: "一個人帶三十個人！支持開球成功，7 月 31 日見！",
+    ko: "한 명이 서른 명과 함께! 성공적인 시구를 응원해요. 7월 31일에 만나요!",
+  },
+  {
+    sources: ["一起迎接更多個充滿愛的週年吧！🎉"],
+    zh: "一起迎接更多個充滿愛的週年吧！🎉",
+    ko: "사랑 가득한 기념일을 앞으로도 함께 맞이해요! 🎉",
+  },
+  {
+    sources: ["五色明太魚守護 Apink 閃閃發光！✨"],
+    zh: "五色明太魚守護 Apink 閃閃發光！✨",
+    ko: "다섯 빛깔 명태가 반짝이는 Apink를 지켜 줄게요! ✨",
+  },
+  {
+    sources: ["五隻幸運明太魚，守護 Apink 閃閃發光！✨", "다섯 마리 행운 명태가 빛나는 Apink를 지켜 줄게요! ✨"],
+    zh: "五隻幸運明太魚，守護 Apink 閃閃發光！✨",
+    ko: "다섯 마리 행운 명태가 빛나는 Apink를 지켜 줄게요! ✨",
+  },
+  {
+    sources: ["和阿粉們在一起的時光珍貴又難忘！是美好的回憶🩷"],
+    zh: "和 Apink 在一起的時光珍貴又難忘，是最美好的回憶！🩷",
+    ko: "Apink와 함께한 시간은 소중하고 잊지 못할 아름다운 추억이에요! 🩷",
+  },
+  {
+    sources: ["夢想的舞台實現了，可以跟著Apink開箱大巨蛋感到無比光榮！！！！！ 🐼🎤🌟"],
+    zh: "夢想舞台實現了！能跟著 Apink 一起開箱大巨蛋，感到無比光榮！🐼🎤🌟",
+    ko: "꿈의 무대가 이루어졌어요! Apink와 함께 타이베이 돔의 첫 순간을 맞아 정말 영광이에요! 🐼🎤🌟",
+  },
+  {
+    sources: ["大巨蛋滿座！Apink 萬歲！"],
+    zh: "大巨蛋滿座！Apink 萬歲！",
+    ko: "타이베이 돔 만석! Apink 만세!",
+  },
+  {
+    sources: ["大巨蛋滿座！Apink 萬歲！一人帶30人~~~！！！"],
+    zh: "大巨蛋滿座！Apink 萬歲！一人帶三十人！",
+    ko: "타이베이 돔 만석! Apink 만세! 한 명당 서른 명!",
+  },
+  {
+    sources: ["大巨蛋滿座！Apink 萬歲！好好玩喔這遊戲！！！！"],
+    zh: "大巨蛋滿座！Apink 萬歲！這個遊戲好好玩！",
+    ko: "타이베이 돔 만석! Apink 만세! 이 게임 정말 재미있어요!",
+  },
+  {
+    sources: ["對Apink的❤️永遠不會改變，不管是15年還是25年"],
+    zh: "對 Apink 的愛永遠不會改變，不管是 15 年還是 25 年！❤️",
+    ko: "15년이든 25년이든 Apink를 향한 사랑은 영원히 변하지 않아요! ❤️",
+  },
+  {
+    sources: ["希望未來每一場Apink 的活動都能夠參與❤️竭盡所能🥺✌️🤟🤙🏼"],
+    zh: "希望未來每一場 Apink 的活動都能參與，我會竭盡所能！❤️🥺✌️🤟🤙🏼",
+    ko: "앞으로 모든 Apink 활동에 함께할 수 있도록 최선을 다할게요! ❤️🥺✌️🤟🤙🏼",
+  },
+  {
+    sources: ["幸運明太魚把所有好事都送給 Apink！🐟"],
+    zh: "幸運明太魚把所有好事都送給 Apink！🐟",
+    ko: "행운 명태가 모든 좋은 일을 Apink에게 전해 줄게요! 🐟",
+  },
+  {
+    sources: ["快手抓住五色明太魚，把幸運送給 Panda！🐟"],
+    zh: "快手抓住五色明太魚，把幸運送給 Panda！🐟",
+    ko: "빠른 손으로 다섯 빛깔 명태를 잡아 Panda에게 행운을 전해요! 🐟",
+  },
+  {
+    sources: ["恩地全壘打！"],
+    zh: "恩地全壘打！",
+    ko: "은지 홈런!",
+  },
+  {
+    sources: ["接下來的15年繼續當最給力的胖達🥰"],
+    zh: "接下來的 15 年，也要繼續當最給力的 Panda！🥰",
+    ko: "앞으로 15년도 가장 든든한 Panda가 될게요! 🥰",
+  },
+  {
+    sources: ["普美投球超帥，初瓏全壘打！"],
+    zh: "普美投球超帥，初瓏全壘打！",
+    ko: "보미의 투구는 최고, 초롱은 홈런!",
+  },
+  {
+    sources: ["普美投球超帥，恩地全壘打！"],
+    zh: "普美投球超帥，恩地全壘打！",
+    ko: "보미의 투구는 최고, 은지는 홈런!",
+  },
+  {
+    sources: ["永遠愛Apink❤️"],
+    zh: "永遠愛 Apink！❤️",
+    ko: "Apink를 영원히 사랑해요! ❤️",
+  },
+  {
+    sources: ["永遠支持 Apink！🐼🌸"],
+    zh: "永遠支持 Apink！🐼🌸",
+    ko: "언제나 Apink를 응원해요! 🐼🌸",
+  },
+  {
+    sources: ["永遠支持 Apink！🐼🌸\n阿粉一生追，我瓏一生推🥰"],
+    zh: "永遠支持 Apink！阿粉一生追，我瓏一生推！🐼🌸🥰",
+    ko: "언제나 Apink를 응원해요! 평생 Panda, 평생 초롱 팬이에요! 🐼🌸🥰",
+  },
+  {
+    sources: ["永遠支持 Apink！🐼🌸 阿粉我愛你！！！！！"],
+    zh: "永遠支持 Apink！阿粉我愛你！🐼🌸",
+    ko: "언제나 Apink를 응원해요! Apink 사랑해요! 🐼🌸",
+  },
+  {
+    sources: ["永遠支持 Apink！🐼🌸要一直走花路哦~"],
+    zh: "永遠支持 Apink！要一直走花路哦！🐼🌸",
+    ko: "언제나 Apink를 응원해요! 계속 꽃길만 걸어요! 🐼🌸",
+  },
+  {
+    sources: ["永遠的 我們的Apink 🩷"],
+    zh: "永遠的、我們的 Apink！🩷",
+    ko: "영원한 우리의 Apink! 🩷",
+  },
+  {
+    sources: ["謝謝15 年一直陪在我們身邊 ~ 夏榮生日快樂"],
+    zh: "謝謝 15 年來一直陪在我們身邊，夏榮生日快樂！",
+    ko: "15년 동안 늘 곁에 있어 줘서 고마워요. 하영 생일 축하해요!",
+  },
+  {
+    sources: ["願 Apink 和 Panda 每天都有滿滿好運！🍀", "願 Apink 和 Panda 每天都有滿滿好運！🍀hhgjhh", "願 Apink 和 Panda 每天都有滿滿好運！🐼💗"],
+    zh: "願 Apink 和 Panda 每天都有滿滿好運！🍀",
+    ko: "Apink와 Panda의 매일에 행운이 가득하길 바라요! 🍀",
+  },
+  {
+    sources: ["願每位成員健康平安、天天開心！🌸"],
+    zh: "願每位成員健康平安、天天開心！🌸",
+    ko: "모든 멤버가 건강하고 매일 행복하길 바라요! 🌸",
+  },
+  {
+    sources: ["願每位成員健康平安、天天開心！🌸 我非常愛你們 🫶"],
+    zh: "願每位成員健康平安、天天開心！我非常愛你們！🌸🫶",
+    ko: "모든 멤버가 건강하고 매일 행복하길 바라요! 정말 사랑해요! 🌸🫶",
+  },
+  {
+    sources: ["사랑해. 우리 타이베이 만나요. 화이팅."],
+    zh: "愛你們，我們台北見，加油！",
+    ko: "사랑해요. 우리 타이베이에서 만나요. 화이팅!",
+  },
+  {
+    sources: ["에이핑크 드디어 타이베이 돔에 와요!!!!! 진심으로 축하해요!!! 🫶🫶🫶🫶🫶⚾🫡"],
+    zh: "Apink 終於來到台北大巨蛋！真心恭喜你們！🫶🫶🫶🫶🫶⚾🫡",
+    ko: "에이핑크 드디어 타이베이 돔에 와요! 진심으로 축하해요! 🫶🫶🫶🫶🫶⚾🫡",
+  },
+  {
+    sources: ["영원히 사랑해 영원히 함께해 영원히 우리는 에이핑크"],
+    zh: "永遠相愛、永遠相伴，我們永遠是 Apink！",
+    ko: "영원히 사랑해, 영원히 함께해, 영원히 우리는 에이핑크!",
+  },
+];
 
-const requestedGame = new URLSearchParams(window.location.search).get("game");
+const normalizeText = (value) => String(value || "").replace(/\s+/g, " ").trim();
+
+const translationIndex = new Map();
+translationGroups.forEach((group) => {
+  group.sources.forEach((source) => {
+    translationIndex.set(normalizeText(source), { zh: group.zh, ko: group.ko });
+  });
+});
+
+function toBilingual(message) {
+  const original = String(message || "").trim();
+  const normalized = normalizeText(original);
+  const exact = translationIndex.get(normalized);
+  if (exact) return { ...exact, translated: true };
+
+  if (normalized.startsWith("Apink前進大巨蛋")) {
+    const wantsBomi = /普美開球/.test(normalized);
+    return {
+      zh: normalized,
+      ko: wantsBomi
+        ? "Apink, 타이베이 돔으로 가자! 보미의 시구를 보고 싶어요!"
+        : "Apink, 타이베이 돔으로 가자!",
+      translated: true,
+    };
+  }
+
+  if (/[가-힣]/.test(normalized)) {
+    return {
+      zh: `原文應援：${original}`,
+      ko: original,
+      translated: false,
+    };
+  }
+
+  return {
+    zh: original,
+    ko: `원문 응원: ${original}`,
+    translated: false,
+  };
+}
 
 const state = {
-  locale: "zh",
-  languageMode: "auto",
-  game: gameConfigs[requestedGame] ? requestedGame : "baseball",
-  nextRefreshAt: Date.now() + refreshIntervalMs,
   cheers: [],
-  lastCheerIndex: -1,
+  queue: [],
+  currentIndex: -1,
+  rotationTimer: null,
   refreshTimer: null,
-  countdownTimer: null,
-  cheerTimer: null,
+  changing: false,
 };
-
-const interpolate = (template, values = {}) =>
-  String(template).replace(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
-
-const t = (key, values = {}) => interpolate(pageI18n[state.locale]?.[key] ?? pageI18n.zh[key] ?? key, values);
 
 function maskHandle(handle) {
   const value = String(handle || "").trim();
-  if (!value) return "";
+  if (!value || value === "匿名" || value === "익명") return "PANDA";
 
   const prefix = value.startsWith("@") ? "@" : "";
   const body = prefix ? value.slice(1) : value;
   const chars = Array.from(body);
-  if (!chars.length) return `${prefix}*`;
+  if (!chars.length) return `${prefix}PANDA`;
   if (chars.length === 1) return `${prefix}${chars[0]}*`;
 
   const maskLength = Math.max(chars.length - 2, 1);
   return `${prefix}${chars[0]}${"*".repeat(maskLength)}${chars[chars.length - 1]}`;
 }
 
-function detectBrowserLocale() {
-  const languages = navigator.languages?.length ? navigator.languages : [navigator.language || ""];
-  for (const language of languages) {
-    const normalized = language.toLowerCase();
-    if (normalized.startsWith("ja")) return "ja";
-    if (normalized.startsWith("ko")) return "ko";
-    if (normalized.startsWith("en")) return "en";
-    if (normalized.startsWith("zh")) return "zh";
-  }
-  return "zh";
-}
-
-function readLanguageMode() {
-  let stored = "auto";
+function readLocalCheers(source) {
   try {
-    stored = localStorage.getItem(languageStorageKey);
-  } catch (e) { }
-  return ["auto", "zh", "en", "ja", "ko"].includes(stored) ? stored : "auto";
-}
-
-function writeLanguageMode(mode) {
-  state.languageMode = ["auto", "zh", "en", "ja", "ko"].includes(mode) ? mode : "auto";
-  try {
-    localStorage.setItem(languageStorageKey, state.languageMode);
-  } catch (e) { }
-}
-
-function setText(selector, key, values = {}) {
-  const element = document.querySelector(selector);
-  if (element) element.textContent = t(key, values);
-}
-
-function applyLocale(mode = readLanguageMode()) {
-  state.languageMode = ["auto", "zh", "en", "ja", "ko"].includes(mode) ? mode : "auto";
-  state.locale = state.languageMode === "auto" ? detectBrowserLocale() : state.languageMode;
-  const copy = pageI18n[state.locale] ?? pageI18n.zh;
-
-  document.documentElement.lang = copy.htmlLang;
-  document.title = t("title");
-  document.querySelector('meta[name="description"]')?.setAttribute("content", t("description"));
-
-  const select = document.querySelector("#leaderboardLanguageSelect");
-  if (select) {
-    select.value = state.languageMode;
-    select.querySelector('option[value="auto"]').textContent = t("languageAuto");
-    select.querySelector('option[value="zh"]').textContent = t("languageZh");
-    select.querySelector('option[value="en"]').textContent = t("languageEn");
-    select.querySelector('option[value="ja"]').textContent = t("languageJa");
-    select.querySelector('option[value="ko"]').textContent = t("languageKo");
-  }
-
-  setText("#leaderboardLanguageLabel", "languageLabel");
-  setText("#leaderboardStartGameButton", "startGame");
-  setText("#backToGameLink", "backToGame");
-  setText("#leaderboardPageKicker", "kicker");
-  setText("#leaderboardPageTitle", "heading");
-  setText("#leaderboardPageIntro", "intro");
-  setText("#leaderboardPageRankHeader", "rank");
-  setText("#leaderboardPageAccountHeader", "account");
-  setText("#leaderboardPageScoreHeader", "score");
-  setText("#leaderboardTabBaseball", "tabBaseball");
-  setText("#leaderboardTabFish", "tabFish");
-  setText("#leaderboardTabFishPro", "tabFishPro");
-  setText("#leaderboardTabFishSwipe", "tabFishSwipe");
-  setText("#cheerMarqueeTitle", "cheerMarqueeTitle");
-  setText("#leaderboardDisclaimer", "disclaimer");
-  if (!state.cheers.length) setText("#cheerMarqueeText", "cheerMarqueeEmpty");
-  updateCountdown();
-}
-
-const gameConfig = () => gameConfigs[state.game] ?? gameConfigs.baseball;
-
-function readLocalLeaderboard() {
-  try {
-    return JSON.parse(localStorage.getItem(gameConfig().cacheKey) || "[]");
-  } catch (e) {
+    const value = JSON.parse(localStorage.getItem(source.cacheKey) || "[]");
+    return Array.isArray(value) ? value : [];
+  } catch (error) {
     return [];
   }
 }
 
-async function fetchRemoteLeaderboard() {
-  if (!GOOGLE_SCRIPT_URL) return null;
-  const config = gameConfig();
-  const url = `${GOOGLE_SCRIPT_URL}?action=${config.action}&ts=${Date.now()}`;
+function writeLocalCheers(source, cheers) {
+  try {
+    localStorage.setItem(source.cacheKey, JSON.stringify(cheers));
+  } catch (error) {
+    // The live page still works when storage is unavailable.
+  }
+}
+
+async function fetchSourceCheers(source) {
+  const url = `${GOOGLE_SCRIPT_URL}?action=${source.action}&ts=${Date.now()}`;
   const response = await fetch(url, {
     method: "GET",
     mode: "cors",
     cache: "no-store",
   });
-  const data = await response.json();
-  if (config.requiresGameEcho && data?.game !== state.game) return null;
-  return Array.isArray(data?.leaderboard) ? data.leaderboard : null;
-}
+  if (!response.ok) throw new Error(`Cheer request failed: ${response.status}`);
 
-function readLocalCheers() {
-  try {
-    return JSON.parse(localStorage.getItem(gameConfig().cheersCacheKey) || "[]");
-  } catch (e) {
-    return [];
+  const data = await response.json();
+  if (data?.game && data.game !== source.expectedGame) {
+    throw new Error(`Unexpected cheer source: ${data.game}`);
   }
+  return Array.isArray(data?.cheers) ? data.cheers : [];
 }
 
-async function fetchRemoteCheers() {
-  if (!GOOGLE_SCRIPT_URL) return null;
-  const config = gameConfig();
-  const url = `${GOOGLE_SCRIPT_URL}?action=${config.cheersAction}&ts=${Date.now()}`;
-  const response = await fetch(url, {
-    method: "GET",
-    mode: "cors",
-    cache: "no-store",
-  });
-  const data = await response.json();
-  if (config.requiresGameEcho && data?.game !== state.game) return null;
-  return Array.isArray(data?.cheers) ? data.cheers : null;
-}
-
-function normalizeCheers(list) {
+function normalizeCheers(list, source) {
   return list
-    .filter((item) => item && String(item.message || "").trim())
-    .map((item) => ({
-      handle: String(item.handle || t("anonymous")).trim() || t("anonymous"),
-      message: String(item.message).trim(),
-      time: item.time || "",
-    }));
-}
-
-function renderRandomCheer() {
-  const node = document.querySelector("#cheerMarqueeText");
-  if (!node) return;
-
-  if (!state.cheers.length) {
-    node.textContent = t("cheerMarqueeEmpty");
-    return;
-  }
-
-  let nextIndex = Math.floor(Math.random() * state.cheers.length);
-  if (state.cheers.length > 1 && nextIndex === state.lastCheerIndex) {
-    nextIndex = (nextIndex + 1) % state.cheers.length;
-  }
-
-  state.lastCheerIndex = nextIndex;
-  const cheer = state.cheers[nextIndex];
-  node.textContent = t("cheerMarqueeLine", {
-    handle: maskHandle(cheer.handle),
-    message: cheer.message,
-  });
-  node.style.animation = "none";
-  node.offsetHeight;
-  node.style.animation = "";
-}
-
-async function loadCheers() {
-  const game = state.game;
-  const config = gameConfig();
-  let cheers = readLocalCheers();
-
-  try {
-    const remote = await fetchRemoteCheers();
-    if (state.game !== game) return; // 分頁已切換，丟棄過期回應
-    if (remote) {
-      cheers = remote;
-      try {
-        localStorage.setItem(config.cheersCacheKey, JSON.stringify(remote));
-      } catch (e) { }
-    }
-  } catch (e) {
-    console.warn("Cheer sync failed, using local fallback:", e);
-    if (state.game !== game) return;
-  }
-
-  state.cheers = normalizeCheers(cheers);
-  state.lastCheerIndex = -1;
-  renderRandomCheer();
-}
-
-function rankRows(list) {
-  const normalized = list
-    .filter((item) => item && item.handle && Number.isFinite(Number(item.score)))
-    .map((item) => ({ handle: String(item.handle), score: Number(item.score) }))
-    .sort((a, b) => b.score - a.score);
-
-  let currentRank = 1;
-  let tieCount = 0;
-  let lastScore = null;
-
-  return normalized.map((item) => {
-    if (lastScore !== null && item.score < lastScore) {
-      currentRank += tieCount;
-      tieCount = 1;
-    } else {
-      tieCount++;
-    }
-    lastScore = item.score;
-    return { ...item, rank: currentRank };
-  });
-}
-
-function readMyHandle() {
-  try {
-    return String(localStorage.getItem("apink_my_handle") || "").trim();
-  } catch (e) {
-    return "";
-  }
-}
-
-function renderLeaderboard(list) {
-  const body = document.querySelector("#leaderboardPageBody");
-  if (!body) return;
-
-  const rows = rankRows(list);
-  const myHandle = readMyHandle();
-  body.innerHTML = "";
-
-  if (!rows.length) {
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 3;
-    td.textContent = t("empty");
-    tr.appendChild(td);
-    body.appendChild(tr);
-    renderMyRank(rows, myHandle);
-    return;
-  }
-
-  rows.slice(0, 10).forEach((item) => {
-    const tr = document.createElement("tr");
-    let rankText = String(item.rank);
-    if (item.rank === 1) {
-      tr.classList.add("top-rank-1");
-      rankText = "🥇";
-    } else if (item.rank === 2) {
-      tr.classList.add("top-rank-2");
-      rankText = "🥈";
-    } else if (item.rank === 3) {
-      tr.classList.add("top-rank-3");
-      rankText = "🥉";
-    }
-    if (myHandle && item.handle === myHandle) {
-      tr.classList.add("is-me");
-    }
-
-    [rankText, maskHandle(item.handle), item.score].forEach((value) => {
-      const td = document.createElement("td");
-      td.textContent = String(value);
-      tr.appendChild(td);
+    .filter((item) => item && normalizeText(item.message))
+    .map((item) => {
+      const bilingual = toBilingual(item.message);
+      return {
+        source: source.key,
+        sourceLabel: source.label,
+        sourceLabelKo: source.labelKo,
+        handle: String(item.handle || "PANDA").trim() || "PANDA",
+        time: item.time || "",
+        zh: bilingual.zh,
+        ko: bilingual.ko,
+        translated: bilingual.translated,
+      };
     });
-    body.appendChild(tr);
-  });
-
-  renderMyRank(rows, myHandle);
 }
 
-function renderMyRank(rows, myHandle) {
-  const section = document.querySelector("#leaderboardPageMyRank");
-  if (!section) return;
+function shuffledIndexes(length) {
+  const values = Array.from({ length }, (_, index) => index);
+  for (let index = values.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [values[index], values[swapIndex]] = [values[swapIndex], values[index]];
+  }
+  return values;
+}
 
-  const myRankInfo = myHandle ? rows.find((item) => item.handle === myHandle) : null;
-  if (!myRankInfo) {
-    section.hidden = true;
-    section.innerHTML = "";
+function refillQueue() {
+  state.queue = shuffledIndexes(state.cheers.length);
+  if (state.queue.length > 1 && state.queue[0] === state.currentIndex) {
+    [state.queue[0], state.queue[1]] = [state.queue[1], state.queue[0]];
+  }
+}
+
+function takeNextCheer() {
+  if (!state.cheers.length) return null;
+  if (!state.queue.length) refillQueue();
+  const index = state.queue.shift();
+  state.currentIndex = index;
+  return state.cheers[index];
+}
+
+function setActiveSource(sourceKey) {
+  document.querySelectorAll(".cheer-source-list [data-source]").forEach((item) => {
+    item.classList.toggle("is-active", item.dataset.source === sourceKey);
+  });
+}
+
+function renderCheer(cheer) {
+  if (!cheer) return;
+  const source = document.querySelector("#cheerCurrentSource");
+  const quoteZh = document.querySelector("#cheerQuoteZh");
+  const quoteKo = document.querySelector("#cheerQuoteKo");
+  const author = document.querySelector("#cheerAuthor");
+
+  if (source) source.textContent = `${cheer.sourceLabel} · ${cheer.sourceLabelKo}`;
+  if (quoteZh) quoteZh.textContent = cheer.zh;
+  if (quoteKo) quoteKo.textContent = cheer.ko;
+  if (author) author.textContent = `@${maskHandle(cheer.handle).replace(/^@/, "")}`;
+  setActiveSource(cheer.source);
+}
+
+function showNextCheer({ immediate = false } = {}) {
+  if (state.changing || !state.cheers.length) return;
+  const nextCheer = takeNextCheer();
+  const stage = document.querySelector("#cheerMessageStage");
+  if (!stage || immediate || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    renderCheer(nextCheer);
     return;
   }
 
-  let medal = "";
-  if (myRankInfo.rank === 1) medal = "🥇 ";
-  else if (myRankInfo.rank === 2) medal = "🥈 ";
-  else if (myRankInfo.rank === 3) medal = "🥉 ";
+  state.changing = true;
+  stage.classList.remove("is-changing");
+  stage.offsetHeight;
+  stage.classList.add("is-changing");
 
-  section.innerHTML = "";
-  [
-    t("myRank", { rank: `${medal}${myRankInfo.rank}` }),
-    maskHandle(myRankInfo.handle),
-    t("scoreUnit", { score: myRankInfo.score }),
-  ].forEach((text) => {
-    const span = document.createElement("span");
-    span.textContent = text;
-    section.appendChild(span);
-  });
-  section.hidden = false;
+  window.setTimeout(() => renderCheer(nextCheer), 480);
+  window.setTimeout(() => {
+    stage.classList.remove("is-changing");
+    state.changing = false;
+  }, 920);
 }
 
-function formatTime(date) {
-  return new Intl.DateTimeFormat(state.locale === "zh" ? "zh-Hant" : state.locale, {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }).format(date);
+function marqueeItems() {
+  const seen = new Set();
+  const items = [];
+  for (const cheer of state.cheers) {
+    const key = `${cheer.zh}|${cheer.ko}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    items.push(cheer);
+    if (items.length === 8) break;
+  }
+  return items;
 }
 
-function updateCountdown() {
-  const remainingMs = Math.max(0, state.nextRefreshAt - Date.now());
-  const totalSeconds = Math.ceil(remainingMs / 1000);
-  const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
-  const seconds = String(totalSeconds % 60).padStart(2, "0");
-  setText("#leaderboardNextRefresh", "nextRefresh", { time: `${minutes}:${seconds}` });
+function renderMarquee() {
+  const track = document.querySelector("#cheerMarqueeTrack");
+  if (!track || !state.cheers.length) return;
+
+  const items = marqueeItems();
+  const createGroup = (hidden = false) => {
+    const group = document.createElement("p");
+    group.className = "cheer-marquee-group";
+    if (hidden) group.setAttribute("aria-hidden", "true");
+
+    items.forEach((cheer) => {
+      const zh = document.createElement("span");
+      zh.lang = "zh-Hant";
+      zh.textContent = cheer.zh;
+      const ko = document.createElement("span");
+      ko.lang = "ko";
+      ko.textContent = cheer.ko;
+      group.append(zh, ko);
+    });
+    return group;
+  };
+
+  track.replaceChildren(createGroup(), createGroup(true));
 }
 
-async function loadLeaderboard() {
-  const game = state.game;
-  const config = gameConfig();
-  const statusNode = document.querySelector("#leaderboardSourceStatus");
-  if (statusNode) statusNode.textContent = t("loading");
+function updateStatus(remoteSourceCount) {
+  const status = document.querySelector("#cheerStatus");
+  if (!status) return;
 
-  let list = readLocalLeaderboard();
-  let sourceKey = list.length ? "localLoaded" : "loadFailed";
+  const fallbackCount = translationGroups.length
+    ? state.cheers.filter((cheer) => !cheer.translated).length
+    : 0;
+  const syncLabel =
+    remoteSourceCount === cheerSources.length
+      ? "四個遊戲已同步"
+      : `${remoteSourceCount} 個遊戲已同步，其餘顯示暫存`;
+  status.textContent = `${syncLabel} · ${state.cheers.length} 則應援 · 每 5 秒更新${
+    fallbackCount ? ` · ${fallbackCount} 則保留原文` : ""
+  }`;
+}
 
-  try {
-    const remote = await fetchRemoteLeaderboard();
-    if (state.game !== game) return; // 分頁已切換，丟棄過期回應
-    if (remote) {
-      list = remote;
-      sourceKey = "remoteLoaded";
+async function loadAllCheers() {
+  const results = await Promise.all(
+    cheerSources.map(async (source) => {
+      let cheers = readLocalCheers(source);
+      let remote = false;
       try {
-        localStorage.setItem(config.cacheKey, JSON.stringify(remote));
-      } catch (e) { }
-    }
-  } catch (e) {
-    console.warn("Leaderboard sync failed, using local fallback:", e);
-    if (state.game !== game) return;
+        cheers = await fetchSourceCheers(source);
+        writeLocalCheers(source, cheers);
+        remote = true;
+      } catch (error) {
+        console.warn(`Unable to sync ${source.key} cheers; using local cache.`, error);
+      }
+      return { source, cheers, remote };
+    }),
+  );
+
+  const nextCheers = results.flatMap(({ source, cheers }) => normalizeCheers(cheers, source));
+  if (!nextCheers.length) {
+    document.querySelector("#cheerCurrentSource").textContent = "等待第一句應援 · 첫 응원을 기다리고 있어요";
+    document.querySelector("#cheerQuoteZh").textContent = "留下第一句給 Apink 的祝福吧！";
+    document.querySelector("#cheerQuoteKo").textContent = "Apink에게 첫 응원 메시지를 남겨 주세요!";
+    updateStatus(0);
+    return;
   }
 
-  renderLeaderboard(list);
-  setText("#leaderboardSourceStatus", sourceKey);
-  setText("#leaderboardUpdatedAt", "updatedAt", { time: formatTime(new Date()) });
-  state.nextRefreshAt = Date.now() + refreshIntervalMs;
-  updateCountdown();
+  state.cheers = nextCheers;
+  state.queue = [];
+  state.currentIndex = -1;
+  showNextCheer({ immediate: true });
+  renderMarquee();
+  updateStatus(results.filter((result) => result.remote).length);
 }
 
-async function loadPageData() {
-  await Promise.all([loadLeaderboard(), loadCheers()]);
-}
-
-function scheduleRefresh() {
+function startRotation() {
+  window.clearInterval(state.rotationTimer);
   window.clearInterval(state.refreshTimer);
-  window.clearInterval(state.countdownTimer);
-  window.clearInterval(state.cheerTimer);
-  state.refreshTimer = window.setInterval(loadPageData, refreshIntervalMs);
-  state.countdownTimer = window.setInterval(updateCountdown, 1000);
-  state.cheerTimer = window.setInterval(renderRandomCheer, cheerMarqueeIntervalMs);
+  state.rotationTimer = window.setInterval(showNextCheer, cheerRotationMs);
+  state.refreshTimer = window.setInterval(loadAllCheers, refreshIntervalMs);
 }
 
-function syncGameTabs() {
-  document.querySelectorAll(".leaderboard-tab").forEach((tab) => {
-    const active = tab.dataset.game === state.game;
-    tab.classList.toggle("is-active", active);
-    tab.setAttribute("aria-selected", active ? "true" : "false");
-  });
-  const startButton = document.querySelector("#leaderboardStartGameButton");
-  if (startButton) startButton.href = gameConfig().startUrl;
-}
-
-function switchGame(game) {
-  if (!gameConfigs[game] || state.game === game) return;
-  state.game = game;
-  syncGameTabs();
-  const params = new URLSearchParams(window.location.search);
-  if (game === "baseball") params.delete("game");
-  else params.set("game", game);
-  const query = params.toString();
-  history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
-  state.cheers = [];
-  state.lastCheerIndex = -1;
-  loadPageData();
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  applyLocale();
-  syncGameTabs();
-  document.querySelector("#leaderboardLanguageSelect")?.addEventListener("change", (event) => {
-    writeLanguageMode(event.target.value);
-    applyLocale(state.languageMode);
-    renderRandomCheer();
-    loadPageData();
-  });
-  document.querySelectorAll(".leaderboard-tab").forEach((tab) => {
-    tab.addEventListener("click", () => switchGame(tab.dataset.game));
-  });
-  loadPageData();
-  scheduleRefresh();
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadAllCheers();
+  startRotation();
 });

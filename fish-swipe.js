@@ -30,10 +30,7 @@ const swipeI18n = {
     languageEn: "English",
     languageJa: "日本語",
     languageKo: "한국어",
-    backToFishing: "回到釣魚遊戲",
-    leaderboardLink: "排行榜",
-    supportLink: "中韓應援牆",
-    navLabel: "遊戲導覽",
+    backToHome: "回到首頁",
     kicker: "Apink 15 週年應援",
     heading: "明太魚快手捕獲戰",
     intro: "用手刀劃過飛起來的五色明太魚，把滿滿幸運送給 Panda！",
@@ -105,10 +102,7 @@ const swipeI18n = {
     languageEn: "English",
     languageJa: "日本語",
     languageKo: "한국어",
-    backToFishing: "Back to Fishing",
-    leaderboardLink: "Leaderboard",
-    supportLink: "Bilingual Cheer Wall",
-    navLabel: "Game navigation",
+    backToHome: "Back to Home",
     kicker: "Apink 15th Anniversary Cheer",
     heading: "Lucky Myeongtae Swipe Catch",
     intro: "Swipe across the five colorful flying myeongtae and send a net full of luck to Pandas!",
@@ -180,10 +174,7 @@ const swipeI18n = {
     languageEn: "English",
     languageJa: "日本語",
     languageKo: "한국어",
-    backToFishing: "釣りゲームへ戻る",
-    leaderboardLink: "ランキング",
-    supportLink: "中韓応援ウォール",
-    navLabel: "ゲームナビゲーション",
+    backToHome: "ホームへ戻る",
     kicker: "Apink 15周年応援",
     heading: "ミョンテ早取りチャレンジ",
     intro: "飛び出す5色のミョンテを手刀で捕まえて、Panda に幸運を届けよう！",
@@ -255,10 +246,7 @@ const swipeI18n = {
     languageEn: "English",
     languageJa: "日本語",
     languageKo: "한국어",
-    backToFishing: "낚시 게임으로 돌아가기",
-    leaderboardLink: "랭킹",
-    supportLink: "중·한 응원 월",
-    navLabel: "게임 탐색",
+    backToHome: "홈으로 돌아가기",
     kicker: "Apink 15주년 응원",
     heading: "명태 빠른 손 캐치",
     intro: "날아오르는 다섯 색 명태를 손날로 잡아 Panda에게 행운을 보내요!",
@@ -449,9 +437,7 @@ class SwipeFishGame {
 
     [
       ["#swipeLanguageLabel", "languageLabel"],
-      ["#swipeBackToFishing", "backToFishing"],
-      ["#swipeLeaderboardLink", "leaderboardLink"],
-      ["#swipeSupportLink", "supportLink"],
+      ["#swipeBackToHome", "backToHome"],
       ["#swipeKicker", "kicker"],
       ["#swipeTitle", "heading"],
       ["#swipeIntro", "intro"],
@@ -476,7 +462,6 @@ class SwipeFishGame {
 
     this.startButton.textContent = this.assetsReady ? this.t("startButton") : this.t("loading");
     this.canvas.setAttribute("aria-label", this.t("canvasLabel"));
-    document.querySelector(".swipe-nav")?.setAttribute("aria-label", this.t("navLabel"));
     document.querySelector("#swipeHandleInput")?.setAttribute("placeholder", this.t("handlePlaceholder"));
     document.querySelector("#swipeCheerInput")?.setAttribute("placeholder", this.t("cheerPlaceholder"));
     document.querySelector("#swipeCheerTemplates")?.setAttribute("aria-label", this.t("cheerTemplatesLabel"));

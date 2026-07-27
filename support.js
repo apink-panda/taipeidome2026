@@ -25,6 +25,13 @@ const homeI18n = {
     wallLabel: "PANDA 應援即時輪播 · PANDA 응원 라이브",
     liveMark: "閃耀中",
     changeNote: '<span aria-hidden="true">✦ · · ✦</span>忽明忽滅後，遇見下一句',
+    showAll: "查看全部留言",
+    hideAll: "回到單則輪播",
+    allHeading: "所有應援留言",
+    allListAria: "所有中韓應援留言",
+    allCount: "{count} 則留言",
+    allLoading: "留言載入中……",
+    allEmpty: "目前還沒有留言。",
     navAria: "應援活動遊戲導覽",
     baseballLink: "⚾ 棒球應援遊戲",
     fishLink: "🎣 幸運明太魚",
@@ -56,6 +63,13 @@ const homeI18n = {
     wallLabel: "PANDA LIVE CHEERS · 中文 + 한국어",
     liveMark: "NOW GLOWING",
     changeNote: '<span aria-hidden="true">✦ · · ✦</span>Fade and glow into the next message',
+    showAll: "View All Cheers",
+    hideAll: "Back to Live Cheer",
+    allHeading: "All Cheer Messages",
+    allListAria: "All Chinese and Korean cheer messages",
+    allCount: "{count} messages",
+    allLoading: "Loading messages…",
+    allEmpty: "No messages yet.",
     navAria: "Cheer event game navigation",
     baseballLink: "⚾ Baseball Cheer Game",
     fishLink: "🎣 Lucky Myeongtae",
@@ -87,6 +101,13 @@ const homeI18n = {
     wallLabel: "PANDA 応援ライブ · 中文 + 한국어",
     liveMark: "点灯中",
     changeNote: '<span aria-hidden="true">✦ · · ✦</span>光が揺らめいたら、次のメッセージへ',
+    showAll: "すべてのメッセージ",
+    hideAll: "1件表示に戻る",
+    allHeading: "すべての応援メッセージ",
+    allListAria: "中国語と韓国語の全応援メッセージ",
+    allCount: "{count}件のメッセージ",
+    allLoading: "メッセージを読み込み中…",
+    allEmpty: "メッセージはまだありません。",
     navAria: "応援イベントのゲームナビゲーション",
     baseballLink: "⚾ 野球応援ゲーム",
     fishLink: "🎣 幸運のミョンテ",
@@ -118,6 +139,13 @@ const homeI18n = {
     wallLabel: "PANDA 응원 라이브 · 中文 + 한국어",
     liveMark: "반짝이는 중",
     changeNote: '<span aria-hidden="true">✦ · · ✦</span>빛이 깜빡이면 다음 메시지를 만나요',
+    showAll: "전체 메시지 보기",
+    hideAll: "한 문장 보기로",
+    allHeading: "모든 응원 메시지",
+    allListAria: "모든 중국어·한국어 응원 메시지",
+    allCount: "메시지 {count}개",
+    allLoading: "메시지를 불러오는 중…",
+    allEmpty: "아직 메시지가 없어요.",
     navAria: "응원 이벤트 게임 탐색",
     baseballLink: "⚾ 야구 응원 게임",
     fishLink: "🎣 행운 명태",
@@ -467,7 +495,16 @@ const state = {
   refreshTimer: null,
   changing: false,
   remoteSourceCount: 0,
+  loaded: false,
 };
+
+const fishAvatarPaths = [
+  "./assets/fish/rong_fish.webp",
+  "./assets/fish/bomi_fish.webp",
+  "./assets/fish/enji_fish.webp",
+  "./assets/fish/najoo_fish.webp",
+  "./assets/fish/hayoung_fish.webp",
+];
 
 let homeLanguageMode = "auto";
 let homeLocale = "zh";
@@ -556,6 +593,9 @@ function applyHomeLocale(mode = readHomeLanguageMode()) {
   setHomeText("#homeWallLabel", "wallLabel");
   setHomeText("#homeLiveMark", "liveMark");
   setHomeHtml("#homeChangeNote", "changeNote");
+  setHomeText("#showAllCheersButton", "showAll");
+  setHomeText("#hideAllCheersButton", "hideAll");
+  setHomeText("#allCheersTitle", "allHeading");
   setHomeText("#homeBaseballLink", "baseballLink");
   setHomeText("#homeFishLink", "fishLink");
   setHomeText("#homeSwipeLink", "swipeLink");
@@ -564,6 +604,8 @@ function applyHomeLocale(mode = readHomeLanguageMode()) {
   setHomeAria("#homeTopbar", "topbarAria");
   setHomeAria("#homeSiteNav", "navAria");
   setHomeAria("#homeMarquee", "marqueeAria");
+  setHomeAria("#allCheersList", "allListAria");
+  renderAllCheers();
   updateStatus(state.remoteSourceCount);
 }
 
@@ -625,6 +667,7 @@ function normalizeCheers(list) {
         zh: bilingual.zh,
         ko: bilingual.ko,
         translated: bilingual.translated,
+        avatar: fishAvatarPaths[Math.floor(Math.random() * fishAvatarPaths.length)],
       };
     });
 }
@@ -662,6 +705,100 @@ function renderCheer(cheer) {
   if (quoteZh) quoteZh.textContent = cheer.zh;
   if (quoteKo) quoteKo.textContent = cheer.ko;
   if (author) author.textContent = `@${maskHandle(cheer.handle).replace(/^@/, "")}`;
+}
+
+function renderAllCheers() {
+  if (!isHomePage()) return;
+  const list = document.querySelector("#allCheersList");
+  const count = document.querySelector("#allCheersCount");
+  if (!list) return;
+
+  if (count) count.textContent = homeT("allCount", { count: state.cheers.length });
+
+  if (!state.cheers.length) {
+    const empty = document.createElement("li");
+    empty.className = "cheer-all-empty";
+    empty.id = "allCheersEmpty";
+    empty.textContent = homeT(state.loaded ? "allEmpty" : "allLoading");
+    list.replaceChildren(empty);
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  state.cheers.forEach((cheer) => {
+    const item = document.createElement("li");
+    item.className = "cheer-all-item";
+
+    const avatar = document.createElement("img");
+    avatar.className = "cheer-all-avatar";
+    avatar.src = cheer.avatar;
+    avatar.alt = "";
+    avatar.loading = "lazy";
+    avatar.decoding = "async";
+    avatar.setAttribute("aria-hidden", "true");
+
+    const copy = document.createElement("div");
+    copy.className = "cheer-all-copy";
+
+    const zh = document.createElement("p");
+    zh.className = "cheer-all-zh";
+    zh.lang = "zh-Hant";
+    zh.textContent = cheer.zh;
+
+    const ko = document.createElement("p");
+    ko.className = "cheer-all-ko";
+    ko.lang = "ko";
+    ko.textContent = cheer.ko;
+
+    const author = document.createElement("p");
+    author.className = "cheer-all-author";
+    author.textContent = `@${maskHandle(cheer.handle).replace(/^@/, "")}`;
+
+    copy.append(zh, ko, author);
+    item.append(avatar, copy);
+    fragment.append(item);
+  });
+
+  list.replaceChildren(fragment);
+}
+
+function isAllCheersVisible() {
+  return isHomePage() && document.querySelector("#cheerCardScene")?.classList.contains("is-flipped");
+}
+
+function syncRotationTimer() {
+  window.clearInterval(state.rotationTimer);
+  state.rotationTimer = null;
+  if (!isAllCheersVisible()) {
+    state.rotationTimer = window.setInterval(showNextCheer, cheerRotationMs);
+  }
+}
+
+function setAllCheersVisible(visible) {
+  if (!isHomePage()) return;
+  const scene = document.querySelector("#cheerCardScene");
+  const front = document.querySelector("#currentCheer");
+  const back = document.querySelector("#allCheersPanel");
+  const list = document.querySelector("#allCheersList");
+  const showButton = document.querySelector("#showAllCheersButton");
+  if (!scene || !front || !back || !list) return;
+
+  scene.classList.toggle("is-flipped", visible);
+  front.setAttribute("aria-hidden", visible ? "true" : "false");
+  back.setAttribute("aria-hidden", visible ? "false" : "true");
+  front.toggleAttribute("inert", visible);
+  back.toggleAttribute("inert", !visible);
+  list.tabIndex = visible ? 0 : -1;
+
+  if (visible) {
+    renderAllCheers();
+    list.scrollTop = 0;
+    window.requestAnimationFrame(() => list.focus({ preventScroll: true }));
+  } else {
+    window.requestAnimationFrame(() => showButton?.focus({ preventScroll: true }));
+  }
+
+  syncRotationTimer();
 }
 
 function showNextCheer({ immediate = false } = {}) {
@@ -776,9 +913,14 @@ async function loadAllCheers() {
   );
 
   const nextCheers = results.flatMap(({ cheers }) => normalizeCheers(cheers));
+  state.loaded = true;
   if (!nextCheers.length) {
+    state.cheers = [];
+    state.queue = [];
+    state.currentIndex = -1;
     document.querySelector("#cheerQuoteZh").textContent = "留下第一句給 Apink 的祝福吧！";
     document.querySelector("#cheerQuoteKo").textContent = "Apink에게 첫 응원 메시지를 남겨 주세요!";
+    renderAllCheers();
     updateStatus(0);
     return;
   }
@@ -787,14 +929,14 @@ async function loadAllCheers() {
   state.queue = [];
   state.currentIndex = -1;
   showNextCheer({ immediate: true });
+  renderAllCheers();
   renderMarquee();
   updateStatus(results.filter((result) => result.remote).length);
 }
 
 function startRotation() {
-  window.clearInterval(state.rotationTimer);
   window.clearInterval(state.refreshTimer);
-  state.rotationTimer = window.setInterval(showNextCheer, cheerRotationMs);
+  syncRotationTimer();
   state.refreshTimer = window.setInterval(loadAllCheers, refreshIntervalMs);
 }
 
@@ -804,6 +946,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelector("#homeLanguageSelect")?.addEventListener("change", (event) => {
       writeHomeLanguageMode(event.target.value);
       applyHomeLocale(homeLanguageMode);
+    });
+    document.querySelector("#showAllCheersButton")?.addEventListener("click", () => {
+      setAllCheersVisible(true);
+    });
+    document.querySelector("#hideAllCheersButton")?.addEventListener("click", () => {
+      setAllCheersVisible(false);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && isAllCheersVisible()) setAllCheersVisible(false);
     });
   }
   await loadAllCheers();

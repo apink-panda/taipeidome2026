@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&amp;family=Noto+Sans+TC:wght@500;700;900&amp;family=Noto+Serif+KR:wght@600;700&amp;family=Noto+Serif+TC:wght@600;700&amp;family=Outfit:wght@500;700;900&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./cheer-wall.css?v=20260727-5" />
+    <link rel="stylesheet" href="./cheer-wall.css?v=20260727-6" />
   </head>
   <body class="cheer-home-page">
     <a class="skip-link" id="homeSkipLink" href="#currentCheer">跳至目前應援留言</a>
@@ -46,27 +46,72 @@
           </p>
         </section>
 
-        <article class="cheer-message-card" id="currentCheer" aria-live="polite">
-          <header class="cheer-message-meta">
-            <p class="cheer-wall-label" id="homeWallLabel">PANDA 應援即時輪播 · PANDA 응원 라이브</p>
-            <span class="cheer-live-mark" id="homeLiveMark">NOW GLOWING</span>
-          </header>
+        <div class="cheer-card-scene" id="cheerCardScene">
+          <div class="cheer-card-inner" id="cheerCardInner">
+            <article
+              class="cheer-message-card cheer-card-face cheer-card-front"
+              id="currentCheer"
+              aria-live="polite"
+            >
+              <header class="cheer-message-meta">
+                <p class="cheer-wall-label" id="homeWallLabel">PANDA 應援即時輪播 · PANDA 응원 라이브</p>
+                <span class="cheer-live-mark" id="homeLiveMark">NOW GLOWING</span>
+              </header>
 
-          <div class="cheer-message-stage" id="cheerMessageStage">
-            <blockquote>
-              <p class="cheer-quote-zh" id="cheerQuoteZh" lang="zh-Hant">應援留言正在聚集……</p>
-              <p class="cheer-quote-ko" id="cheerQuoteKo" lang="ko">응원 메시지를 모으고 있어요…</p>
-            </blockquote>
+              <div class="cheer-message-stage" id="cheerMessageStage">
+                <blockquote>
+                  <p class="cheer-quote-zh" id="cheerQuoteZh" lang="zh-Hant">應援留言正在聚集……</p>
+                  <p class="cheer-quote-ko" id="cheerQuoteKo" lang="ko">응원 메시지를 모으고 있어요…</p>
+                </blockquote>
+              </div>
+
+              <footer class="cheer-message-footer">
+                <p class="cheer-author" id="cheerAuthor">@PANDA</p>
+                <div class="cheer-card-front-actions">
+                  <p class="cheer-change-note" id="homeChangeNote">
+                    <span aria-hidden="true">✦ · · ✦</span>
+                    忽明忽滅後，遇見下一句
+                  </p>
+                  <button class="cheer-card-toggle" id="showAllCheersButton" type="button">
+                    查看全部留言
+                  </button>
+                </div>
+              </footer>
+            </article>
+
+            <section
+              class="cheer-message-card cheer-card-face cheer-card-back"
+              id="allCheersPanel"
+              aria-labelledby="allCheersTitle"
+              aria-hidden="true"
+              inert
+            >
+              <header class="cheer-all-header">
+                <div>
+                  <p class="cheer-all-eyebrow">ALL PANDA CHEERS</p>
+                  <h2 id="allCheersTitle">所有應援留言</h2>
+                </div>
+                <button class="cheer-card-toggle" id="hideAllCheersButton" type="button">
+                  回到單則輪播
+                </button>
+              </header>
+
+              <ol
+                class="cheer-all-list"
+                id="allCheersList"
+                aria-label="所有中韓應援留言"
+                tabindex="-1"
+              >
+                <li class="cheer-all-empty" id="allCheersEmpty">留言載入中……</li>
+              </ol>
+
+              <footer class="cheer-all-footer">
+                <p id="allCheersCount">0 則留言</p>
+                <p aria-hidden="true">中文 · 한국어</p>
+              </footer>
+            </section>
           </div>
-
-          <footer class="cheer-message-footer">
-            <p class="cheer-author" id="cheerAuthor">@PANDA</p>
-            <p class="cheer-change-note" id="homeChangeNote">
-              <span aria-hidden="true">✦ · · ✦</span>
-              忽明忽滅後，遇見下一句
-            </p>
-          </footer>
-        </article>
+        </div>
       </main>
 
       <nav class="cheer-site-nav" id="homeSiteNav" aria-label="應援活動遊戲導覽">
@@ -99,6 +144,6 @@
       本活動為粉絲自發性應援，與官方主辦單位無關。
     </p>
 
-    <script src="./support.js?v=20260727-3" defer></script>
+    <script src="./support.js?v=20260727-4" defer></script>
   </body>
 </html>

@@ -1152,9 +1152,25 @@ img {
 }
 
 .baseball-page .app-container {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
   max-width: 1540px;
   min-height: calc(100svh - 3rem);
   padding: clamp(0.75rem, 2.5vw, 2rem);
+}
+
+.game-page-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+
+.baseball-page .game-page-toolbar {
+  width: min(1380px, 100%);
+  margin-inline: auto;
 }
 
 .baseball-page .game {

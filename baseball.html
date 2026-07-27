@@ -8,10 +8,24 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./styles.css?v=20260727-3" />
+    <link rel="stylesheet" href="./styles.css?v=20260727-4" />
   </head>
   <body class="baseball-page">
     <div class="app-container">
+      <header class="game-page-toolbar" aria-label="棒球遊戲導覽">
+        <a class="leaderboard-back-link" id="homePageLink" href="./index.html">回到首頁</a>
+        <div class="language-control">
+          <label class="language-label" id="languageLabel" for="languageSelect">語言</label>
+          <select class="language-select" id="languageSelect" aria-labelledby="languageLabel">
+            <option value="auto">自動</option>
+            <option value="zh">繁體中文</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
+          </select>
+        </div>
+      </header>
+
       <main class="game" id="game" aria-label="Apink baseball game">
 
 
@@ -167,6 +181,6 @@
       📌 本活動為粉絲自發性應援，不進行任何商業販售，並與官方主辦單位無關，若有侵犯權益請告知會立即下架關閉。
     </footer>
 
-  <script src="./app.js?v=20260727-1" defer></script>
+  <script src="./app.js?v=20260727-2" defer></script>
   </body>
 </html>

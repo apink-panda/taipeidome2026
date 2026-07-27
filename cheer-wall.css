@@ -243,35 +243,6 @@ a {
   line-height: 1.8;
 }
 
-.cheer-source-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin: clamp(1.25rem, 2.3vh, 2rem) 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.cheer-source-list li {
-  padding: 0.55rem 0.78rem;
-  color: var(--cheer-ink-soft);
-  background: rgb(255 255 255 / 58%);
-  border: 1px solid rgb(156 36 86 / 13%);
-  border-radius: 999px;
-  box-shadow: 0 6px 20px rgb(130 74 113 / 5%);
-  font-size: 0.69rem;
-  font-weight: 700;
-  letter-spacing: 0.035em;
-  transition: color 240ms ease, background 240ms ease, border-color 240ms ease, transform 240ms ease;
-}
-
-.cheer-source-list li.is-active {
-  color: var(--cheer-pink-700);
-  background: var(--cheer-pink-50);
-  border-color: rgb(214 83 135 / 35%);
-  transform: translateY(-2px);
-}
-
 .cheer-message-card {
   position: relative;
   isolation: isolate;
@@ -328,7 +299,7 @@ a {
   justify-content: space-between;
 }
 
-.cheer-current-source {
+.cheer-wall-label {
   margin: 0;
   color: var(--cheer-pink-700);
   font-size: 0.73rem;
@@ -582,10 +553,6 @@ a {
     display: none;
   }
 
-  .cheer-source-list {
-    margin-top: 1.15rem;
-  }
-
   .cheer-message-card {
     min-height: min(34rem, 60svh);
   }
@@ -631,20 +598,6 @@ a {
     font-size: clamp(2.65rem, 15vw, 4rem);
   }
 
-  .cheer-source-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.38rem;
-  }
-
-  .cheer-source-list li {
-    overflow: hidden;
-    padding: 0.46rem 0.55rem;
-    text-align: center;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
   .cheer-message-card {
     min-height: 31.5rem;
     padding: 1rem;
@@ -655,7 +608,7 @@ a {
     align-items: flex-start;
   }
 
-  .cheer-current-source {
+  .cheer-wall-label {
     max-width: 15rem;
     font-size: 0.64rem;
     line-height: 1.5;

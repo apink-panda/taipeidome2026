@@ -10,32 +10,24 @@ const cheerSources = [
     action: "cheers",
     cacheKey: "apink_cheers",
     expectedGame: "baseball",
-    label: "⚾ 棒球打擊",
-    labelKo: "야구 타격",
   },
   {
     key: "fish",
     action: "fish_cheers",
     cacheKey: "apink_fish_cheers",
     expectedGame: "fish",
-    label: "🎣 幸運明太魚",
-    labelKo: "행운 명태",
   },
   {
     key: "fish_pro",
     action: "fish_pro_cheers",
     cacheKey: "apink_fish_pro_cheers",
     expectedGame: "fish_pro",
-    label: "🔥 高級明太魚",
-    labelKo: "고급 명태",
   },
   {
     key: "fish_swipe",
     action: "fish_swipe_cheers",
     cacheKey: "apink_fish_swipe_cheers",
     expectedGame: "fish_swipe",
-    label: "⚡ 快手明太魚",
-    labelKo: "빠른 손 명태",
   },
 ];
 
@@ -394,15 +386,12 @@ async function fetchSourceCheers(source) {
   return Array.isArray(data?.cheers) ? data.cheers : [];
 }
 
-function normalizeCheers(list, source) {
+function normalizeCheers(list) {
   return list
     .filter((item) => item && normalizeText(item.message))
     .map((item) => {
       const bilingual = toBilingual(item.message);
       return {
-        source: source.key,
-        sourceLabel: source.label,
-        sourceLabelKo: source.labelKo,
         handle: String(item.handle || "PANDA").trim() || "PANDA",
         time: item.time || "",
         zh: bilingual.zh,
@@ -436,24 +425,15 @@ function takeNextCheer() {
   return state.cheers[index];
 }
 
-function setActiveSource(sourceKey) {
-  document.querySelectorAll(".cheer-source-list [data-source]").forEach((item) => {
-    item.classList.toggle("is-active", item.dataset.source === sourceKey);
-  });
-}
-
 function renderCheer(cheer) {
   if (!cheer) return;
-  const source = document.querySelector("#cheerCurrentSource");
   const quoteZh = document.querySelector("#cheerQuoteZh");
   const quoteKo = document.querySelector("#cheerQuoteKo");
   const author = document.querySelector("#cheerAuthor");
 
-  if (source) source.textContent = `${cheer.sourceLabel} · ${cheer.sourceLabelKo}`;
   if (quoteZh) quoteZh.textContent = cheer.zh;
   if (quoteKo) quoteKo.textContent = cheer.ko;
   if (author) author.textContent = `@${maskHandle(cheer.handle).replace(/^@/, "")}`;
-  setActiveSource(cheer.source);
 }
 
 function showNextCheer({ immediate = false } = {}) {
@@ -524,9 +504,11 @@ function updateStatus(remoteSourceCount) {
     : 0;
   const syncLabel =
     remoteSourceCount === cheerSources.length
-      ? "四個遊戲已同步"
-      : `${remoteSourceCount} 個遊戲已同步，其餘顯示暫存`;
-  status.textContent = `${syncLabel} · ${state.cheers.length} 則應援 · 每 5 秒更新${
+      ? "所有應援已同步"
+      : remoteSourceCount
+        ? "部分應援已同步，其餘顯示暫存"
+        : "顯示本機暫存應援";
+  status.textContent = `${syncLabel} · ${state.cheers.length} 則應援 · 每 5 秒隨機展示${
     fallbackCount ? ` · ${fallbackCount} 則保留原文` : ""
   }`;
 }
@@ -547,9 +529,8 @@ async function loadAllCheers() {
     }),
   );
 
-  const nextCheers = results.flatMap(({ source, cheers }) => normalizeCheers(cheers, source));
+  const nextCheers = results.flatMap(({ cheers }) => normalizeCheers(cheers));
   if (!nextCheers.length) {
-    document.querySelector("#cheerCurrentSource").textContent = "等待第一句應援 · 첫 응원을 기다리고 있어요";
     document.querySelector("#cheerQuoteZh").textContent = "留下第一句給 Apink 的祝福吧！";
     document.querySelector("#cheerQuoteKo").textContent = "Apink에게 첫 응원 메시지를 남겨 주세요!";
     updateStatus(0);

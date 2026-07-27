@@ -113,7 +113,7 @@ a {
   text-align: left;
 }
 
-.cheer-home-page .cheer-language {
+.cheer-home-page .cheer-language-control {
   grid-column: 2;
 }
 
@@ -226,6 +226,45 @@ a {
   letter-spacing: 0.12em;
   text-align: center;
   backdrop-filter: blur(16px);
+}
+
+.cheer-language-control {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-self: end;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.55rem 0.45rem 0.8rem;
+  color: var(--cheer-ink);
+  background: rgb(255 255 255 / 68%);
+  border: 1px solid var(--cheer-line);
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgb(64 35 81 / 8%);
+  backdrop-filter: blur(16px);
+}
+
+.cheer-language-control label {
+  color: var(--cheer-ink-soft);
+  font-size: 0.67rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.cheer-language-control select {
+  max-width: 8.5rem;
+  padding: 0.3rem 0.4rem;
+  color: var(--cheer-ink);
+  background: transparent;
+  border: 0;
+  font-family: var(--cheer-sans);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.cheer-language-control select:focus-visible {
+  border-radius: 999px;
+  outline: 2px solid rgb(243 57 145 / 30%);
+  outline-offset: 2px;
 }
 
 .cheer-main {
@@ -640,6 +679,21 @@ a {
   .cheer-language {
     min-width: 4.5rem;
     padding-inline: 0.68rem;
+  }
+
+  .cheer-language-control {
+    gap: 0.25rem;
+    min-height: 2.5rem;
+    padding-inline: 0.55rem;
+  }
+
+  .cheer-language-control label {
+    display: none;
+  }
+
+  .cheer-language-control select {
+    max-width: 7.25rem;
+    font-size: 0.7rem;
   }
 
   .cheer-site-nav {

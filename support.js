@@ -4,6 +4,134 @@ const GOOGLE_SCRIPT_URL =
 
 const cheerRotationMs = 5 * 1000;
 const refreshIntervalMs = 10 * 60 * 1000;
+const homeLanguageStorageKey = "apink_language_preference";
+
+const homeI18n = {
+  zh: {
+    htmlLang: "zh-Hant",
+    title: "7/31 台北大巨蛋應援活動 | Apink × PANDA",
+    description: "7/31 Apink 台北大巨蛋應援活動首頁，隨機展示四個應援遊戲收集的中韓雙語留言。",
+    languageLabel: "語言",
+    languageAuto: "自動",
+    languageZh: "繁體中文",
+    languageEn: "English",
+    languageJa: "日本語",
+    languageKo: "한국어",
+    skipLink: "跳至目前應援留言",
+    topbarAria: "頁面導覽",
+    eyebrow: "Apink × Panda · 台北大巨蛋",
+    heading: '7/31<br />台北大巨蛋<br />應援活動<span lang="ko">7/31 타이베이 돔 응원 이벤트</span>',
+    intro: "四個應援遊戲收集的 Panda 心意，在這裡化成粉色星光。每一則留言都以中文與韓文並肩閃耀。",
+    wallLabel: "PANDA 應援即時輪播 · PANDA 응원 라이브",
+    liveMark: "閃耀中",
+    changeNote: '<span aria-hidden="true">✦ · · ✦</span>忽明忽滅後，遇見下一句',
+    navAria: "應援活動遊戲導覽",
+    baseballLink: "⚾ 棒球應援遊戲",
+    fishLink: "🎣 幸運明太魚",
+    swipeLink: "⚡ 快手捕獲戰",
+    leaderboardLink: "🏆 四項排行榜",
+    marqueeAria: "持續播放的中韓雙語應援跑馬燈",
+    disclaimer: "本活動為粉絲自發性應援，與官方主辦單位無關。",
+    syncedAll: "所有應援已同步",
+    syncedPartial: "部分應援已同步，其餘顯示暫存",
+    localOnly: "顯示本機暫存應援",
+    status: "{sync} · {count} 則應援 · 每 5 秒隨機展示{fallback}",
+    fallback: " · {count} 則保留原文",
+  },
+  en: {
+    htmlLang: "en",
+    title: "7/31 Taipei Dome Cheer Event | Apink × PANDA",
+    description: "The Apink Taipei Dome cheer event home, featuring Chinese and Korean messages collected across four games.",
+    languageLabel: "Language",
+    languageAuto: "Auto",
+    languageZh: "繁體中文",
+    languageEn: "English",
+    languageJa: "日本語",
+    languageKo: "한국어",
+    skipLink: "Skip to the current cheer",
+    topbarAria: "Page navigation",
+    eyebrow: "Apink × Panda · Taipei Dome",
+    heading: '7/31<br />Taipei Dome<br />Cheer Event<span lang="ko">7/31 타이베이 돔 응원 이벤트</span>',
+    intro: "Messages from all four cheer games gather here as pink starlight. Every cheer remains side by side in Chinese and Korean.",
+    wallLabel: "PANDA LIVE CHEERS · 中文 + 한국어",
+    liveMark: "NOW GLOWING",
+    changeNote: '<span aria-hidden="true">✦ · · ✦</span>Fade and glow into the next message',
+    navAria: "Cheer event game navigation",
+    baseballLink: "⚾ Baseball Cheer Game",
+    fishLink: "🎣 Lucky Myeongtae",
+    swipeLink: "⚡ Swipe Catch",
+    leaderboardLink: "🏆 All Leaderboards",
+    marqueeAria: "Scrolling Chinese and Korean cheer messages",
+    disclaimer: "This is a fan-organized cheer event and is not affiliated with the official organizer.",
+    syncedAll: "All cheers synced",
+    syncedPartial: "Some cheers synced; cached messages shown for the rest",
+    localOnly: "Showing locally cached cheers",
+    status: "{sync} · {count} cheers · Random display every 5 seconds{fallback}",
+    fallback: " · {count} kept in the original language",
+  },
+  ja: {
+    htmlLang: "ja",
+    title: "7/31 台北ドーム応援イベント | Apink × PANDA",
+    description: "4つの応援ゲームから集まった中国語・韓国語のメッセージをランダムに紹介する、Apink台北ドーム応援イベントのホームです。",
+    languageLabel: "言語",
+    languageAuto: "自動",
+    languageZh: "繁體中文",
+    languageEn: "English",
+    languageJa: "日本語",
+    languageKo: "한국어",
+    skipLink: "現在の応援メッセージへ移動",
+    topbarAria: "ページナビゲーション",
+    eyebrow: "Apink × Panda · 台北ドーム",
+    heading: '7/31<br />台北ドーム<br />応援イベント<span lang="ko">7/31 타이베이 돔 응원 이벤트</span>',
+    intro: "4つの応援ゲームに寄せられたPandaの想いが、ここでピンクの星明かりになります。メッセージは中国語と韓国語のまま並んで輝きます。",
+    wallLabel: "PANDA 応援ライブ · 中文 + 한국어",
+    liveMark: "点灯中",
+    changeNote: '<span aria-hidden="true">✦ · · ✦</span>光が揺らめいたら、次のメッセージへ',
+    navAria: "応援イベントのゲームナビゲーション",
+    baseballLink: "⚾ 野球応援ゲーム",
+    fishLink: "🎣 幸運のミョンテ",
+    swipeLink: "⚡ 早取りチャレンジ",
+    leaderboardLink: "🏆 全ランキング",
+    marqueeAria: "中国語と韓国語の応援メッセージを流すテロップ",
+    disclaimer: "本イベントはファンによる自主的な応援活動であり、公式主催者とは関係ありません。",
+    syncedAll: "すべての応援を同期しました",
+    syncedPartial: "一部を同期し、残りは保存データを表示中",
+    localOnly: "保存済みの応援を表示中",
+    status: "{sync} · {count}件 · 5秒ごとにランダム表示{fallback}",
+    fallback: " · {count}件は原文のまま",
+  },
+  ko: {
+    htmlLang: "ko",
+    title: "7/31 타이베이 돔 응원 이벤트 | Apink × PANDA",
+    description: "네 가지 응원 게임에서 모인 중국어와 한국어 메시지를 무작위로 소개하는 Apink 타이베이 돔 응원 이벤트 홈입니다.",
+    languageLabel: "언어",
+    languageAuto: "자동",
+    languageZh: "繁體中文",
+    languageEn: "English",
+    languageJa: "日本語",
+    languageKo: "한국어",
+    skipLink: "현재 응원 메시지로 이동",
+    topbarAria: "페이지 탐색",
+    eyebrow: "Apink × Panda · 타이베이 돔",
+    heading: '7/31<br />타이베이 돔<br />응원 이벤트<span lang="zh-Hant">7/31 台北大巨蛋應援活動</span>',
+    intro: "네 가지 응원 게임에서 모인 Panda의 마음이 이곳에서 분홍빛 별이 됩니다. 모든 메시지는 중국어와 한국어로 나란히 빛납니다.",
+    wallLabel: "PANDA 응원 라이브 · 中文 + 한국어",
+    liveMark: "반짝이는 중",
+    changeNote: '<span aria-hidden="true">✦ · · ✦</span>빛이 깜빡이면 다음 메시지를 만나요',
+    navAria: "응원 이벤트 게임 탐색",
+    baseballLink: "⚾ 야구 응원 게임",
+    fishLink: "🎣 행운 명태",
+    swipeLink: "⚡ 빠른 손 캐치",
+    leaderboardLink: "🏆 전체 랭킹",
+    marqueeAria: "중국어와 한국어 응원 메시지 전광판",
+    disclaimer: "본 이벤트는 팬들이 자발적으로 진행하는 응원 활동이며 공식 주최 측과 무관합니다.",
+    syncedAll: "모든 응원을 동기화했어요",
+    syncedPartial: "일부를 동기화하고 나머지는 저장된 메시지를 표시해요",
+    localOnly: "기기에 저장된 응원을 표시해요",
+    status: "{sync} · 응원 {count}개 · 5초마다 무작위 표시{fallback}",
+    fallback: " · {count}개는 원문 유지",
+  },
+};
 
 const cheerSources = [
   {
@@ -338,7 +466,106 @@ const state = {
   rotationTimer: null,
   refreshTimer: null,
   changing: false,
+  remoteSourceCount: 0,
 };
+
+let homeLanguageMode = "auto";
+let homeLocale = "zh";
+
+const interpolateHome = (template, values = {}) =>
+  String(template).replace(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
+
+const isHomePage = () => document.body.classList.contains("cheer-home-page");
+
+function detectHomeLocale() {
+  const languages = navigator.languages?.length ? navigator.languages : [navigator.language || ""];
+  for (const language of languages) {
+    const normalized = language.toLowerCase();
+    if (normalized.startsWith("ja")) return "ja";
+    if (normalized.startsWith("ko")) return "ko";
+    if (normalized.startsWith("en")) return "en";
+    if (normalized.startsWith("zh")) return "zh";
+  }
+  return "zh";
+}
+
+function readHomeLanguageMode() {
+  let stored = "auto";
+  try {
+    stored = localStorage.getItem(homeLanguageStorageKey) || "auto";
+  } catch (error) {
+    // Automatic language selection remains available without storage.
+  }
+  return ["auto", "zh", "en", "ja", "ko"].includes(stored) ? stored : "auto";
+}
+
+function writeHomeLanguageMode(mode) {
+  homeLanguageMode = ["auto", "zh", "en", "ja", "ko"].includes(mode) ? mode : "auto";
+  try {
+    localStorage.setItem(homeLanguageStorageKey, homeLanguageMode);
+  } catch (error) {
+    // The selection still applies for the current visit.
+  }
+}
+
+function homeT(key, values = {}) {
+  return interpolateHome(homeI18n[homeLocale]?.[key] ?? homeI18n.zh[key] ?? key, values);
+}
+
+function setHomeText(selector, key) {
+  const element = document.querySelector(selector);
+  if (element) element.textContent = homeT(key);
+}
+
+function setHomeHtml(selector, key) {
+  const element = document.querySelector(selector);
+  if (element) element.innerHTML = homeT(key);
+}
+
+function setHomeAria(selector, key) {
+  const element = document.querySelector(selector);
+  if (element) element.setAttribute("aria-label", homeT(key));
+}
+
+function applyHomeLocale(mode = readHomeLanguageMode()) {
+  if (!isHomePage()) return;
+
+  homeLanguageMode = ["auto", "zh", "en", "ja", "ko"].includes(mode) ? mode : "auto";
+  homeLocale = homeLanguageMode === "auto" ? detectHomeLocale() : homeLanguageMode;
+  const copy = homeI18n[homeLocale] ?? homeI18n.zh;
+
+  document.documentElement.lang = copy.htmlLang;
+  document.title = homeT("title");
+  document.querySelector('meta[name="description"]')?.setAttribute("content", homeT("description"));
+
+  const select = document.querySelector("#homeLanguageSelect");
+  if (select) {
+    select.value = homeLanguageMode;
+    select.querySelector('option[value="auto"]').textContent = homeT("languageAuto");
+    select.querySelector('option[value="zh"]').textContent = homeT("languageZh");
+    select.querySelector('option[value="en"]').textContent = homeT("languageEn");
+    select.querySelector('option[value="ja"]').textContent = homeT("languageJa");
+    select.querySelector('option[value="ko"]').textContent = homeT("languageKo");
+  }
+
+  setHomeText("#homeLanguageLabel", "languageLabel");
+  setHomeText("#homeSkipLink", "skipLink");
+  setHomeText("#homeEyebrow", "eyebrow");
+  setHomeHtml("#cheerPageTitle", "heading");
+  setHomeText("#homeIntroCopy", "intro");
+  setHomeText("#homeWallLabel", "wallLabel");
+  setHomeText("#homeLiveMark", "liveMark");
+  setHomeHtml("#homeChangeNote", "changeNote");
+  setHomeText("#homeBaseballLink", "baseballLink");
+  setHomeText("#homeFishLink", "fishLink");
+  setHomeText("#homeSwipeLink", "swipeLink");
+  setHomeText("#homeLeaderboardLink", "leaderboardLink");
+  setHomeText("#homeDisclaimer", "disclaimer");
+  setHomeAria("#homeTopbar", "topbarAria");
+  setHomeAria("#homeSiteNav", "navAria");
+  setHomeAria("#homeMarquee", "marqueeAria");
+  updateStatus(state.remoteSourceCount);
+}
 
 function maskHandle(handle) {
   const value = String(handle || "").trim();
@@ -499,10 +726,28 @@ function renderMarquee() {
 function updateStatus(remoteSourceCount) {
   const status = document.querySelector("#cheerStatus");
   if (!status) return;
+  state.remoteSourceCount = remoteSourceCount;
 
   const fallbackCount = translationGroups.length
     ? state.cheers.filter((cheer) => !cheer.translated).length
     : 0;
+
+  if (isHomePage()) {
+    const syncKey =
+      remoteSourceCount === cheerSources.length
+        ? "syncedAll"
+        : remoteSourceCount
+          ? "syncedPartial"
+          : "localOnly";
+    const fallback = fallbackCount ? homeT("fallback", { count: fallbackCount }) : "";
+    status.textContent = homeT("status", {
+      sync: homeT(syncKey),
+      count: state.cheers.length,
+      fallback,
+    });
+    return;
+  }
+
   const syncLabel =
     remoteSourceCount === cheerSources.length
       ? "所有應援已同步"
@@ -554,6 +799,13 @@ function startRotation() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  if (isHomePage()) {
+    applyHomeLocale();
+    document.querySelector("#homeLanguageSelect")?.addEventListener("change", (event) => {
+      writeHomeLanguageMode(event.target.value);
+      applyHomeLocale(homeLanguageMode);
+    });
+  }
   await loadAllCheers();
   startRotation();
 });

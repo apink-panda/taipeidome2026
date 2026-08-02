@@ -1,7 +1,6 @@
 // This integration is read-only: it never changes, appends or replaces sheet columns.
-const PERFORMANCE_SHEET_ID = "1WlQd3STRJ_Wmg08KDBp_QTmZ7T0wA3XS0yk2MjMG8oA";
-const PERFORMANCE_SHEET_GID = "0";
-const PERFORMANCE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${PERFORMANCE_SHEET_ID}/edit?gid=${PERFORMANCE_SHEET_GID}#gid=${PERFORMANCE_SHEET_GID}`;
+const PERFORMANCE_API_URL = "https://script.google.com/macros/s/AKfycbzit_JpLpeDvvlZ-e7j_bT9oF7L_3sWcypPmj2_dhg1A1PCAYor5GeV34m9hpPTXV2gvA/exec";
+const PERFORMANCE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1WlQd3STRJ_Wmg08KDBp_QTmZ7T0wA3XS0yk2MjMG8oA/edit?gid=0#gid=0";
 const performanceLanguageStorageKey = "apink_language_preference";
 const performancePageSize = 12;
 
@@ -43,7 +42,7 @@ const performanceI18n = {
     more: "顯示更多影片",
     footer: "影片資料由活動 Google Sheet 同步整理。",
     sheetLink: "開啟資料表 ↗",
-    permissionNotice: 'Google Sheet 目前尚未開放公開讀取，因此暫時無法顯示影片。請將共用權限設為「知道連結的任何人皆可查看」後，這個頁面就會自動同步。 <a href="{url}" target="_blank" rel="noopener noreferrer">檢查資料表權限 ↗</a>',
+    permissionNotice: '影片資料暫時無法載入，請稍後重新整理。私人 Google Sheet 仍維持非公開。 <a href="{url}" target="_blank" rel="noopener noreferrer">開啟資料表 ↗</a>',
     partialNotice: "部分工作表暫時無法讀取，已先顯示成功同步的影片。",
     tabs: { chorong: "初瓏", bomi: "普美", eunji: "恩地", namjoo: "南珠", hayoung: "夏榮", group: "團體", youtube: "YT 翻拍影片" },
   },
@@ -74,7 +73,7 @@ const performanceI18n = {
     more: "Show More Videos",
     footer: "Video entries are synced from the event Google Sheet.",
     sheetLink: "Open Sheet ↗",
-    permissionNotice: 'The Google Sheet is not publicly readable yet, so its videos cannot be displayed. Set sharing to “Anyone with the link can view” and this page will sync automatically. <a href="{url}" target="_blank" rel="noopener noreferrer">Check sharing settings ↗</a>',
+    permissionNotice: 'Video data is temporarily unavailable. Please refresh later. The private Google Sheet remains unpublished. <a href="{url}" target="_blank" rel="noopener noreferrer">Open Sheet ↗</a>',
     partialNotice: "Some sheet tabs could not be read; available videos are shown below.",
     tabs: { chorong: "Chorong", bomi: "Bomi", eunji: "Eunji", namjoo: "Namjoo", hayoung: "Hayoung", group: "Group", youtube: "YT Fancams" },
   },
@@ -105,7 +104,7 @@ const performanceI18n = {
     more: "動画をもっと見る",
     footer: "動画データはイベント用Google スプレッドシートから同期しています。",
     sheetLink: "データ表を開く ↗",
-    permissionNotice: 'Google スプレッドシートがまだ一般公開されていないため、動画を表示できません。共有設定を「リンクを知っている全員が閲覧可」にすると自動同期されます。 <a href="{url}" target="_blank" rel="noopener noreferrer">共有設定を確認 ↗</a>',
+    permissionNotice: '動画データを一時的に読み込めません。後でもう一度更新してください。非公開のGoogle スプレッドシートはそのまま維持されます。 <a href="{url}" target="_blank" rel="noopener noreferrer">データ表を開く ↗</a>',
     partialNotice: "一部のシートを読み込めなかったため、同期できた動画を表示しています。",
     tabs: { chorong: "チョロン", bomi: "ボミ", eunji: "ウンジ", namjoo: "ナムジュ", hayoung: "ハヨン", group: "グループ", youtube: "YTファンカム" },
   },
@@ -136,7 +135,7 @@ const performanceI18n = {
     more: "영상 더 보기",
     footer: "영상 자료는 이벤트 Google Sheet에서 동기화됩니다.",
     sheetLink: "자료표 열기 ↗",
-    permissionNotice: 'Google Sheet가 아직 공개 읽기로 설정되지 않아 영상을 표시할 수 없어요. 공유 권한을 “링크가 있는 모든 사용자 보기”로 바꾸면 자동으로 동기화됩니다. <a href="{url}" target="_blank" rel="noopener noreferrer">공유 설정 확인 ↗</a>',
+    permissionNotice: '영상 데이터를 일시적으로 불러올 수 없어요. 잠시 후 새로고침해 주세요. 비공개 Google Sheet는 그대로 유지됩니다. <a href="{url}" target="_blank" rel="noopener noreferrer">자료표 열기 ↗</a>',
     partialNotice: "일부 시트를 불러오지 못해 동기화된 영상만 먼저 표시합니다.",
     tabs: { chorong: "초롱", bomi: "보미", eunji: "은지", namjoo: "남주", hayoung: "하영", group: "단체", youtube: "YT 팬캠" },
   },
@@ -260,48 +259,6 @@ function normalizeHeader(value) {
     .replace(/[\s_\-–—:：/／()（）\[\]【】.。]+/g, "");
 }
 
-function parsePerformanceCsv(text) {
-  const rows = [];
-  let row = [];
-  let field = "";
-  let quoted = false;
-
-  for (let index = 0; index < text.length; index += 1) {
-    const char = text[index];
-    const next = text[index + 1];
-    if (char === '"' && quoted && next === '"') {
-      field += '"';
-      index += 1;
-    } else if (char === '"') {
-      quoted = !quoted;
-    } else if (char === "," && !quoted) {
-      row.push(field);
-      field = "";
-    } else if ((char === "\n" || char === "\r") && !quoted) {
-      if (char === "\r" && next === "\n") index += 1;
-      row.push(field);
-      if (row.some((cell) => String(cell).trim())) rows.push(row);
-      row = [];
-      field = "";
-    } else {
-      field += char;
-    }
-  }
-
-  row.push(field);
-  if (row.some((cell) => String(cell).trim())) rows.push(row);
-  if (!rows.length) return [];
-
-  const headers = rows[0].map((header, index) => String(header || `column_${index + 1}`).trim());
-  return rows.slice(1).map((cells) => {
-    const record = {};
-    headers.forEach((header, index) => {
-      record[header] = String(cells[index] ?? "").trim();
-    });
-    return record;
-  });
-}
-
 function findPerformanceField(record, aliases) {
   const accepted = new Set(aliases.map(normalizeHeader));
   const entry = Object.entries(record).find(([key]) => accepted.has(normalizeHeader(key)));
@@ -363,39 +320,31 @@ function normalizePerformanceRows(records, sourceCategory = "") {
   return items;
 }
 
-function performanceCsvUrl({ gid = "", sheet = "" } = {}) {
-  const query = new URLSearchParams({ tqx: "out:csv" });
-  if (gid) query.set("gid", gid);
-  if (sheet) query.set("sheet", sheet);
-  return `https://docs.google.com/spreadsheets/d/${PERFORMANCE_SHEET_ID}/gviz/tq?${query}`;
-}
-
-async function fetchPerformanceSheet(options, sourceCategory = "") {
-  const response = await fetch(performanceCsvUrl(options), { mode: "cors", cache: "no-store" });
-  if (!response.ok) throw new Error(`Google Sheet request failed: ${response.status}`);
-  const text = await response.text();
-  if (/<!doctype html|<html/i.test(text.slice(0, 200))) throw new Error("Google Sheet returned a sign-in page");
-  return normalizePerformanceRows(parsePerformanceCsv(text.replace(/^\uFEFF/, "")), sourceCategory);
-}
-
 async function loadPerformanceData() {
-  const requests = [
-    fetchPerformanceSheet({ gid: PERFORMANCE_SHEET_GID }),
-    ...performanceCategories.map((category) => fetchPerformanceSheet({ sheet: category.sheet }, category.key)),
-  ];
-  const results = await Promise.allSettled(requests);
-  performanceState.failedRequests = results.filter((result) => result.status === "rejected").length;
-  const merged = results.flatMap((result) => (result.status === "fulfilled" ? result.value : []));
-  const uniqueByUrl = new Map();
-  merged.forEach((item) => {
-    const existing = uniqueByUrl.get(item.url);
-    if (!existing || (existing.category === "group" && item.category !== "group")) uniqueByUrl.set(item.url, item);
-  });
-  performanceState.items = [...uniqueByUrl.values()];
-  performanceState.loaded = true;
-  updatePerformanceCounts();
-  renderPerformance();
-  renderPerformanceNotice();
+  try {
+    const response = await fetch(`${PERFORMANCE_API_URL}?ts=${Date.now()}`, {
+      mode: "cors",
+      cache: "no-store",
+      redirect: "follow",
+    });
+    if (!response.ok) throw new Error(`Performance API request failed: ${response.status}`);
+    const result = await response.json();
+    if (!result?.ok || !Array.isArray(result.data)) throw new Error(result?.error || "Invalid performance API response");
+
+    const uniqueByUrl = new Map();
+    normalizePerformanceRows(result.data).forEach((item) => uniqueByUrl.set(item.url, item));
+    performanceState.items = [...uniqueByUrl.values()];
+    performanceState.failedRequests = 0;
+  } catch (error) {
+    console.error("載入表演影片失敗:", error);
+    performanceState.items = [];
+    performanceState.failedRequests = 1;
+  } finally {
+    performanceState.loaded = true;
+    updatePerformanceCounts();
+    renderPerformance();
+    renderPerformanceNotice();
+  }
 }
 
 function updatePerformanceCounts() {

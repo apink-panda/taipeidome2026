@@ -1,5 +1,7 @@
-const PERFORMANCE_SHEET_ID = "1ZgcJ0niv5pKpd9S8-Hd9RcJgM6hmAVUYoKYJSrFHau8";
-const PERFORMANCE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${PERFORMANCE_SHEET_ID}/edit?gid=0#gid=0`;
+// This integration is read-only: it never changes, appends or replaces sheet columns.
+const PERFORMANCE_SHEET_ID = "1jGnsn3QknYT9Gwnh5KouKgpxenBwBLSgWGLatjgWFaQ";
+const PERFORMANCE_SHEET_GID = "1075821673";
+const PERFORMANCE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${PERFORMANCE_SHEET_ID}/edit?gid=${PERFORMANCE_SHEET_GID}#gid=${PERFORMANCE_SHEET_GID}`;
 const performanceLanguageStorageKey = "apink_language_preference";
 const performancePageSize = 12;
 
@@ -378,7 +380,7 @@ async function fetchPerformanceSheet(options, sourceCategory = "") {
 
 async function loadPerformanceData() {
   const requests = [
-    fetchPerformanceSheet({ gid: "0" }),
+    fetchPerformanceSheet({ gid: PERFORMANCE_SHEET_GID }),
     ...performanceCategories.map((category) => fetchPerformanceSheet({ sheet: category.sheet }, category.key)),
   ];
   const results = await Promise.allSettled(requests);

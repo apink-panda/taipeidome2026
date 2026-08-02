@@ -5,32 +5,6 @@ const GOOGLE_SCRIPT_URL =
 const cheerRotationMs = 5 * 1000;
 const refreshIntervalMs = 10 * 60 * 1000;
 const homeLanguageStorageKey = "apink_language_preference";
-const performanceFeedCacheKey = "apink_performance_feed_v1";
-
-async function prefetchPerformanceFeed() {
-  try {
-    const response = await fetch("./api/performance", { cache: "default" });
-    if (!response.ok) return;
-    const result = await response.json();
-    if (!result?.ok || !Array.isArray(result.data)) return;
-    localStorage.setItem(performanceFeedCacheKey, JSON.stringify({
-      cachedAt: Date.now(),
-      updatedAt: result.updatedAt || "",
-      data: result.data,
-    }));
-  } catch (error) {
-    // Preloading is optional; performance.html will fetch the feed when needed.
-  }
-}
-
-function schedulePerformancePrefetch() {
-  const run = () => prefetchPerformanceFeed();
-  if ("requestIdleCallback" in window) {
-    window.requestIdleCallback(run, { timeout: 1200 });
-  } else {
-    window.setTimeout(run, 250);
-  }
-}
 
 const homeI18n = {
   zh: {
@@ -973,7 +947,6 @@ function startRotation() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   if (isHomePage()) {
-    schedulePerformancePrefetch();
     applyHomeLocale();
     document.querySelector("#homeLanguageSelect")?.addEventListener("change", (event) => {
       writeHomeLanguageMode(event.target.value);

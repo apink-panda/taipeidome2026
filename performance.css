@@ -20,38 +20,25 @@
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: end;
-  min-height: clamp(26rem, 37vw, 34rem);
-  padding: clamp(2rem, 5vw, 5.5rem);
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 0;
+  padding: 0;
   overflow: hidden;
-  background:
-    linear-gradient(90deg, rgb(31 10 41 / 88%) 0%, rgb(61 18 58 / 63%) 42%, rgb(60 17 63 / 18%) 72%, rgb(30 10 45 / 48%) 100%),
-    linear-gradient(180deg, rgb(31 10 41 / 8%) 34%, rgb(31 10 41 / 82%) 100%),
-    url("./apink_dome.png") center top / cover no-repeat;
-  border: 1px solid rgb(255 255 255 / 34%);
+  background: linear-gradient(135deg, #fffafc 0%, #fff0f7 54%, #f7f1ff 100%);
+  border: 1px solid var(--cheer-line);
   border-radius: clamp(1.8rem, 3vw, 3.5rem);
-  box-shadow: 0 28px 64px rgb(64 35 81 / 22%);
+  box-shadow: var(--cheer-shadow);
 }
 
-.performance-hero::before {
-  position: absolute;
-  z-index: 0;
-  inset: 0;
-  background: linear-gradient(130deg, rgb(255 121 183 / 16%), transparent 45%);
-  border-radius: inherit;
-  content: "";
-  pointer-events: none;
-}
-
-.performance-hero::after {
-  position: absolute;
-  z-index: 0;
-  inset: auto 0 0;
-  height: 46%;
-  background: linear-gradient(180deg, transparent, rgb(22 7 34 / 38%));
-  content: "";
-  pointer-events: none;
+.performance-hero-photo {
+  grid-column: 1 / -1;
+  width: 100%;
+  aspect-ratio: 740 / 290;
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 3%), rgb(243 57 145 / 10%)),
+    url("./apink_dome.png") center / cover no-repeat;
+  border-bottom: 1px solid rgb(243 57 145 / 14%);
 }
 
 .performance-hero-copy,
@@ -62,6 +49,7 @@
 
 .performance-hero-copy {
   max-width: 42rem;
+  padding: clamp(1.8rem, 4vw, 3.6rem);
 }
 
 .performance-eyebrow,
@@ -73,11 +61,6 @@
   letter-spacing: 0.18em;
 }
 
-.performance-hero .performance-eyebrow {
-  color: #ffd8eb;
-  text-shadow: 0 2px 12px rgb(31 10 41 / 72%);
-}
-
 .performance-hero h1 {
   max-width: 7em;
   margin: 1rem 0 0;
@@ -86,33 +69,30 @@
   font-weight: 700;
   line-height: 0.94;
   letter-spacing: -0.075em;
-  color: #fff;
-  text-shadow: 0 4px 24px rgb(20 6 31 / 82%), 0.035em 0.045em 0 rgb(217 29 120 / 72%);
+  color: var(--cheer-ink);
+  text-shadow: 0.04em 0.05em 0 var(--cheer-pink-100);
 }
 
 .performance-hero-copy > p:last-child {
   max-width: 37rem;
   margin: 1.5rem 0 0;
-  color: rgb(255 255 255 / 90%);
+  color: var(--cheer-ink-soft);
   font-size: clamp(0.9rem, 1.2vw, 1.08rem);
   line-height: 1.85;
-  text-shadow: 0 2px 12px rgb(20 6 31 / 78%);
 }
 
 .performance-scoreboard {
-  position: absolute;
-  top: clamp(1.25rem, 2.5vw, 2.5rem);
-  right: clamp(1.25rem, 2.5vw, 2.5rem);
   display: grid;
   gap: 0.25rem;
   align-content: center;
   min-height: 0;
+  margin-right: clamp(1.8rem, 4vw, 3.6rem);
   padding: 0.85rem 1.1rem;
-  color: #fff;
-  background: linear-gradient(150deg, rgb(53 27 76 / 76%), rgb(217 29 120 / 62%));
-  border: 1px solid rgb(255 255 255 / 28%);
+  color: var(--cheer-ink-soft);
+  background: linear-gradient(145deg, rgb(255 255 255 / 92%), rgb(247 232 255 / 92%));
+  border: 1px solid rgb(126 86 196 / 16%);
   border-radius: 1.2rem;
-  box-shadow: 0 14px 32px rgb(31 10 41 / 28%);
+  box-shadow: 0 12px 28px rgb(64 35 81 / 12%);
   text-align: center;
   backdrop-filter: blur(12px);
 }
@@ -124,13 +104,13 @@
 }
 
 .performance-scoreboard strong {
-  color: #fff7b7;
+  color: var(--cheer-pink-700);
   font-family: "Outfit", var(--cheer-sans);
   font-size: clamp(1.45rem, 2vw, 2rem);
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.04em;
-  text-shadow: 0 0 1.1rem rgb(255 247 183 / 42%);
+  text-shadow: 0 0 1.1rem rgb(243 57 145 / 18%);
 }
 
 .performance-library {
@@ -537,7 +517,13 @@
 
 @media (max-width: 980px) {
   .performance-hero {
+    grid-template-columns: 1fr;
     min-height: auto;
+  }
+
+  .performance-scoreboard {
+    justify-self: start;
+    margin: 0 2rem 2rem;
   }
 
   .performance-grid {
@@ -556,13 +542,14 @@
   }
 
   .performance-hero {
-    min-height: 27rem;
-    padding: 10rem 1.5rem 1.5rem;
-    background:
-      linear-gradient(180deg, rgb(31 10 41 / 6%) 0%, rgb(31 10 41 / 16%) 28%, #321443 50%, #321443 100%),
-      url("./apink_dome.png") center top / 100% auto no-repeat,
-      #321443;
+    min-height: 0;
+    padding: 0;
+    background: linear-gradient(145deg, #fffafc, #fff0f7 58%, #f7f1ff);
     border-radius: 1.65rem;
+  }
+
+  .performance-hero-copy {
+    padding: 1.5rem;
   }
 
   .performance-hero h1 {

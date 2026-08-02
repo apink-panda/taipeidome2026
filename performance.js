@@ -1,6 +1,6 @@
 // This integration is read-only: it never changes, appends or replaces sheet columns.
-const PERFORMANCE_SHEET_ID = "1jGnsn3QknYT9Gwnh5KouKgpxenBwBLSgWGLatjgWFaQ";
-const PERFORMANCE_SHEET_GID = "1075821673";
+const PERFORMANCE_SHEET_ID = "1WlQd3STRJ_Wmg08KDBp_QTmZ7T0wA3XS0yk2MjMG8oA";
+const PERFORMANCE_SHEET_GID = "0";
 const PERFORMANCE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${PERFORMANCE_SHEET_ID}/edit?gid=${PERFORMANCE_SHEET_GID}#gid=${PERFORMANCE_SHEET_GID}`;
 const performanceLanguageStorageKey = "apink_language_preference";
 const performancePageSize = 12;

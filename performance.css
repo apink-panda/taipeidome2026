@@ -323,7 +323,7 @@
   background: transparent;
   border: 0;
   opacity: 0;
-  transition: height 250ms ease, opacity 250ms ease;
+  transition: opacity 250ms ease;
 }
 
 .performance-embed-frame.is-ready {

@@ -55,6 +55,7 @@
         };
         let postUrl = "";
         let lastHeight = 0;
+        let lastReady = false;
 
         try {
           const parsed = new URL(rawPostUrl || "");
@@ -82,13 +83,17 @@
             root.offsetHeight,
             nestedBottom,
           );
-          if (height === lastHeight && !forceReady) return;
+          const embeddedFrame = root.querySelector("iframe");
+          const hasFinalMediaSize = type !== "instagram" || height >= 420;
+          const ready = forceReady || Boolean(embeddedFrame && hasFinalMediaSize) || root.classList.contains("embed-error");
+          if (height === lastHeight && ready === lastReady) return;
           lastHeight = height;
+          lastReady = ready;
           window.parent.postMessage(
             {
               type: "performance-embed-resize",
               height,
-              ready: forceReady || Boolean(root.querySelector("iframe")) || root.classList.contains("embed-error"),
+              ready,
               url: postUrl,
             },
             window.location.origin,
@@ -96,7 +101,11 @@
         }
 
         function showEmbedError() {
-          if (root.querySelector("iframe") || root.classList.contains("embed-error")) return;
+          if (root.querySelector("iframe")) {
+            reportHeight(true);
+            return;
+          }
+          if (root.classList.contains("embed-error")) return;
           root.replaceChildren();
           root.className = "embed-error";
           root.textContent = "預覽暫時無法載入，請使用下方按鈕開啟原始貼文。";

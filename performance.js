@@ -1,6 +1,8 @@
 // This integration is read-only: it never changes, appends or replaces sheet columns.
 const PERFORMANCE_API_URL = "https://script.google.com/macros/s/AKfycbzit_JpLpeDvvlZ-e7j_bT9oF7L_3sWcypPmj2_dhg1A1PCAYor5GeV34m9hpPTXV2gvA/exec";
 const performanceLanguageStorageKey = "apink_language_preference";
+const performanceDataStorageKey = "apink_performance_feed_v1";
+const performanceRefreshIntervalMs = 5 * 60 * 1000;
 const performancePageSize = 12;
 
 const performanceCategories = [
@@ -44,6 +46,7 @@ const performanceI18n = {
     more: "顯示更多影片",
     permissionNotice: "影片資料暫時無法載入，請重新載入再試一次。",
     partialNotice: "部分工作表暫時無法讀取，已先顯示成功同步的影片。",
+    cachedNotice: "同步暫時失敗，已顯示上次成功載入的資料。",
     retry: "重新載入",
     tabs: { chorong: "初瓏", bomi: "普美", eunji: "恩地", namjoo: "南珠", hayoung: "夏榮", group: "團體", youtube: "YT 翻拍影片" },
   },
@@ -77,6 +80,7 @@ const performanceI18n = {
     more: "Show More Videos",
     permissionNotice: "Video data is temporarily unavailable. Please try loading it again.",
     partialNotice: "Some sheet tabs could not be read; available videos are shown below.",
+    cachedNotice: "Sync is temporarily unavailable. Showing the last successfully loaded data.",
     retry: "Reload",
     tabs: { chorong: "Chorong", bomi: "Bomi", eunji: "Eunji", namjoo: "Namjoo", hayoung: "Hayoung", group: "Group", youtube: "YT Fancams" },
   },
@@ -110,6 +114,7 @@ const performanceI18n = {
     more: "動画をもっと見る",
     permissionNotice: "動画データを一時的に読み込めません。もう一度読み込んでください。",
     partialNotice: "一部のシートを読み込めなかったため、同期できた動画を表示しています。",
+    cachedNotice: "同期できないため、前回正常に読み込んだデータを表示しています。",
     retry: "再読み込み",
     tabs: { chorong: "チョロン", bomi: "ボミ", eunji: "ウンジ", namjoo: "ナムジュ", hayoung: "ハヨン", group: "グループ", youtube: "YTファンカム" },
   },
@@ -143,6 +148,7 @@ const performanceI18n = {
     more: "영상 더 보기",
     permissionNotice: "영상 데이터를 일시적으로 불러올 수 없어요. 다시 불러와 주세요.",
     partialNotice: "일부 시트를 불러오지 못해 동기화된 영상만 먼저 표시합니다.",
+    cachedNotice: "동기화할 수 없어 마지막으로 정상 로드된 데이터를 표시하고 있어요.",
     retry: "다시 불러오기",
     tabs: { chorong: "초롱", bomi: "보미", eunji: "은지", namjoo: "남주", hayoung: "하영", group: "단체", youtube: "YT 팬캠" },
   },
@@ -157,6 +163,9 @@ const performanceState = {
   failedRequests: 0,
   loading: false,
   loaded: false,
+  dataSignature: "",
+  updatedAt: "",
+  lastCheckedAt: 0,
 };
 
 const performanceAliases = {
@@ -326,13 +335,61 @@ function normalizePerformanceRows(records, sourceCategory = "") {
   return items;
 }
 
-async function loadPerformanceData() {
-  if (!performanceState.loaded && performanceState.loading) return;
+function performanceDataSignature(items) {
+  return JSON.stringify(items.map(({ category, url, title, credit, date }) => [category, url, title, credit, date]));
+}
+
+function readPerformanceDataCache() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(performanceDataStorageKey) || "null");
+    if (!cached || cached.version !== 1 || !Array.isArray(cached.items) || !cached.items.length) return null;
+    const items = cached.items.filter((item) => item && item.url && item.category);
+    if (!items.length) return null;
+    return {
+      items,
+      signature: String(cached.signature || performanceDataSignature(items)),
+      updatedAt: String(cached.updatedAt || ""),
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
+function writePerformanceDataCache(items, signature, updatedAt) {
+  try {
+    localStorage.setItem(performanceDataStorageKey, JSON.stringify({
+      version: 1,
+      items,
+      signature,
+      updatedAt,
+      cachedAt: new Date().toISOString(),
+    }));
+  } catch (error) {
+    // The live feed still works when storage is unavailable or full.
+  }
+}
+
+function restorePerformanceDataCache() {
+  const cached = readPerformanceDataCache();
+  if (!cached) return false;
+  performanceState.items = cached.items;
+  performanceState.dataSignature = cached.signature;
+  performanceState.updatedAt = cached.updatedAt;
+  performanceState.loaded = true;
+  return true;
+}
+
+async function loadPerformanceData({ showLoading = !performanceState.items.length } = {}) {
+  if (performanceState.loading) return;
   performanceState.loading = true;
-  performanceState.loaded = false;
+  performanceState.lastCheckedAt = Date.now();
   performanceState.failedRequests = 0;
-  renderPerformance();
+  if (showLoading) {
+    performanceState.loaded = false;
+    renderPerformance();
+  }
   renderPerformanceNotice();
+  let shouldRender = showLoading;
   try {
     const response = await fetch(`${PERFORMANCE_API_URL}?ts=${Date.now()}`, {
       mode: "cors",
@@ -345,17 +402,25 @@ async function loadPerformanceData() {
 
     const uniqueByUrl = new Map();
     normalizePerformanceRows(result.data).forEach((item) => uniqueByUrl.set(item.url, item));
-    performanceState.items = [...uniqueByUrl.values()];
+    const nextItems = [...uniqueByUrl.values()];
+    const nextSignature = String(result.version || performanceDataSignature(nextItems));
+    if (nextSignature !== performanceState.dataSignature || !performanceState.items.length) {
+      performanceState.items = nextItems;
+      performanceState.dataSignature = nextSignature;
+      shouldRender = true;
+    }
+    performanceState.updatedAt = String(result.updatedAt || performanceState.updatedAt || "");
+    writePerformanceDataCache(performanceState.items, performanceState.dataSignature, performanceState.updatedAt);
     performanceState.failedRequests = 0;
   } catch (error) {
     console.error("載入表演影片失敗:", error);
-    performanceState.items = [];
     performanceState.failedRequests = 1;
+    if (!performanceState.items.length) shouldRender = true;
   } finally {
     performanceState.loading = false;
     performanceState.loaded = true;
     updatePerformanceCounts();
-    renderPerformance();
+    if (shouldRender) renderPerformance();
     renderPerformanceNotice();
   }
 }
@@ -578,7 +643,7 @@ function renderPerformanceNotice() {
     renderPerformanceRetryNotice(notice, performanceT("permissionNotice"));
   } else if (performanceState.items.length && performanceState.failedRequests) {
     notice.hidden = false;
-    renderPerformanceRetryNotice(notice, performanceT("partialNotice"));
+    renderPerformanceRetryNotice(notice, performanceT("cachedNotice"));
   } else {
     notice.hidden = true;
     notice.replaceChildren();
@@ -614,7 +679,9 @@ function selectPerformanceCategory(category) {
 
 document.addEventListener("DOMContentLoaded", () => {
   initPerformanceEmbedResizeListener();
+  restorePerformanceDataCache();
   applyPerformanceLocale();
+  updatePerformanceCounts();
   document.querySelector("#performanceLanguageSelect")?.addEventListener("change", (event) => {
     writePerformanceLanguageMode(event.target.value);
     applyPerformanceLocale(event.target.value);
@@ -628,5 +695,11 @@ document.addEventListener("DOMContentLoaded", () => {
     performanceState.visibleCount += performancePageSize;
     renderPerformance();
   });
-  loadPerformanceData();
+  loadPerformanceData({ showLoading: !performanceState.items.length });
+  window.setInterval(() => loadPerformanceData({ showLoading: false }), performanceRefreshIntervalMs);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    if (Date.now() - performanceState.lastCheckedAt < performanceRefreshIntervalMs) return;
+    loadPerformanceData({ showLoading: false });
+  });
 });

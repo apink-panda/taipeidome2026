@@ -273,13 +273,17 @@
   background: rgb(255 255 255 / 88%);
   border: 1px solid var(--cheer-line);
   border-radius: 1.35rem;
-  box-shadow: 0 10px 25px rgb(64 35 81 / 8%);
+  box-shadow:
+    0 12px 30px rgb(214 29 120 / 7%),
+    0 3px 10px rgb(126 86 196 / 6%);
   transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
 .performance-card:hover,
 .performance-card:focus-within {
-  box-shadow: 0 16px 34px rgb(126 86 196 / 16%);
+  box-shadow:
+    0 18px 38px rgb(214 29 120 / 11%),
+    0 5px 14px rgb(126 86 196 / 8%);
   transform: translateY(-3px);
 }
 
@@ -308,7 +312,7 @@
 }
 
 .performance-embed-shell--threads {
-  background: linear-gradient(145deg, #351b4c, #111 70%);
+  background: linear-gradient(145deg, #f6eaff, #ffd8e9 70%);
 }
 
 .performance-embed-shell[aria-busy="false"] {
@@ -354,6 +358,15 @@
   animation: performanceSpin 800ms linear infinite;
 }
 
+.performance-embed-shell--threads .performance-embed-placeholder {
+  color: var(--cheer-ink-soft);
+}
+
+.performance-embed-shell--threads .performance-embed-spinner {
+  border-color: rgb(126 86 196 / 18%);
+  border-top-color: var(--cheer-lavender-500);
+}
+
 .performance-card-media {
   position: relative;
   display: grid;
@@ -392,7 +405,14 @@
 }
 
 .performance-card-media[data-platform="threads"] {
-  background: linear-gradient(140deg, #351b4c, #111 70%);
+  background: linear-gradient(140deg, #f1e4ff, #ffd1e7 70%);
+}
+
+.performance-card-media[data-platform="threads"] .performance-platform-art {
+  color: var(--cheer-lavender-500);
+  background: rgb(255 255 255 / 72%);
+  border-color: rgb(126 86 196 / 16%);
+  box-shadow: 0 10px 24px rgb(126 86 196 / 10%);
 }
 
 .performance-card-media[data-platform="other"] {

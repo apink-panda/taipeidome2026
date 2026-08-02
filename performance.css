@@ -526,6 +526,22 @@
     margin: 0 2rem 2rem;
   }
 
+  .performance-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  .performance-tab {
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  .performance-tab--youtube {
+    grid-column: span 2;
+  }
+
   .performance-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -572,7 +588,12 @@
   }
 
   .performance-tabs-wrap {
+    position: static;
     margin-top: 0.85rem;
+  }
+
+  .performance-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .performance-grid {

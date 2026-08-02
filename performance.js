@@ -1,5 +1,7 @@
 // This integration is read-only: it never changes, appends or replaces sheet columns.
-const PERFORMANCE_API_URL = "https://script.google.com/macros/s/AKfycbzit_JpLpeDvvlZ-e7j_bT9oF7L_3sWcypPmj2_dhg1A1PCAYor5GeV34m9hpPTXV2gvA/exec";
+const PERFORMANCE_API_URL = "./api/performance";
+const performanceFeedCacheKey = "apink_performance_feed_v1";
+const performanceFeedCacheMaxAge = 7 * 24 * 60 * 60 * 1000;
 const performanceLanguageStorageKey = "apink_language_preference";
 const performancePageSize = 12;
 
@@ -321,25 +323,61 @@ function normalizePerformanceRows(records, sourceCategory = "") {
   return items;
 }
 
-async function loadPerformanceData() {
+function applyPerformanceRecords(records) {
+  const uniqueByUrl = new Map();
+  normalizePerformanceRows(records).forEach((item) => uniqueByUrl.set(item.url, item));
+  performanceState.items = [...uniqueByUrl.values()];
+}
+
+function readPerformanceFeedCache() {
   try {
-    const response = await fetch(`${PERFORMANCE_API_URL}?ts=${Date.now()}`, {
-      mode: "cors",
-      cache: "no-store",
-      redirect: "follow",
-    });
+    const cached = JSON.parse(localStorage.getItem(performanceFeedCacheKey) || "null");
+    if (!cached || !Array.isArray(cached.data) || !Number.isFinite(cached.cachedAt)) return null;
+    if (Date.now() - cached.cachedAt > performanceFeedCacheMaxAge) return null;
+    return cached;
+  } catch (error) {
+    return null;
+  }
+}
+
+function writePerformanceFeedCache(result) {
+  try {
+    localStorage.setItem(performanceFeedCacheKey, JSON.stringify({
+      cachedAt: Date.now(),
+      updatedAt: result.updatedAt || "",
+      data: result.data,
+    }));
+  } catch (error) {
+    // A fresh network response remains usable when browser storage is unavailable.
+  }
+}
+
+async function loadPerformanceData() {
+  const cached = readPerformanceFeedCache();
+  if (cached) {
+    applyPerformanceRecords(cached.data);
+    performanceState.failedRequests = 0;
+    performanceState.loaded = true;
+    updatePerformanceCounts();
+    renderPerformance();
+    renderPerformanceNotice();
+  }
+
+  try {
+    const response = await fetch(PERFORMANCE_API_URL, { cache: "default" });
     if (!response.ok) throw new Error(`Performance API request failed: ${response.status}`);
     const result = await response.json();
     if (!result?.ok || !Array.isArray(result.data)) throw new Error(result?.error || "Invalid performance API response");
 
-    const uniqueByUrl = new Map();
-    normalizePerformanceRows(result.data).forEach((item) => uniqueByUrl.set(item.url, item));
-    performanceState.items = [...uniqueByUrl.values()];
+    applyPerformanceRecords(result.data);
+    writePerformanceFeedCache(result);
     performanceState.failedRequests = 0;
   } catch (error) {
     console.error("載入表演影片失敗:", error);
-    performanceState.items = [];
-    performanceState.failedRequests = 1;
+    if (!cached) {
+      performanceState.items = [];
+      performanceState.failedRequests = 1;
+    }
   } finally {
     performanceState.loaded = true;
     updatePerformanceCounts();

@@ -37,7 +37,7 @@
   aspect-ratio: 740 / 290;
   background:
     linear-gradient(135deg, rgb(255 255 255 / 3%), rgb(243 57 145 / 10%)),
-    url("./apink_dome.png") center / cover no-repeat;
+    url("./apink_dome.webp") center / cover no-repeat;
   border-bottom: 1px solid rgb(243 57 145 / 14%);
 }
 

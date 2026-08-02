@@ -42,8 +42,9 @@ const performanceI18n = {
     instagramLoading: "Instagram 貼文載入中…",
     threadsLoading: "Threads 貼文載入中…",
     more: "顯示更多影片",
-    permissionNotice: "影片資料暫時無法載入，請稍後重新整理。",
+    permissionNotice: "影片資料暫時無法載入，請重新載入再試一次。",
     partialNotice: "部分工作表暫時無法讀取，已先顯示成功同步的影片。",
+    retry: "重新載入",
     tabs: { chorong: "初瓏", bomi: "普美", eunji: "恩地", namjoo: "南珠", hayoung: "夏榮", group: "團體", youtube: "YT 翻拍影片" },
   },
   en: {
@@ -74,8 +75,9 @@ const performanceI18n = {
     instagramLoading: "Loading Instagram post…",
     threadsLoading: "Loading Threads post…",
     more: "Show More Videos",
-    permissionNotice: "Video data is temporarily unavailable. Please refresh later.",
+    permissionNotice: "Video data is temporarily unavailable. Please try loading it again.",
     partialNotice: "Some sheet tabs could not be read; available videos are shown below.",
+    retry: "Reload",
     tabs: { chorong: "Chorong", bomi: "Bomi", eunji: "Eunji", namjoo: "Namjoo", hayoung: "Hayoung", group: "Group", youtube: "YT Fancams" },
   },
   ja: {
@@ -106,8 +108,9 @@ const performanceI18n = {
     instagramLoading: "Instagram投稿を読み込み中…",
     threadsLoading: "Threads投稿を読み込み中…",
     more: "動画をもっと見る",
-    permissionNotice: "動画データを一時的に読み込めません。後でもう一度更新してください。",
+    permissionNotice: "動画データを一時的に読み込めません。もう一度読み込んでください。",
     partialNotice: "一部のシートを読み込めなかったため、同期できた動画を表示しています。",
+    retry: "再読み込み",
     tabs: { chorong: "チョロン", bomi: "ボミ", eunji: "ウンジ", namjoo: "ナムジュ", hayoung: "ハヨン", group: "グループ", youtube: "YTファンカム" },
   },
   ko: {
@@ -138,8 +141,9 @@ const performanceI18n = {
     instagramLoading: "Instagram 게시물 불러오는 중…",
     threadsLoading: "Threads 게시물 불러오는 중…",
     more: "영상 더 보기",
-    permissionNotice: "영상 데이터를 일시적으로 불러올 수 없어요. 잠시 후 새로고침해 주세요.",
+    permissionNotice: "영상 데이터를 일시적으로 불러올 수 없어요. 다시 불러와 주세요.",
     partialNotice: "일부 시트를 불러오지 못해 동기화된 영상만 먼저 표시합니다.",
+    retry: "다시 불러오기",
     tabs: { chorong: "초롱", bomi: "보미", eunji: "은지", namjoo: "남주", hayoung: "하영", group: "단체", youtube: "YT 팬캠" },
   },
 };
@@ -151,6 +155,7 @@ const performanceState = {
   items: [],
   visibleCount: performancePageSize,
   failedRequests: 0,
+  loading: false,
   loaded: false,
 };
 
@@ -322,6 +327,12 @@ function normalizePerformanceRows(records, sourceCategory = "") {
 }
 
 async function loadPerformanceData() {
+  if (!performanceState.loaded && performanceState.loading) return;
+  performanceState.loading = true;
+  performanceState.loaded = false;
+  performanceState.failedRequests = 0;
+  renderPerformance();
+  renderPerformanceNotice();
   try {
     const response = await fetch(`${PERFORMANCE_API_URL}?ts=${Date.now()}`, {
       mode: "cors",
@@ -341,6 +352,7 @@ async function loadPerformanceData() {
     performanceState.items = [];
     performanceState.failedRequests = 1;
   } finally {
+    performanceState.loading = false;
     performanceState.loaded = true;
     updatePerformanceCounts();
     renderPerformance();
@@ -563,14 +575,27 @@ function renderPerformanceNotice() {
   if (!notice) return;
   if (!performanceState.items.length && performanceState.failedRequests) {
     notice.hidden = false;
-    notice.textContent = performanceT("permissionNotice");
+    renderPerformanceRetryNotice(notice, performanceT("permissionNotice"));
   } else if (performanceState.items.length && performanceState.failedRequests) {
     notice.hidden = false;
-    notice.textContent = performanceT("partialNotice");
+    renderPerformanceRetryNotice(notice, performanceT("partialNotice"));
   } else {
     notice.hidden = true;
     notice.replaceChildren();
   }
+}
+
+function renderPerformanceRetryNotice(notice, message) {
+  const copy = document.createElement("span");
+  copy.textContent = message;
+
+  const retry = document.createElement("button");
+  retry.className = "performance-retry";
+  retry.type = "button";
+  retry.textContent = performanceT("retry");
+  retry.addEventListener("click", () => loadPerformanceData());
+
+  notice.replaceChildren(copy, retry);
 }
 
 function selectPerformanceCategory(category) {

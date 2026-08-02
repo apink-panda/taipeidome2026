@@ -39,6 +39,9 @@ const performanceI18n = {
     emptyCopy: "資料會跟著活動 Google Sheet 更新，稍後再回來看看吧。",
     untitled: "{category}活動紀錄",
     openVideo: "開啟影片",
+    openPost: "開啟原始貼文 ↗",
+    instagramLoading: "Instagram 貼文載入中…",
+    threadsLoading: "Threads 貼文載入中…",
     more: "顯示更多影片",
     footer: "影片資料由活動 Google Sheet 同步整理。",
     sheetLink: "開啟資料表 ↗",
@@ -70,6 +73,9 @@ const performanceI18n = {
     emptyCopy: "This archive follows the event Google Sheet. Check back again soon.",
     untitled: "{category} event moment",
     openVideo: "Open video",
+    openPost: "Open original post ↗",
+    instagramLoading: "Loading Instagram post…",
+    threadsLoading: "Loading Threads post…",
     more: "Show More Videos",
     footer: "Video entries are synced from the event Google Sheet.",
     sheetLink: "Open Sheet ↗",
@@ -101,6 +107,9 @@ const performanceI18n = {
     emptyCopy: "イベント用Google スプレッドシートの更新に合わせて追加されます。",
     untitled: "{category} イベント記録",
     openVideo: "動画を開く",
+    openPost: "元の投稿を開く ↗",
+    instagramLoading: "Instagram投稿を読み込み中…",
+    threadsLoading: "Threads投稿を読み込み中…",
     more: "動画をもっと見る",
     footer: "動画データはイベント用Google スプレッドシートから同期しています。",
     sheetLink: "データ表を開く ↗",
@@ -132,6 +141,9 @@ const performanceI18n = {
     emptyCopy: "이벤트 Google Sheet가 업데이트되면 이곳에도 함께 반영됩니다.",
     untitled: "{category} 이벤트 기록",
     openVideo: "영상 열기",
+    openPost: "원본 게시물 열기 ↗",
+    instagramLoading: "Instagram 게시물 불러오는 중…",
+    threadsLoading: "Threads 게시물 불러오는 중…",
     more: "영상 더 보기",
     footer: "영상 자료는 이벤트 Google Sheet에서 동기화됩니다.",
     sheetLink: "자료표 열기 ↗",
@@ -367,6 +379,19 @@ function performancePlatformLabel(platform) {
   return "VIDEO LINK";
 }
 
+function cleanPerformanceUrl(url, platform = "") {
+  try {
+    const parsed = new URL(String(url).trim());
+    if (!['http:', 'https:'].includes(parsed.protocol)) return '';
+    parsed.search = '';
+    parsed.hash = '';
+    if (platform === "threads") parsed.pathname = parsed.pathname.replace(/\/media\/?$/i, "");
+    return parsed.toString();
+  } catch (error) {
+    return '';
+  }
+}
+
 function createPerformanceMedia(item) {
   const media = document.createElement("div");
   media.className = "performance-card-media";
@@ -393,18 +418,7 @@ function createPerformanceMedia(item) {
   return media;
 }
 
-function createPerformanceCard(item) {
-  const categoryLabel = performanceI18n[performanceState.locale].tabs[item.category] ?? performanceI18n.zh.tabs[item.category];
-  const card = document.createElement("article");
-  card.className = "performance-card";
-  const link = document.createElement("a");
-  link.className = "performance-card-link";
-  link.href = item.url;
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-  link.setAttribute("aria-label", `${performanceT("openVideo")}：${item.title || categoryLabel}`);
-  link.append(createPerformanceMedia(item));
-
+function createPerformanceCardBody(item, categoryLabel, includeOpenLink = false) {
   const body = document.createElement("div");
   body.className = "performance-card-body";
   const meta = document.createElement("div");
@@ -426,9 +440,96 @@ function createPerformanceCard(item) {
     credit.textContent = item.credit.startsWith("@") ? item.credit : `@${item.credit}`;
     body.append(credit);
   }
-  link.append(body);
+  if (includeOpenLink) {
+    const openLink = document.createElement("a");
+    openLink.className = "performance-card-open";
+    openLink.href = item.url;
+    openLink.target = "_blank";
+    openLink.rel = "noopener noreferrer";
+    openLink.textContent = performanceT("openPost");
+    body.append(openLink);
+  }
+  return body;
+}
+
+function createPerformanceEmbed(item) {
+  const cleanUrl = cleanPerformanceUrl(item.url, item.platform);
+  if (!cleanUrl) return createPerformanceMedia(item);
+
+  const shell = document.createElement("div");
+  shell.className = `performance-embed-shell performance-embed-shell--${item.platform}`;
+  shell.setAttribute("aria-busy", "true");
+
+  const frame = document.createElement("iframe");
+  frame.className = "performance-embed-frame";
+  frame.src = `./embed_proxy.html?type=${encodeURIComponent(item.platform)}&url=${encodeURIComponent(cleanUrl)}`;
+  frame.title = `${performancePlatformLabel(item.platform)}：${item.title || performanceT("openVideo")}`;
+  frame.loading = "lazy";
+  frame.referrerPolicy = "strict-origin-when-cross-origin";
+  frame.setAttribute("allow", "autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write");
+  frame.setAttribute("allowfullscreen", "");
+  frame.setAttribute("scrolling", item.platform === "threads" ? "auto" : "no");
+
+  const placeholder = document.createElement("div");
+  placeholder.className = "performance-embed-placeholder";
+  placeholder.setAttribute("aria-hidden", "true");
+  const spinner = document.createElement("span");
+  spinner.className = "performance-embed-spinner";
+  const label = document.createElement("span");
+  label.textContent = performanceT(item.platform === "threads" ? "threadsLoading" : "instagramLoading");
+  placeholder.append(spinner, label);
+
+  shell.append(frame, placeholder);
+  return shell;
+}
+
+function isPerformanceSocialEmbed(item) {
+  return item.platform === "instagram" || item.platform === "threads";
+}
+
+function createPerformanceCard(item) {
+  const categoryLabel = performanceI18n[performanceState.locale].tabs[item.category] ?? performanceI18n.zh.tabs[item.category];
+  const card = document.createElement("article");
+  card.className = "performance-card";
+
+  if (isPerformanceSocialEmbed(item)) {
+    card.classList.add("performance-card--embed");
+    card.append(createPerformanceEmbed(item), createPerformanceCardBody(item, categoryLabel, true));
+    return card;
+  }
+
+  const link = document.createElement("a");
+  link.className = "performance-card-link";
+  link.href = item.url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.setAttribute("aria-label", `${performanceT("openVideo")}：${item.title || categoryLabel}`);
+  link.append(createPerformanceMedia(item));
+
+  link.append(createPerformanceCardBody(item, categoryLabel));
   card.append(link);
   return card;
+}
+
+function initPerformanceEmbedResizeListener() {
+  window.addEventListener("message", (event) => {
+    if (event.origin !== window.location.origin) return;
+    const data = event.data;
+    if (data?.type !== "performance-embed-resize") return;
+    const requestedHeight = Number(data.height);
+    if (!Number.isFinite(requestedHeight) || requestedHeight <= 0) return;
+
+    document.querySelectorAll(".performance-embed-frame").forEach((frame) => {
+      if (frame.contentWindow !== event.source) return;
+      const height = Math.min(Math.max(Math.ceil(requestedHeight), 180), 1600);
+      frame.style.height = `${height}px`;
+      if (!data.ready) return;
+      frame.classList.add("is-ready");
+      const shell = frame.closest(".performance-embed-shell");
+      shell?.setAttribute("aria-busy", "false");
+      shell?.querySelector(".performance-embed-placeholder")?.remove();
+    });
+  });
 }
 
 function renderPerformance() {
@@ -498,6 +599,7 @@ function selectPerformanceCategory(category) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  initPerformanceEmbedResizeListener();
   applyPerformanceLocale();
   document.querySelector("#performanceLanguageSelect")?.addEventListener("change", (event) => {
     writePerformanceLanguageMode(event.target.value);

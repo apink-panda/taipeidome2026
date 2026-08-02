@@ -20,45 +20,48 @@
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(17rem, 0.65fr);
-  gap: clamp(1.5rem, 4vw, 5rem);
-  align-items: center;
-  min-height: min(34rem, 58svh);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: end;
+  min-height: clamp(26rem, 37vw, 34rem);
   padding: clamp(2rem, 5vw, 5.5rem);
   overflow: hidden;
   background:
-    linear-gradient(120deg, rgb(255 255 255 / 92%), rgb(255 255 255 / 64%)),
-    var(--cheer-paper);
-  border: 1px solid var(--cheer-line);
+    linear-gradient(90deg, rgb(31 10 41 / 88%) 0%, rgb(61 18 58 / 63%) 42%, rgb(60 17 63 / 18%) 72%, rgb(30 10 45 / 48%) 100%),
+    linear-gradient(180deg, rgb(31 10 41 / 8%) 34%, rgb(31 10 41 / 82%) 100%),
+    url("./apink_dome.png") center top / cover no-repeat;
+  border: 1px solid rgb(255 255 255 / 34%);
   border-radius: clamp(1.8rem, 3vw, 3.5rem);
-  box-shadow: var(--cheer-shadow);
-  backdrop-filter: blur(22px);
+  box-shadow: 0 28px 64px rgb(64 35 81 / 22%);
 }
 
 .performance-hero::before {
   position: absolute;
-  z-index: -1;
-  top: -13rem;
-  right: -9rem;
-  width: 31rem;
-  aspect-ratio: 1;
-  background: conic-gradient(from 24deg, rgb(243 57 145 / 22%), rgb(238 148 64 / 13%), rgb(126 86 196 / 18%), rgb(243 57 145 / 22%));
-  border-radius: 50%;
+  z-index: 0;
+  inset: 0;
+  background: linear-gradient(130deg, rgb(255 121 183 / 16%), transparent 45%);
+  border-radius: inherit;
   content: "";
-  filter: blur(1px);
+  pointer-events: none;
 }
 
 .performance-hero::after {
   position: absolute;
-  z-index: -1;
-  bottom: -4.2rem;
-  left: 8%;
-  width: 9rem;
-  aspect-ratio: 1;
-  border: 1px solid rgb(243 57 145 / 18%);
-  border-radius: 50%;
-  box-shadow: 0 0 0 1.4rem rgb(255 255 255 / 34%), 0 0 0 2.8rem rgb(126 86 196 / 6%);
+  z-index: 0;
+  inset: auto 0 0;
+  height: 46%;
+  background: linear-gradient(180deg, transparent, rgb(22 7 34 / 38%));
   content: "";
+  pointer-events: none;
+}
+
+.performance-hero-copy,
+.performance-scoreboard {
+  position: relative;
+  z-index: 1;
+}
+
+.performance-hero-copy {
+  max-width: 42rem;
 }
 
 .performance-eyebrow,
@@ -70,6 +73,11 @@
   letter-spacing: 0.18em;
 }
 
+.performance-hero .performance-eyebrow {
+  color: #ffd8eb;
+  text-shadow: 0 2px 12px rgb(31 10 41 / 72%);
+}
+
 .performance-hero h1 {
   max-width: 7em;
   margin: 1rem 0 0;
@@ -78,30 +86,35 @@
   font-weight: 700;
   line-height: 0.94;
   letter-spacing: -0.075em;
-  text-shadow: 0.04em 0.05em 0 var(--cheer-pink-100);
+  color: #fff;
+  text-shadow: 0 4px 24px rgb(20 6 31 / 82%), 0.035em 0.045em 0 rgb(217 29 120 / 72%);
 }
 
 .performance-hero-copy > p:last-child {
   max-width: 37rem;
   margin: 1.5rem 0 0;
-  color: var(--cheer-ink-soft);
+  color: rgb(255 255 255 / 90%);
   font-size: clamp(0.9rem, 1.2vw, 1.08rem);
   line-height: 1.85;
+  text-shadow: 0 2px 12px rgb(20 6 31 / 78%);
 }
 
 .performance-scoreboard {
+  position: absolute;
+  top: clamp(1.25rem, 2.5vw, 2.5rem);
+  right: clamp(1.25rem, 2.5vw, 2.5rem);
   display: grid;
-  gap: 0.55rem;
+  gap: 0.25rem;
   align-content: center;
-  min-height: 18rem;
-  padding: 2rem;
+  min-height: 0;
+  padding: 0.85rem 1.1rem;
   color: #fff;
-  background: linear-gradient(150deg, #351b4c, #6e3da3 58%, #d91d78);
+  background: linear-gradient(150deg, rgb(53 27 76 / 76%), rgb(217 29 120 / 62%));
   border: 1px solid rgb(255 255 255 / 28%);
-  border-radius: 2rem;
-  box-shadow: 0 22px 45px rgb(53 27 76 / 28%);
+  border-radius: 1.2rem;
+  box-shadow: 0 14px 32px rgb(31 10 41 / 28%);
   text-align: center;
-  transform: rotate(2deg);
+  backdrop-filter: blur(12px);
 }
 
 .performance-scoreboard span {
@@ -113,7 +126,7 @@
 .performance-scoreboard strong {
   color: #fff7b7;
   font-family: "Outfit", var(--cheer-sans);
-  font-size: clamp(3.5rem, 5vw, 5.6rem);
+  font-size: clamp(1.45rem, 2vw, 2rem);
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.04em;
@@ -524,7 +537,6 @@
 
 @media (max-width: 980px) {
   .performance-hero {
-    grid-template-columns: 1fr minmax(14rem, 0.5fr);
     min-height: auto;
   }
 
@@ -544,9 +556,12 @@
   }
 
   .performance-hero {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    padding: 1.5rem;
+    min-height: 27rem;
+    padding: 10rem 1.5rem 1.5rem;
+    background:
+      linear-gradient(180deg, rgb(31 10 41 / 6%) 0%, rgb(31 10 41 / 16%) 28%, #321443 50%, #321443 100%),
+      url("./apink_dome.png") center top / 100% auto no-repeat,
+      #321443;
     border-radius: 1.65rem;
   }
 
@@ -555,14 +570,7 @@
   }
 
   .performance-scoreboard {
-    min-height: 10rem;
-    padding: 1.3rem;
-    border-radius: 1.3rem;
-    transform: none;
-  }
-
-  .performance-scoreboard strong {
-    font-size: 3.4rem;
+    display: none;
   }
 
   .performance-library {

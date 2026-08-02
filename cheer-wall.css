@@ -160,7 +160,7 @@ a {
 
 .cheer-site-nav {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: clamp(0.55rem, 1vw, 0.9rem);
 }
 
@@ -196,6 +196,13 @@ a {
   color: #fff;
   background: linear-gradient(135deg, var(--cheer-pink-500), var(--cheer-pink-700));
   border-color: transparent;
+}
+
+.cheer-nav-link--event {
+  color: #fff;
+  background: linear-gradient(135deg, var(--cheer-lavender-500), var(--cheer-pink-500));
+  border-color: transparent;
+  box-shadow: 0 12px 26px rgb(126 86 196 / 20%);
 }
 
 .cheer-mini-brand {

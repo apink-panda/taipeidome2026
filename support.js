@@ -32,7 +32,8 @@ const homeI18n = {
     allCount: "{count} 則留言",
     allLoading: "留言載入中……",
     allEmpty: "目前還沒有留言。",
-    navAria: "應援活動遊戲導覽",
+    navAria: "應援活動導覽",
+    performanceLink: "🎤 開球及賽後表演",
     baseballLink: "⚾ 棒球應援遊戲",
     fishLink: "🎣 幸運明太魚",
     swipeLink: "⚡ 快手捕獲戰",
@@ -70,7 +71,8 @@ const homeI18n = {
     allCount: "{count} messages",
     allLoading: "Loading messages…",
     allEmpty: "No messages yet.",
-    navAria: "Cheer event game navigation",
+    navAria: "Cheer event navigation",
+    performanceLink: "🎤 First Pitch & Postgame Show",
     baseballLink: "⚾ Baseball Cheer Game",
     fishLink: "🎣 Lucky Myeongtae",
     swipeLink: "⚡ Swipe Catch",
@@ -108,7 +110,8 @@ const homeI18n = {
     allCount: "{count}件のメッセージ",
     allLoading: "メッセージを読み込み中…",
     allEmpty: "メッセージはまだありません。",
-    navAria: "応援イベントのゲームナビゲーション",
+    navAria: "応援イベントのナビゲーション",
+    performanceLink: "🎤 始球式＆試合後公演",
     baseballLink: "⚾ 野球応援ゲーム",
     fishLink: "🎣 幸運のミョンテ",
     swipeLink: "⚡ 早取りチャレンジ",
@@ -146,7 +149,8 @@ const homeI18n = {
     allCount: "메시지 {count}개",
     allLoading: "메시지를 불러오는 중…",
     allEmpty: "아직 메시지가 없어요.",
-    navAria: "응원 이벤트 게임 탐색",
+    navAria: "응원 이벤트 탐색",
+    performanceLink: "🎤 시구 및 경기 후 공연",
     baseballLink: "⚾ 야구 응원 게임",
     fishLink: "🎣 행운 명태",
     swipeLink: "⚡ 빠른 손 캐치",
@@ -596,6 +600,7 @@ function applyHomeLocale(mode = readHomeLanguageMode()) {
   setHomeText("#showAllCheersButton", "showAll");
   setHomeText("#hideAllCheersButton", "hideAll");
   setHomeText("#allCheersTitle", "allHeading");
+  setHomeText("#homePerformanceLink", "performanceLink");
   setHomeText("#homeBaseballLink", "baseballLink");
   setHomeText("#homeFishLink", "fishLink");
   setHomeText("#homeSwipeLink", "swipeLink");

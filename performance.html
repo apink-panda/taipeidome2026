@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>開球及賽後表演 | Apink 台北大巨蛋</title>
+    <meta
+      name="description"
+      content="Apink 7/31 台北大巨蛋開球與賽後表演影片整理，依五位成員、團體及 YouTube 翻拍影片分類瀏覽。"
+    />
+    <meta name="theme-color" content="#fff2f7" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&amp;family=Noto+Sans+TC:wght@500;700;900&amp;family=Noto+Serif+KR:wght@600;700&amp;family=Noto+Serif+TC:wght@600;700&amp;family=Outfit:wght@500;700;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./cheer-wall.css?v=20260802-1" />
+    <link rel="stylesheet" href="./performance.css?v=20260802-1" />
+  </head>
+  <body class="performance-page">
+    <a class="skip-link" id="performanceSkipLink" href="#performanceGrid">跳至影片內容</a>
+
+    <div class="performance-shell">
+      <header class="cheer-topbar performance-topbar" aria-label="頁面導覽">
+        <a class="cheer-back-link" id="performanceHomeLink" href="./index.html">回到首頁</a>
+        <p class="cheer-mini-brand"><span>Apink</span> Taipei Dome · 7/31</p>
+        <div class="cheer-language-control">
+          <label id="performanceLanguageLabel" for="performanceLanguageSelect">語言</label>
+          <select id="performanceLanguageSelect" aria-labelledby="performanceLanguageLabel">
+            <option value="auto">自動</option>
+            <option value="zh">繁體中文</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
+          </select>
+        </div>
+      </header>
+
+      <main>
+        <section class="performance-hero" aria-labelledby="performanceTitle">
+          <div class="performance-hero-copy">
+            <p class="performance-eyebrow" id="performanceEyebrow">FIRST PITCH · POSTGAME PERFORMANCE</p>
+            <h1 id="performanceTitle">開球及<br />賽後表演</h1>
+            <p id="performanceIntro">
+              從開球瞬間到賽後舞台，收藏五位成員與 Apink 團體的每一個粉色時刻。
+            </p>
+          </div>
+          <div class="performance-scoreboard" aria-hidden="true">
+            <span>TAIPEI DOME</span>
+            <strong>07 · 31</strong>
+            <span>APINK × PANDA</span>
+          </div>
+        </section>
+
+        <section class="performance-library" aria-labelledby="performanceLibraryTitle">
+          <div class="performance-library-head">
+            <div>
+              <p class="performance-kicker" id="performanceKicker">PANDA VIDEO ARCHIVE</p>
+              <h2 id="performanceLibraryTitle">成員與團體影片</h2>
+            </div>
+            <p class="performance-total" id="performanceTotal" aria-live="polite">讀取影片中…</p>
+          </div>
+
+          <nav class="performance-tabs-wrap" aria-label="影片分類" id="performanceTabsWrap">
+            <div class="performance-tabs" id="performanceTabs" role="tablist">
+              <button class="performance-tab is-active" type="button" role="tab" aria-selected="true" data-category="chorong">
+                <span data-tab-label="chorong">初瓏</span><b data-tab-count="chorong">0</b>
+              </button>
+              <button class="performance-tab" type="button" role="tab" aria-selected="false" data-category="bomi">
+                <span data-tab-label="bomi">普美</span><b data-tab-count="bomi">0</b>
+              </button>
+              <button class="performance-tab" type="button" role="tab" aria-selected="false" data-category="eunji">
+                <span data-tab-label="eunji">恩地</span><b data-tab-count="eunji">0</b>
+              </button>
+              <button class="performance-tab" type="button" role="tab" aria-selected="false" data-category="namjoo">
+                <span data-tab-label="namjoo">南珠</span><b data-tab-count="namjoo">0</b>
+              </button>
+              <button class="performance-tab" type="button" role="tab" aria-selected="false" data-category="hayoung">
+                <span data-tab-label="hayoung">夏榮</span><b data-tab-count="hayoung">0</b>
+              </button>
+              <button class="performance-tab" type="button" role="tab" aria-selected="false" data-category="group">
+                <span data-tab-label="group">團體</span><b data-tab-count="group">0</b>
+              </button>
+              <button class="performance-tab performance-tab--youtube" type="button" role="tab" aria-selected="false" data-category="youtube">
+                <span data-tab-label="youtube">YT 翻拍影片</span><b data-tab-count="youtube">0</b>
+              </button>
+            </div>
+          </nav>
+
+          <div class="performance-notice" id="performanceNotice" role="status" hidden></div>
+          <div class="performance-grid" id="performanceGrid" role="tabpanel" tabindex="-1">
+            <div class="performance-loading" id="performanceLoading">
+              <span class="performance-spinner" aria-hidden="true"></span>
+              <p id="performanceLoadingText">正在同步 Google Sheet 影片…</p>
+            </div>
+          </div>
+          <button class="performance-more" id="performanceMore" type="button" hidden>顯示更多影片</button>
+        </section>
+      </main>
+
+      <footer class="performance-footer">
+        <p id="performanceFooterCopy">影片資料由活動 Google Sheet 同步整理。</p>
+        <a
+          id="performanceSheetLink"
+          href="https://docs.google.com/spreadsheets/d/1ZgcJ0niv5pKpd9S8-Hd9RcJgM6hmAVUYoKYJSrFHau8/edit?gid=0#gid=0"
+          target="_blank"
+          rel="noopener noreferrer"
+        >開啟資料表 ↗</a>
+      </footer>
+    </div>
+
+    <script src="./performance.js?v=20260802-1" defer></script>
+  </body>
+</html>

@@ -635,6 +635,31 @@ function renderPerformance() {
   if (more) more.hidden = performanceState.visibleCount >= items.length;
 }
 
+function appendMorePerformanceItems() {
+  if (!performanceState.loaded) return;
+  const grid = document.querySelector("#performanceGrid");
+  const more = document.querySelector("#performanceMore");
+  if (!grid || !more || more.hidden) return;
+
+  const items = performanceState.items.filter((item) => item.category === performanceState.activeCategory);
+  const start = Math.min(performanceState.visibleCount, items.length);
+  const end = Math.min(start + performancePageSize, items.length);
+  items.slice(start, end).forEach((item) => grid.append(createPerformanceCard(item)));
+  performanceState.visibleCount = end;
+  more.hidden = end >= items.length;
+}
+
+function initPerformanceInfiniteScroll() {
+  const more = document.querySelector("#performanceMore");
+  if (!more || !("IntersectionObserver" in window)) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    appendMorePerformanceItems();
+  }, { rootMargin: "240px 0px" });
+  observer.observe(more);
+}
+
 function renderPerformanceNotice() {
   const notice = document.querySelector("#performanceNotice");
   if (!notice) return;
@@ -692,9 +717,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (tab) selectPerformanceCategory(tab.dataset.category);
   });
   document.querySelector("#performanceMore")?.addEventListener("click", () => {
-    performanceState.visibleCount += performancePageSize;
-    renderPerformance();
+    appendMorePerformanceItems();
   });
+  initPerformanceInfiniteScroll();
   loadPerformanceData({ showLoading: !performanceState.items.length });
   window.setInterval(() => loadPerformanceData({ showLoading: false }), performanceRefreshIntervalMs);
   document.addEventListener("visibilitychange", () => {

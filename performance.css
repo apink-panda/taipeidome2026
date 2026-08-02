@@ -518,26 +518,6 @@
   display: none;
 }
 
-.performance-footer {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.4rem 0.5rem 0;
-  color: var(--cheer-ink-soft);
-  font-size: 0.68rem;
-}
-
-.performance-footer p {
-  margin: 0;
-}
-
-.performance-footer a {
-  color: var(--cheer-pink-700);
-  font-weight: 900;
-  text-decoration: none;
-}
-
 @keyframes performanceSpin {
   to { transform: rotate(360deg); }
 }
@@ -626,10 +606,6 @@
     min-height: 9.5rem;
   }
 
-  .performance-footer {
-    align-items: flex-start;
-    flex-direction: column;
-  }
 }
 
 @media (max-width: 420px) {

@@ -1,6 +1,5 @@
 // This integration is read-only: it never changes, appends or replaces sheet columns.
 const PERFORMANCE_API_URL = "https://script.google.com/macros/s/AKfycbzit_JpLpeDvvlZ-e7j_bT9oF7L_3sWcypPmj2_dhg1A1PCAYor5GeV34m9hpPTXV2gvA/exec";
-const PERFORMANCE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1WlQd3STRJ_Wmg08KDBp_QTmZ7T0wA3XS0yk2MjMG8oA/edit?gid=0#gid=0";
 const performanceLanguageStorageKey = "apink_language_preference";
 const performancePageSize = 12;
 
@@ -43,9 +42,7 @@ const performanceI18n = {
     instagramLoading: "Instagram 貼文載入中…",
     threadsLoading: "Threads 貼文載入中…",
     more: "顯示更多影片",
-    footer: "影片資料由活動 Google Sheet 同步整理。",
-    sheetLink: "開啟資料表 ↗",
-    permissionNotice: '影片資料暫時無法載入，請稍後重新整理。私人 Google Sheet 仍維持非公開。 <a href="{url}" target="_blank" rel="noopener noreferrer">開啟資料表 ↗</a>',
+    permissionNotice: "影片資料暫時無法載入，請稍後重新整理。",
     partialNotice: "部分工作表暫時無法讀取，已先顯示成功同步的影片。",
     tabs: { chorong: "初瓏", bomi: "普美", eunji: "恩地", namjoo: "南珠", hayoung: "夏榮", group: "團體", youtube: "YT 翻拍影片" },
   },
@@ -77,9 +74,7 @@ const performanceI18n = {
     instagramLoading: "Loading Instagram post…",
     threadsLoading: "Loading Threads post…",
     more: "Show More Videos",
-    footer: "Video entries are synced from the event Google Sheet.",
-    sheetLink: "Open Sheet ↗",
-    permissionNotice: 'Video data is temporarily unavailable. Please refresh later. The private Google Sheet remains unpublished. <a href="{url}" target="_blank" rel="noopener noreferrer">Open Sheet ↗</a>',
+    permissionNotice: "Video data is temporarily unavailable. Please refresh later.",
     partialNotice: "Some sheet tabs could not be read; available videos are shown below.",
     tabs: { chorong: "Chorong", bomi: "Bomi", eunji: "Eunji", namjoo: "Namjoo", hayoung: "Hayoung", group: "Group", youtube: "YT Fancams" },
   },
@@ -111,9 +106,7 @@ const performanceI18n = {
     instagramLoading: "Instagram投稿を読み込み中…",
     threadsLoading: "Threads投稿を読み込み中…",
     more: "動画をもっと見る",
-    footer: "動画データはイベント用Google スプレッドシートから同期しています。",
-    sheetLink: "データ表を開く ↗",
-    permissionNotice: '動画データを一時的に読み込めません。後でもう一度更新してください。非公開のGoogle スプレッドシートはそのまま維持されます。 <a href="{url}" target="_blank" rel="noopener noreferrer">データ表を開く ↗</a>',
+    permissionNotice: "動画データを一時的に読み込めません。後でもう一度更新してください。",
     partialNotice: "一部のシートを読み込めなかったため、同期できた動画を表示しています。",
     tabs: { chorong: "チョロン", bomi: "ボミ", eunji: "ウンジ", namjoo: "ナムジュ", hayoung: "ハヨン", group: "グループ", youtube: "YTファンカム" },
   },
@@ -145,9 +138,7 @@ const performanceI18n = {
     instagramLoading: "Instagram 게시물 불러오는 중…",
     threadsLoading: "Threads 게시물 불러오는 중…",
     more: "영상 더 보기",
-    footer: "영상 자료는 이벤트 Google Sheet에서 동기화됩니다.",
-    sheetLink: "자료표 열기 ↗",
-    permissionNotice: '영상 데이터를 일시적으로 불러올 수 없어요. 잠시 후 새로고침해 주세요. 비공개 Google Sheet는 그대로 유지됩니다. <a href="{url}" target="_blank" rel="noopener noreferrer">자료표 열기 ↗</a>',
+    permissionNotice: "영상 데이터를 일시적으로 불러올 수 없어요. 잠시 후 새로고침해 주세요.",
     partialNotice: "일부 시트를 불러오지 못해 동기화된 영상만 먼저 표시합니다.",
     tabs: { chorong: "초롱", bomi: "보미", eunji: "은지", namjoo: "남주", hayoung: "하영", group: "단체", youtube: "YT 팬캠" },
   },
@@ -244,8 +235,6 @@ function applyPerformanceLocale(mode = readPerformanceLanguageMode()) {
   document.querySelector("#performanceTabsWrap")?.setAttribute("aria-label", copy.tabsAria);
   setPerformanceText("#performanceLoadingText", copy.loading);
   setPerformanceText("#performanceMore", copy.more);
-  setPerformanceText("#performanceFooterCopy", copy.footer);
-  setPerformanceText("#performanceSheetLink", copy.sheetLink);
 
   const select = document.querySelector("#performanceLanguageSelect");
   if (select) {
@@ -574,7 +563,7 @@ function renderPerformanceNotice() {
   if (!notice) return;
   if (!performanceState.items.length && performanceState.failedRequests) {
     notice.hidden = false;
-    notice.innerHTML = performanceT("permissionNotice", { url: PERFORMANCE_SHEET_URL });
+    notice.textContent = performanceT("permissionNotice");
   } else if (performanceState.items.length && performanceState.failedRequests) {
     notice.hidden = false;
     notice.textContent = performanceT("partialNotice");
